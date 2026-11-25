@@ -17,5 +17,5 @@ target/
 # Archivos de ejecución y configuración local
 *.log.err
 *.pid
-config/
+/config/
 run*.log*
