@@ -221,7 +221,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>pe.upeu.atlas.Launcher</mainClass>
+                    <mainClass>pe.upeu.atlas.MarcaLauncher</mainClass>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
