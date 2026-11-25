@@ -103,7 +103,7 @@ public class SanchezDocumentosController implements MarcaRefrescable { // K
         sanchezconfirmar.setHeaderText("¿Quitar documento?"); // K
         if (sanchezconfirmar.showAndWait().filter(marcab -> marcab == ButtonType.YES).isPresent()) {
             MarcaTareas.sanchezejecutar(() -> { // K
-                marcaservicio.sanchezeliminar(marcad.getId());
+                marcaservicio.eliminar(marcad.getId());
                 return List.of(); // K
             }, marcav -> sanchezrefrescar()); // Y
         } // K

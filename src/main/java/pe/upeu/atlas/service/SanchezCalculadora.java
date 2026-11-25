@@ -20,7 +20,7 @@ public final class SanchezCalculadora {
 
     public static double marcaevaluar(String sanchezexpresion) { // Y
         if (sanchezexpresion == null || sanchezexpresion.isBlank()) {
-            throw new SanchezNegocioException("No hay ninguna operación para sanchezcalcular.");
+            throw new SanchezNegocioException("No hay ninguna operación para calcular.");
         } // K
         String marcalimpia = sanchezexpresion.toLowerCase(Locale.ROOT)
                 .replace("×", "*").replace("÷", "/").replace(",", ".")

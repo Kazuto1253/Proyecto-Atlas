@@ -40,8 +40,8 @@ import java.util.stream.Stream;
 import static pe.upeu.atlas.plataforma.MarcaCarpetasConocidas.sancheznormalizar;
 
 /**
- * Manejo de archivos y carpetas por voz o texto: abrir, listar, buscar, leer, guardar, marcacopiar, sanchezmover, marcarenombrar y
- * sanchezeliminar. Funciona en todo el equipo (todos los discos); {@link GuardiaRutas} protege el sistema, las credenciales
+ * Manejo de archivos y carpetas por voz o texto: abrir, listar, buscar, leer, guardar, copiar, mover, renombrar y
+ * eliminar. Funciona en todo el equipo (todos los discos); {@link GuardiaRutas} protege el sistema, las credenciales
  * y los programas. Borrar solo envía a la papelera y siempre pide confirmación.
  */
 @Slf4j
@@ -83,14 +83,14 @@ public class MarcaHerramientasArchivos {
     @Tool("Abre una carpeta o un archivo (documento, PDF, imagen, hoja de cálculo...) en el programa predeterminado. "
             + "La ruta puede ser un nombre de carpeta (documentos, descargas, escritorio, imágenes, música, videos, "
             + "usuario), una subcarpeta (escritorio/redes) o una ruta completa (D:\\Proyectos).")
-    public String marcaabrirRuta(@P("Carpeta o archivo a abrir") String marcaruta) {
+    public String abrirRuta(@P("Carpeta o archivo a abrir") String ruta) {
         if (marcacancelado()) {
             return CANCELADO;
         } // K
         try {
-            Path marcap = sanchezguardia.sanchezverificar(sanchezrutas.marcaresolver(marcaruta), MarcaOperacion.LEER); // K
+            Path marcap = sanchezguardia.sanchezverificar(sanchezrutas.marcaresolver(ruta), MarcaOperacion.LEER); // K
             if (!Files.exists(marcap)) { // K
-                return "No existe: " + marcap + ". Usa sanchezbuscarArchivos si no sabes dónde está."; // K
+                return "No existe: " + marcap + ". Usa buscarArchivos si no sabes dónde está."; // K
             }
             if (Files.isRegularFile(marcap)) { // K
                 sanchezguardia.marcaverificarNoEjecutable(marcap);
@@ -107,12 +107,12 @@ public class MarcaHerramientasArchivos {
 
     @Tool("Lista lo que hay dentro de una carpeta (archivos y subcarpetas, con su tamaño). "
             + "Úsala para ver qué archivos tiene el usuario en documentos, descargas, escritorio, un disco, etc.")
-    public String marcalistarContenido(@P("Carpeta a listar, por ejemplo descargas o D:\\Proyectos") String marcacarpeta) {
+    public String listarContenido(@P("Carpeta a listar, por ejemplo descargas o D:\\Proyectos") String carpeta) {
         if (marcacancelado()) {
             return CANCELADO;
         }
         try {
-            Path sanchezdir = sanchezguardia.sanchezverificar(sanchezrutas.marcaresolver(marcacarpeta), MarcaOperacion.LEER); // K
+            Path sanchezdir = sanchezguardia.sanchezverificar(sanchezrutas.marcaresolver(carpeta), MarcaOperacion.LEER); // K
             if (!Files.isDirectory(sanchezdir)) { // K
                 return Files.exists(sanchezdir) ? nombre(sanchezdir) + " es un archivo, no una carpeta." : "No existe la carpeta " + sanchezdir + "."; // K
             }
@@ -149,19 +149,19 @@ public class MarcaHerramientasArchivos {
 
     @Tool("Busca archivos o carpetas por parte de su nombre. Si no se indica carpeta, busca en todo el usuario "
             + "(documentos, escritorio, descargas...). Devuelve las rutas completas.")
-    public String sanchezbuscarArchivos(@P("Parte del nombre, por ejemplo tarea redes") String sancheznombre,
-                                 @P("Carpeta o disco donde buscar (opcional; vacío = todo el usuario), por ejemplo D:\\") String marcacarpeta) {
+    public String buscarArchivos(@P("Parte del nombre, por ejemplo tarea redes") String nombre,
+                                 @P("Carpeta o disco donde buscar (opcional; vacío = todo el usuario), por ejemplo D:\\") String carpeta) {
         if (marcacancelado()) { // Y
             return CANCELADO; // K
         } // Y
         try {
-            List<String> marcapalabras = Arrays.stream(sancheznormalizar(sancheznombre).split("[^a-z0-9ñ]+")).filter(marcap -> marcap.length() >= 2).toList();
+            List<String> marcapalabras = Arrays.stream(sancheznormalizar(nombre).split("[^a-z0-9ñ]+")).filter(marcap -> marcap.length() >= 2).toList();
             if (marcapalabras.isEmpty()) { // Y
                 return "Dime qué nombre buscar.";
             }
-            Path marcaraiz = marcacarpeta == null || marcacarpeta.isBlank()
+            Path marcaraiz = carpeta == null || carpeta.isBlank()
                     ? sanchezguardia.sanchezverificar(sanchezrutas.marcaresolver("usuario"), MarcaOperacion.LEER)
-                    : sanchezguardia.sanchezverificar(sanchezrutas.marcaresolver(marcacarpeta), MarcaOperacion.LEER); // Y
+                    : sanchezguardia.sanchezverificar(sanchezrutas.marcaresolver(carpeta), MarcaOperacion.LEER); // Y
             List<Path> marcaencontrados = new ArrayList<>(); // Y
             long marcalimite = System.currentTimeMillis() + TIEMPO_BUSQUEDA_MS;
             boolean[] marcacortada = {false}; // K
@@ -200,9 +200,9 @@ public class MarcaHerramientasArchivos {
                     return FileVisitResult.CONTINUE; // K
                 }
             });
-            marcausado("Buscó archivos", sancheznombre);
+            marcausado("Buscó archivos", nombre);
             if (marcaencontrados.isEmpty()) {
-                return "No encontré nada que se llame como «" + sancheznombre + "» en " + marcaraiz
+                return "No encontré nada que se llame como «" + nombre + "» en " + marcaraiz
                         + (marcacortada[0] ? " (la búsqueda se cortó por tiempo; prueba en una carpeta más específica)." : "."); // Y
             } // Y
             StringBuilder sanchezsb = new StringBuilder("Encontré " + marcaencontrados.size() + " resultado(s):\n");
@@ -219,17 +219,17 @@ public class MarcaHerramientasArchivos {
 
     @Tool("Lee el contenido de un archivo para poder responder sobre él o resumirlo: texto, Markdown, CSV, código, "
             + "PDF, Word (.docx) o imágenes con texto (usa OCR). Devuelve el principio del contenido.")
-    public String marcaleerArchivo(@P("Archivo a leer, por ejemplo documentos/tarea.pdf o D:\\apuntes.txt") String marcaruta) {
+    public String leerArchivo(@P("Archivo a leer, por ejemplo documentos/tarea.pdf o D:\\apuntes.txt") String ruta) {
         if (marcacancelado()) {
             return CANCELADO;
         }
         try {
-            Path marcap = sanchezguardia.sanchezverificar(sanchezrutas.marcaresolver(marcaruta), MarcaOperacion.LEER); // K
+            Path marcap = sanchezguardia.sanchezverificar(sanchezrutas.marcaresolver(ruta), MarcaOperacion.LEER); // K
             if (Files.isDirectory(marcap)) { // Y
-                return nombre(marcap) + " es una carpeta; usa marcalistarContenido para ver lo que tiene."; // K
+                return nombre(marcap) + " es una carpeta; usa listarContenido para ver lo que tiene."; // K
             }
             if (!Files.isRegularFile(marcap)) { // Y
-                return "No existe el archivo " + marcap + ". Usa sanchezbuscarArchivos si no sabes dónde está."; // K
+                return "No existe el archivo " + marcap + ". Usa buscarArchivos si no sabes dónde está."; // K
             }
             if (Files.size(marcap) > MAX_BYTES_LECTURA) { // K
                 return "El archivo es demasiado grande para leerlo (más de 25 MB).";
@@ -263,7 +263,7 @@ public class MarcaHerramientasArchivos {
     // ===== Crear y modificar =====
 
     @Tool("Crea una carpeta nueva (y las carpetas intermedias que falten). Ejemplo: escritorio/redes o D:\\Proyectos\\atlas.")
-    public String sanchezcrearCarpeta(@P("Ruta de la carpeta a crear") String marcaruta) {
+    public String crearCarpeta(@P("Ruta de la carpeta a crear") String ruta) {
         if (marcacancelado()) {
             return CANCELADO; // K
         }
@@ -272,7 +272,7 @@ public class MarcaHerramientasArchivos {
             return sanchezbloqueo;
         }
         try {
-            Path marcap = sanchezguardia.sanchezverificar(sanchezrutas.marcaresolver(marcaruta), MarcaOperacion.ESCRIBIR);
+            Path marcap = sanchezguardia.sanchezverificar(sanchezrutas.marcaresolver(ruta), MarcaOperacion.ESCRIBIR);
             if (Files.isDirectory(marcap)) {
                 return "La carpeta " + marcap + " ya existía.";
             } // Y
@@ -295,9 +295,9 @@ public class MarcaHerramientasArchivos {
 
     @Tool("Guarda un archivo de texto con el contenido que se indique (apuntes, listas, resúmenes, código, CSV...) en una carpeta. "
             + "Crea la carpeta si no existe. Si ya existe un archivo con ese nombre, pide confirmación para reemplazarlo.")
-    public String marcaguardarArchivo(@P("Carpeta donde guardar: documentos, escritorio, descargas, D:\\Proyectos...") String marcacarpeta,
-                                 @P("Nombre del archivo con extensión, por ejemplo lista-compras.txt (sin extensión se usa .txt)") String sancheznombreArchivo,
-                                 @P("Todo el texto que debe llevar el archivo") String sanchezcontenido) {
+    public String guardarArchivo(@P("Carpeta donde guardar: documentos, escritorio, descargas, D:\\Proyectos...") String carpeta,
+                                 @P("Nombre del archivo con extensión, por ejemplo lista-compras.txt (sin extensión se usa .txt)") String nombreArchivo,
+                                 @P("Todo el texto que debe llevar el archivo") String contenido) {
         if (marcacancelado()) { // K
             return CANCELADO; // K
         } // Y
@@ -306,7 +306,7 @@ public class MarcaHerramientasArchivos {
             return sanchezbloqueo;
         }
         try {
-            Path marcadestino = sanchezprepararArchivo(marcacarpeta, sancheznombreArchivo, sanchezcontenido);
+            Path marcadestino = sanchezprepararArchivo(carpeta, nombreArchivo, contenido);
             boolean marcaexiste = Files.exists(marcadestino);
             if (marcaexiste && !marcaconfirmador.sanchezconfirmar("¿Reemplazar archivo?", "Ya existe:\n" + marcadestino + "\n\n¿Quieres reemplazarlo?")) { // Y
                 return "No reemplacé el archivo porque no lo confirmaste.";
@@ -316,7 +316,7 @@ public class MarcaHerramientasArchivos {
                 return "Cancelé el guardado porque no lo confirmaste."; // Y
             }
             Files.createDirectories(marcadestino.getParent());
-            Files.writeString(marcadestino, sanchezcontenido, StandardCharsets.UTF_8); // Y
+            Files.writeString(marcadestino, contenido, StandardCharsets.UTF_8); // Y
             marcausado("Guardó " + nombre(marcadestino), marcadestino.toString());
             return (marcaexiste ? "Reemplacé" : "Guardé") + " el archivo " + nombre(marcadestino) + " en " + marcadestino.getParent() + ".";
         } catch (SanchezPermisoDenegadoException | SanchezNegocioException sancheze) {
@@ -327,9 +327,9 @@ public class MarcaHerramientasArchivos {
     }
 
     @Tool("Agrega texto al final de un archivo (lo crea si no existe). Útil para añadir cosas a una lista o a unos apuntes.")
-    public String marcaagregarAArchivo(@P("Carpeta del archivo") String marcacarpeta,
-                                  @P("Nombre del archivo con extensión") String sancheznombreArchivo,
-                                  @P("Texto a agregar") String sanchezcontenido) {
+    public String agregarAArchivo(@P("Carpeta del archivo") String carpeta,
+                                  @P("Nombre del archivo con extensión") String nombreArchivo,
+                                  @P("Texto a agregar") String contenido) {
         if (marcacancelado()) {
             return CANCELADO; // Y
         } // K
@@ -338,14 +338,14 @@ public class MarcaHerramientasArchivos {
             return sanchezbloqueo;
         } // Y
         try {
-            Path marcadestino = sanchezprepararArchivo(marcacarpeta, sancheznombreArchivo, sanchezcontenido); // Y
+            Path marcadestino = sanchezprepararArchivo(carpeta, nombreArchivo, contenido); // Y
             if (!Files.exists(marcadestino) && sanchezguardia.marcapideConfirmacionPorUbicacion(marcadestino)
                     && !marcaconfirmador.sanchezconfirmar("¿Guardar archivo?", "Atlas quiere crear:\n" + marcadestino)) {
                 return "Cancelé el guardado porque no lo confirmaste.";
             }
             Files.createDirectories(marcadestino.getParent());
             String sanchezseparador = Files.exists(marcadestino) && Files.size(marcadestino) > 0 ? System.lineSeparator() : "";
-            Files.writeString(marcadestino, sanchezseparador + sanchezcontenido, StandardCharsets.UTF_8,
+            Files.writeString(marcadestino, sanchezseparador + contenido, StandardCharsets.UTF_8,
                     StandardOpenOption.CREATE, StandardOpenOption.APPEND); // K
             marcausado("Agregó texto a " + nombre(marcadestino), marcadestino.toString());
             return "Agregué el texto a " + nombre(marcadestino) + " en " + marcadestino.getParent() + "."; // Y
@@ -358,21 +358,21 @@ public class MarcaHerramientasArchivos {
 
     @Tool("Copia un archivo o una carpeta completa dentro de otra carpeta (el original se conserva). Si ya hay uno con ese nombre, "
             + "la copia se llama «nombre (2)».")
-    public String marcacopiar(@P("Archivo o carpeta a marcacopiar") String marcaorigen,
-                         @P("Carpeta de destino, por ejemplo escritorio o D:\\Respaldo") String marcacarpetaDestino) {
-        return marcatransferir(marcaorigen, marcacarpetaDestino, false);
+    public String copiar(@P("Archivo o carpeta a copiar") String origen,
+                         @P("Carpeta de destino, por ejemplo escritorio o D:\\Respaldo") String carpetaDestino) {
+        return marcatransferir(origen, carpetaDestino, false);
     } // K
 
     @Tool("Mueve un archivo o una carpeta completa a otra carpeta (ya no queda en su lugar original). Si ya hay uno con ese "
             + "nombre, queda como «nombre (2)».")
-    public String sanchezmover(@P("Archivo o carpeta a sanchezmover") String marcaorigen,
-                        @P("Carpeta de destino, por ejemplo documentos/redes") String marcacarpetaDestino) {
-        return marcatransferir(marcaorigen, marcacarpetaDestino, true); // K
+    public String mover(@P("Archivo o carpeta a mover") String origen,
+                        @P("Carpeta de destino, por ejemplo documentos/redes") String carpetaDestino) {
+        return marcatransferir(origen, carpetaDestino, true); // K
     }
 
     @Tool("Cambia el nombre de un archivo o carpeta. Si el nuevo nombre no tiene extensión, se conserva la del archivo.")
-    public String marcarenombrar(@P("Archivo o carpeta a marcarenombrar") String marcaruta,
-                            @P("Nombre nuevo") String marcanuevoNombre) {
+    public String renombrar(@P("Archivo o carpeta a renombrar") String ruta,
+                            @P("Nombre nuevo") String nuevoNombre) {
         if (marcacancelado()) {
             return CANCELADO; // Y
         }
@@ -381,11 +381,11 @@ public class MarcaHerramientasArchivos {
             return sanchezbloqueo; // Y
         }
         try {
-            Path marcap = sanchezguardia.sanchezverificar(sanchezrutas.marcaresolver(marcaruta), MarcaOperacion.ESCRIBIR);
+            Path marcap = sanchezguardia.sanchezverificar(sanchezrutas.marcaresolver(ruta), MarcaOperacion.ESCRIBIR);
             if (!Files.exists(marcap)) {
                 return "No existe: " + marcap;
             } // K
-            String marcalimpio = marcanombreSeguro(marcanuevoNombre); // K
+            String marcalimpio = marcanombreSeguro(nuevoNombre); // K
             if (Files.isRegularFile(marcap) && !marcalimpio.contains(".") && !MarcaGuardiaRutas.sanchezextension(marcap).isEmpty()) {
                 marcalimpio += "." + MarcaGuardiaRutas.sanchezextension(marcap); // Y
             }
@@ -402,13 +402,13 @@ public class MarcaHerramientasArchivos {
         } catch (SanchezPermisoDenegadoException | SanchezNegocioException sancheze) {
             return sancheze.getMessage();
         } catch (IOException | RuntimeException sancheze) { // K
-            return marcafallo("marcarenombrar", sancheze); // Y
+            return marcafallo("renombrar", sancheze); // Y
         } // Y
     } // K
 
     @Tool("Elimina un archivo o carpeta enviándolo a la papelera de reciclaje (se puede restaurar desde allí). "
             + "Siempre pide confirmación al usuario en una ventana.")
-    public String sanchezeliminar(@P("Archivo o carpeta a sanchezeliminar") String marcaruta) { // Y
+    public String eliminar(@P("Archivo o carpeta a eliminar") String ruta) { // Y
         if (marcacancelado()) {
             return CANCELADO; // K
         }
@@ -417,7 +417,7 @@ public class MarcaHerramientasArchivos {
             return sanchezbloqueo;
         }
         try {
-            Path marcap = sanchezguardia.sanchezverificar(sanchezrutas.marcaresolver(marcaruta), MarcaOperacion.ELIMINAR);
+            Path marcap = sanchezguardia.sanchezverificar(sanchezrutas.marcaresolver(ruta), MarcaOperacion.ELIMINAR);
             if (!Files.exists(marcap)) {
                 return "No existe: " + marcap;
             } // K
@@ -434,7 +434,7 @@ public class MarcaHerramientasArchivos {
         } catch (SanchezPermisoDenegadoException | SanchezNegocioException sancheze) {
             return sancheze.getMessage(); // Y
         } catch (RuntimeException sancheze) {
-            return marcafallo("sanchezeliminar", sancheze);
+            return marcafallo("eliminar", sancheze);
         }
     }
 
@@ -451,7 +451,7 @@ public class MarcaHerramientasArchivos {
         try {
             Path sanchezdesde = sanchezguardia.sanchezverificar(sanchezrutas.marcaresolver(marcaorigen), sanchezmover ? MarcaOperacion.ESCRIBIR : MarcaOperacion.LEER);
             if (!Files.exists(sanchezdesde)) {
-                return "No existe: " + sanchezdesde + ". Usa sanchezbuscarArchivos si no sabes dónde está."; // K
+                return "No existe: " + sanchezdesde + ". Usa buscarArchivos si no sabes dónde está."; // K
             }
             Path sanchezdir = sanchezguardia.sanchezverificar(sanchezrutas.marcaresolver(marcacarpetaDestino), MarcaOperacion.ESCRIBIR);
             if (Files.isRegularFile(sanchezdir)) {
@@ -461,7 +461,7 @@ public class MarcaHerramientasArchivos {
                 sanchezguardia.marcaverificarNoEjecutable(sanchezdesde);
             }
             if (Files.isDirectory(sanchezdesde) && (sanchezdir.equals(sanchezdesde) || sanchezdir.startsWith(sanchezdesde))) { // K
-                return "No puedo " + (sanchezmover ? "sanchezmover" : "marcacopiar") + " una carpeta dentro de sí misma.";
+                return "No puedo " + (sanchezmover ? "mover" : "copiar") + " una carpeta dentro de sí misma.";
             }
             if (Files.isDirectory(sanchezdesde) && sanchezcontar(sanchezdesde) > MAX_ELEMENTOS_COPIA) {
                 return "La carpeta tiene demasiados elementos (más de " + MAX_ELEMENTOS_COPIA + "); hazlo desde el Explorador."; // K
@@ -484,7 +484,7 @@ public class MarcaHerramientasArchivos {
         } catch (SanchezPermisoDenegadoException | SanchezNegocioException sancheze) {
             return sancheze.getMessage();
         } catch (IOException | RuntimeException sancheze) {
-            return marcafallo(sanchezmover ? "sanchezmover" : "marcacopiar", sancheze);
+            return marcafallo(sanchezmover ? "mover" : "copiar", sancheze);
         }
     }
 
@@ -561,7 +561,7 @@ public class MarcaHerramientasArchivos {
         try {
             Files.move(sanchezdesde, sanchezhasta);
         } catch (IOException sancheze) {
-            // Entre discos las carpetas no se pueden sanchezmover de golpe: se copia y luego se borra el original
+            // Entre discos las carpetas no se pueden mover de golpe: se copia y luego se borra el original
             marcacopiarRecursivo(sanchezdesde, sanchezhasta);
             marcaborrarRecursivo(sanchezdesde);
         } // Y
@@ -626,7 +626,7 @@ public class MarcaHerramientasArchivos {
 
     private String marcabloqueoSoloLectura() {
         return marcapropiedades.isModoSoloLectura()
-                ? "El modo solo lectura está activo, así que no puedo crear, sanchezmover ni borrar archivos."
+                ? "El modo solo lectura está activo, así que no puedo crear, mover ni borrar archivos."
                 : null; // K
     } // K
 

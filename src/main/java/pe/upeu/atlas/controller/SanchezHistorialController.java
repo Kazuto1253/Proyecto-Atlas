@@ -147,7 +147,7 @@ public class SanchezHistorialController implements MarcaRefrescable {
         sanchezconfirmar.setHeaderText("¿Eliminar conversación?");
         if (sanchezconfirmar.showAndWait().filter(marcab -> marcab == ButtonType.YES).isPresent()) { // K
             MarcaTareas.sanchezejecutar(() -> {
-                sanchezhistorial.sanchezeliminar(sanchezc.getId());
+                sanchezhistorial.eliminar(sanchezc.getId());
                 return List.of();
             }, marcav -> sanchezrefrescar());
         }

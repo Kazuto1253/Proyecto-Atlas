@@ -66,7 +66,7 @@ class ServicioHistorialYReportesTest {
         List<SanchezMensaje> mensajes = historial.marcamensajes(todas.get(1).getId());
         assertThat(mensajes).extracting(SanchezMensaje::isDeUsuario).containsExactly(true, false);
 
-        historial.sanchezeliminar(todas.get(1).getId());
+        historial.eliminar(todas.get(1).getId());
         assertThat(historial.sanchezlistar(null)).hasSize(1);
         autenticacion.marcacerrarSesion();
     }
@@ -82,7 +82,7 @@ class ServicioHistorialYReportesTest {
         entrar("otro", SanchezRol.DOCENTE);
         assertThat(historial.sanchezlistar(null)).isEmpty();
         assertThatThrownBy(() -> historial.marcamensajes(ajena)).isInstanceOf(SanchezPermisoDenegadoException.class);
-        assertThatThrownBy(() -> historial.sanchezeliminar(ajena)).isInstanceOf(SanchezPermisoDenegadoException.class);
+        assertThatThrownBy(() -> historial.eliminar(ajena)).isInstanceOf(SanchezPermisoDenegadoException.class);
         autenticacion.marcacerrarSesion();
     }
 

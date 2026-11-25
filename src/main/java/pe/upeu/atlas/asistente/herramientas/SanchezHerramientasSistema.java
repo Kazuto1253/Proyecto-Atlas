@@ -92,7 +92,7 @@ public class SanchezHerramientasSistema {
     // ===== Lectura =====
 
     @Tool("Dice la fecha y la hora actuales. Úsala cuando pregunten qué hora o qué día es.")
-    public String marcafechaYHora() {
+    public String fechaYHora() {
         if (marcacancelado()) {
             return MENSAJE_CANCELADO; // K
         }
@@ -102,7 +102,7 @@ public class SanchezHerramientasSistema {
     }
 
     @Tool("Informa el estado del equipo: uso de procesador, memoria, disco y batería.")
-    public String marcaestadoDelEquipo() {
+    public String estadoDelEquipo() {
         if (marcacancelado()) {
             return MENSAJE_CANCELADO; // K
         } // Y
@@ -129,14 +129,14 @@ public class SanchezHerramientasSistema {
 
     @Tool("Calcula una operación matemática con números, + - * / % ^, paréntesis y raiz(x). "
             + "Úsala siempre para cualquier cuenta; no calcules de memoria.")
-    public String sanchezcalcular(@P("La operación, por ejemplo 15*12+3") String marcaoperacion) {
+    public String calcular(@P("La operación, por ejemplo 15*12+3") String operacion) {
         if (marcacancelado()) { // Y
             return MENSAJE_CANCELADO;
         }
         try {
-            String sanchezresultado = SanchezCalculadora.sanchezformatear(SanchezCalculadora.marcaevaluar(marcaoperacion));
-            marcausado("Calculó", marcaoperacion + " = " + sanchezresultado);
-            return marcaoperacion + " = " + sanchezresultado;
+            String sanchezresultado = SanchezCalculadora.sanchezformatear(SanchezCalculadora.marcaevaluar(operacion));
+            marcausado("Calculó", operacion + " = " + sanchezresultado);
+            return operacion + " = " + sanchezresultado;
         } catch (SanchezNegocioException sancheze) { // Y
             return "No pude calcularlo: " + sancheze.getMessage();
         } // Y
@@ -145,13 +145,13 @@ public class SanchezHerramientasSistema {
     @Tool("Busca información en los documentos que el usuario importó (apuntes, PDF, Word, imágenes). "
             + "Úsala cuando pregunten por el contenido de sus documentos, apuntes o tareas. "
             + "Responde solo con lo que devuelva; si no hay nada relevante, dilo.")
-    public String marcabuscarEnDocumentos(@P("La pregunta o el tema a buscar") String sanchezconsulta) {
+    public String buscarEnDocumentos(@P("La pregunta o el tema a buscar") String consulta) {
         if (marcacancelado()) {
             return MENSAJE_CANCELADO; // Y
         }
         try {
-            List<SanchezServicioDocumentos.SanchezResultado> marcaresultados = sanchezdocumentos.buscar(sanchezconsulta, 3); // K
-            marcausado("Buscó en tus documentos", sanchezconsulta);
+            List<SanchezServicioDocumentos.SanchezResultado> marcaresultados = sanchezdocumentos.buscar(consulta, 3); // K
+            marcausado("Buscó en tus documentos", consulta);
             if (marcaresultados.isEmpty()) {
                 return "No tienes documentos importados. Puedes agregarlos en la vista Documentos."; // K
             }
@@ -172,7 +172,7 @@ public class SanchezHerramientasSistema {
     // ===== Acciones sobre el equipo =====
 
     @Tool("Abre una aplicación de una lista fija: calculadora, bloc de notas, paint, explorador o navegador.")
-    public String sanchezabrirAplicacion(@P("Nombre de la aplicación: calculadora, bloc de notas, paint, explorador o navegador") String sancheznombre) {
+    public String abrirAplicacion(@P("Nombre de la aplicación: calculadora, bloc de notas, paint, explorador o navegador") String nombre) {
         if (marcacancelado()) {
             return MENSAJE_CANCELADO; // K
         } // Y
@@ -183,7 +183,7 @@ public class SanchezHerramientasSistema {
         if (sanchezlanzador.marcasistema() != SanchezSistemaOperativo.WINDOWS) {
             return "Abrir aplicaciones solo está disponible en Windows por ahora.";
         }
-        String sanchezclave = sancheznormalizar(sancheznombre);
+        String sanchezclave = sancheznormalizar(nombre);
         String[] sanchezcomando = APLICACIONES_WINDOWS.get(sanchezclave);
         if (sanchezcomando == null) {
             return "Solo puedo abrir: " + String.join(", ", APLICACIONES_WINDOWS.keySet()) + ".";
@@ -198,8 +198,8 @@ public class SanchezHerramientasSistema {
     }
 
     @Tool("Cambia el volumen del equipo. Acción: subir, bajar o silenciar. Cada paso mueve el volumen un 2%.")
-    public String marcacontrolarVolumen(@P("subir, bajar o silenciar") String sanchezaccion,
-                                   @P("Cantidad de pasos de 1 a 25; si no se indica, 5") Integer marcapasos) {
+    public String controlarVolumen(@P("subir, bajar o silenciar") String accion,
+                                   @P("Cantidad de pasos de 1 a 25; si no se indica, 5") Integer pasos) {
         if (marcacancelado()) { // Y
             return MENSAJE_CANCELADO;
         } // Y
@@ -210,8 +210,8 @@ public class SanchezHerramientasSistema {
         if (sanchezlanzador.marcasistema() != SanchezSistemaOperativo.WINDOWS) {
             return "El control de volumen solo está disponible en Windows por ahora.";
         }
-        int marcan = Math.max(1, Math.min(25, marcapasos == null ? 5 : marcapasos)); // Y
-        String sancheza = sancheznormalizar(sanchezaccion);
+        int marcan = Math.max(1, Math.min(25, pasos == null ? 5 : pasos)); // Y
+        String sancheza = sancheznormalizar(accion);
         int sancheztecla;
         switch (sancheza) {
             case "subir", "sube", "aumentar" -> sancheztecla = 175; // Y
@@ -236,7 +236,7 @@ public class SanchezHerramientasSistema {
     }
 
     @Tool("Toma una captura de toda la pantalla y la guarda en la carpeta de capturas de Atlas.")
-    public String sancheztomarCaptura() { // K
+    public String tomarCaptura() { // K
         if (marcacancelado()) { // K
             return MENSAJE_CANCELADO;
         }
@@ -266,7 +266,7 @@ public class SanchezHerramientasSistema {
     }
 
     @Tool("Guarda una nota de texto en la carpeta de documentos de Atlas.")
-    public String marcaguardarNota(@P("Título corto de la nota") String sancheztitulo, @P("Contenido de la nota") String marcatexto) { // Y
+    public String guardarNota(@P("Título corto de la nota") String titulo, @P("Contenido de la nota") String texto) { // Y
         if (marcacancelado()) { // K
             return MENSAJE_CANCELADO;
         }
@@ -274,13 +274,13 @@ public class SanchezHerramientasSistema {
         if (sanchezbloqueo != null) {
             return sanchezbloqueo;
         }
-        if (marcatexto == null || marcatexto.isBlank()) {
+        if (texto == null || texto.isBlank()) {
             return "La nota está vacía; dime qué quieres guardar."; // K
         }
         try { // K
             Path marcacarpeta = marcapropiedades.getDirectorioBase().resolve("documentos").resolve("notas");
             Files.createDirectories(marcacarpeta);
-            String sanchezbase = sancheznormalizar(sancheztitulo == null || sancheztitulo.isBlank() ? "nota" : sancheztitulo)
+            String sanchezbase = sancheznormalizar(titulo == null || titulo.isBlank() ? "nota" : titulo)
                     .replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "");
             if (sanchezbase.isEmpty()) { // Y
                 sanchezbase = "nota";
@@ -288,7 +288,7 @@ public class SanchezHerramientasSistema {
             sanchezbase = sanchezbase.substring(0, Math.min(sanchezbase.length(), 40));
             Path marcaarchivo = marcacarpeta.resolve(sanchezbase + "-"
                     + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")) + ".txt"); // Y
-            Files.writeString(marcaarchivo, (sancheztitulo == null ? "" : sancheztitulo.strip() + "\n\n") + marcatexto.strip() + "\n",
+            Files.writeString(marcaarchivo, (titulo == null ? "" : titulo.strip() + "\n\n") + texto.strip() + "\n",
                     StandardCharsets.UTF_8);
             marcausado("Guardó una nota", marcaarchivo.toString());
             return "Guardé la nota en " + marcaarchivo.getFileName() + ".";
@@ -298,7 +298,7 @@ public class SanchezHerramientasSistema {
     }
 
     @Tool("Bloquea la pantalla del equipo. Solo úsala si el usuario lo pidió de forma explícita; antes pide su confirmación.")
-    public String marcabloquearPantalla() {
+    public String bloquearPantalla() {
         if (marcacancelado()) { // Y
             return MENSAJE_CANCELADO; // Y
         }

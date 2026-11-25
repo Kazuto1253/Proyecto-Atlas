@@ -107,7 +107,7 @@ public class SanchezServicioDocumentos {
     }
 
     @Transactional
-    public void sanchezeliminar(Long sanchezid) {
+    public void eliminar(Long sanchezid) {
         MarcaDocumento marcad = sanchezpropio(sanchezid);
         fragmentos.deleteByDocumentoId(sanchezid);
         sanchezdocumentos.deleteById(sanchezid);
@@ -146,7 +146,7 @@ public class SanchezServicioDocumentos {
             } // Y
             return marcasalida;
         } catch (RuntimeException sancheze) {
-            throw new SanchezIaException("No pude sanchezcalcular los embeddings. ¿Está abierto Ollama con nomic-embed-text? " + sancheze.getMessage(), sancheze); // Y
+            throw new SanchezIaException("No pude calcular los embeddings. ¿Está abierto Ollama con nomic-embed-text? " + sancheze.getMessage(), sancheze); // Y
         }
     } // K
 

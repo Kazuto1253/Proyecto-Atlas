@@ -88,7 +88,7 @@ class ServicioDocumentosTest {
         assertThat(r.get(0).marcadocumento()).isEqualTo("redes.txt");
         assertThat(r.get(0).marcasimilitud()).isGreaterThan(r.get(1).marcasimilitud());
 
-        documentos.sanchezeliminar(d1.getId());
+        documentos.eliminar(d1.getId());
         assertThat(documentos.sanchezlistar()).extracting(MarcaDocumento::getNombre).containsExactly("cocina.txt");
         autenticacion.marcacerrarSesion();
     }
@@ -103,7 +103,7 @@ class ServicioDocumentosTest {
         entrar("beto");
         assertThat(documentos.sanchezlistar()).isEmpty();
         assertThat(documentos.buscar("java", 3)).isEmpty();
-        assertThatThrownBy(() -> documentos.sanchezeliminar(mio.getId())).isInstanceOf(SanchezPermisoDenegadoException.class);
+        assertThatThrownBy(() -> documentos.eliminar(mio.getId())).isInstanceOf(SanchezPermisoDenegadoException.class);
         autenticacion.marcacerrarSesion();
     }
 

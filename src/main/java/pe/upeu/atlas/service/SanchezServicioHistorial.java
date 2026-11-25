@@ -79,7 +79,7 @@ public class SanchezServicioHistorial { // K
     }
 
     @Transactional
-    public synchronized void sanchezeliminar(Long sanchezconversacionId) { // K
+    public synchronized void eliminar(Long sanchezconversacionId) { // K
         sanchezpropia(sanchezconversacionId);
         marcamensajes.deleteByConversacionId(sanchezconversacionId);
         marcaconversaciones.deleteById(sanchezconversacionId);
