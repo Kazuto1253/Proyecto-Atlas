@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pe.upeu.atlas.controller.DiagnosticoController">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="12">
+            <padding><Insets top="24" right="32" bottom="12" left="32"/></padding>
+            <VBox spacing="4">
+                <Label text="Diagnóstico" styleClass="titulo-vista"/>
+                <Label fx:id="lblResumen" styleClass="text-muted"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <ProgressIndicator fx:id="indicador" prefWidth="22" prefHeight="22" visible="false"/>
+            <Button fx:id="btnVerificar" text="Verificar de nuevo" onAction="#verificar">
+                <graphic><FontIcon iconLiteral="fth-refresh-cw"/></graphic>
+            </Button>
+        </HBox>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="scroll-chat">
+            <VBox fx:id="contenedorResultados" spacing="14">
+                <padding><Insets top="8" right="32" bottom="24" left="32"/></padding>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

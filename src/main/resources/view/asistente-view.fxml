@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pe.upeu.atlas.controller.AsistenteController">
+    <top>
+        <HBox alignment="CENTER_RIGHT">
+            <padding><Insets top="10" right="24" bottom="0" left="24"/></padding>
+            <Button text="Modo flotante" onAction="#alModoFlotante" styleClass="flat">
+                <graphic><FontIcon iconLiteral="fth-minimize-2"/></graphic>
+            </Button>
+            <Button text="Nueva conversación" onAction="#alNuevaConversacion" styleClass="flat">
+                <graphic><FontIcon iconLiteral="fth-plus-circle"/></graphic>
+            </Button>
+        </HBox>
+    </top>
+    <center>
+        <StackPane>
+            <ScrollPane fx:id="scrollChat" fitToWidth="true" styleClass="scroll-chat">
+                <VBox fx:id="contenedorChat" spacing="12">
+                    <padding><Insets top="24" right="48" bottom="24" left="48"/></padding>
+                </VBox>
+            </ScrollPane>
+            <VBox fx:id="bienvenida" alignment="CENTER" spacing="12" mouseTransparent="true">
+                <FontIcon iconLiteral="fth-mic" iconSize="64" styleClass="icono-marca"/>
+                <Label text="Atlas" styleClass="titulo-marca"/>
+                <Label text="Asistente de voz offline para estudiantes y docentes" styleClass="text-muted"/>
+                <Label text="Pulsa el micrófono (o la tecla F2) y habla. También puedes escribir abajo."
+                       styleClass="text-muted"/>
+            </VBox>
+        </StackPane>
+    </center>
+    <bottom>
+        <VBox alignment="CENTER" spacing="10" styleClass="panel-entrada">
+            <padding><Insets top="14" right="48" bottom="14" left="48"/></padding>
+            <Label fx:id="lblEstado" styleClass="lbl-estado"/>
+            <Label fx:id="lblParcial" styleClass="lbl-parcial" wrapText="true"/>
+            <HBox alignment="CENTER" spacing="8">
+                <Button text="Qué hora es" userData="¿Qué hora es?" onAction="#alElegirSugerencia" styleClass="chip-sugerencia"/>
+                <Button text="Estado del equipo" userData="¿Cómo está mi equipo?" onAction="#alElegirSugerencia" styleClass="chip-sugerencia"/>
+                <Button text="Abrir descargas" userData="Abre la carpeta de descargas" onAction="#alElegirSugerencia" styleClass="chip-sugerencia"/>
+                <Button text="Tomar captura" userData="Toma una captura de pantalla" onAction="#alElegirSugerencia" styleClass="chip-sugerencia"/>
+                <Button text="Calcular" userData="¿Cuánto es 15 por 12 más 3?" onAction="#alElegirSugerencia" styleClass="chip-sugerencia"/>
+            </HBox>
+            <HBox alignment="CENTER" spacing="10">
+                <Button fx:id="btnMicrofono" onAction="#alPulsarMicrofono" styleClass="btn-microfono">
+                    <graphic><FontIcon fx:id="icoMicrofono" iconLiteral="fth-mic" iconSize="26"/></graphic>
+                </Button>
+                <Button fx:id="btnInterrumpir" onAction="#alInterrumpir" styleClass="btn-interrumpir">
+                    <graphic><FontIcon iconLiteral="fth-square" iconSize="18"/></graphic>
+                    <tooltip><Tooltip text="Interrumpir (Esc)"/></tooltip>
+                </Button>
+                <TextField fx:id="txtMensaje" onAction="#alEnviarTexto" promptText="Escribe tu mensaje..."
+                           HBox.hgrow="ALWAYS"/>
+                <Button fx:id="btnEnviar" onAction="#alEnviarTexto">
+                    <graphic><FontIcon iconLiteral="fth-send" iconSize="16"/></graphic>
+                </Button>
+                <ToggleButton fx:id="tglVoz" selected="true" onAction="#alCambiarVoz">
+                    <graphic><FontIcon fx:id="icoVoz" iconLiteral="fth-volume-2" iconSize="16"/></graphic>
+                </ToggleButton>
+            </HBox>
+        </VBox>
+    </bottom>
+</BorderPane>

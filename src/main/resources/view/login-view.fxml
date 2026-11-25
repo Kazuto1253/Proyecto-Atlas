@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           styleClass="raiz" fx:controller="pe.upeu.atlas.controller.LoginController">
+    <VBox alignment="CENTER" spacing="14" styleClass="login-tarjeta" maxWidth="420" maxHeight="-Infinity">
+        <padding><Insets top="36" right="40" bottom="32" left="40"/></padding>
+        <FontIcon iconLiteral="fth-mic" iconSize="56" styleClass="icono-marca"/>
+        <Label text="Atlas" styleClass="titulo-marca"/>
+        <Label text="Asistente de voz offline para estudiantes y docentes" styleClass="text-muted"
+               wrapText="true" textAlignment="CENTER"/>
+
+        <!-- Inicio de sesión -->
+        <VBox fx:id="formLogin" spacing="10">
+            <padding><Insets top="10"/></padding>
+            <Label text="Usuario"/>
+            <TextField fx:id="txtUsuario" promptText="Tu usuario" onAction="#alIniciarSesion"/>
+            <Label text="Contraseña"/>
+            <PasswordField fx:id="txtClave" promptText="Tu contraseña" onAction="#alIniciarSesion"/>
+            <Button fx:id="btnEntrar" text="Iniciar sesión" defaultButton="true" maxWidth="Infinity"
+                    styleClass="accent" onAction="#alIniciarSesion"/>
+            <Hyperlink text="¿Eres estudiante y no tienes cuenta? Regístrate" onAction="#alVerRegistro"/>
+        </VBox>
+
+        <!-- Registro de estudiantes -->
+        <VBox fx:id="formRegistro" spacing="10">
+            <padding><Insets top="10"/></padding>
+            <Label text="Nombre completo"/>
+            <TextField fx:id="txtNombre" promptText="Nombres y apellidos"/>
+            <Label text="Usuario"/>
+            <TextField fx:id="txtNuevoUsuario" promptText="3 a 30 caracteres, sin espacios"/>
+            <Label text="Contraseña (mínimo 6 caracteres)"/>
+            <PasswordField fx:id="txtNuevaClave"/>
+            <Label text="Repite la contraseña"/>
+            <PasswordField fx:id="txtRepetirClave" onAction="#alCrearCuenta"/>
+            <Button fx:id="btnCrear" text="Crear cuenta de estudiante" maxWidth="Infinity"
+                    styleClass="accent" onAction="#alCrearCuenta"/>
+            <Hyperlink text="Ya tengo cuenta: volver" onAction="#alVerLogin"/>
+        </VBox>
+
+        <Label fx:id="lblError" styleClass="burbuja-error" wrapText="true" visible="false"/>
+    </VBox>
+</StackPane>

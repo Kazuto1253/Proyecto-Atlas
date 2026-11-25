@@ -1,0 +1,561 @@
+// Autores: K (Kevin) y Y (Yenifher)
+package pe.upeu.atlas.docs;
+
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Bounds;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.control.ButtonBase;
+import javafx.scene.control.Labeled;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextInputControl;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.WritableImage;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Line;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.scene.transform.Transform;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
+import org.springframework.test.context.ActiveProfiles;
+import pe.upeu.atlas.asistente.OrquestadorConversacion;
+import pe.upeu.atlas.asistente.OrquestadorConversacion.Estado;
+import pe.upeu.atlas.controller.MainController;
+import pe.upeu.atlas.model.Rol;
+import pe.upeu.atlas.seguridad.ServicioAutenticacion;
+import pe.upeu.atlas.service.ServicioDocumentos;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
+
+/**
+ * Genera las capturas del manual de usuario desde la aplicación real, con marcas numeradas y flechas.
+ * No corre por defecto: {@code mvnw test -Dtest=GeneradorCapturasManual -Datlas.capturas=true}
+ * Usa una base de datos en memoria (no toca tus datos) y el Ollama real para el chat y los documentos.
+ */
+@EnabledIfSystemProperty(named = "atlas.capturas", matches = "true")
+@SpringBootTest(properties = "app.atlas.directorio-base=${user.home}/.atlas")
+@ActiveProfiles("test")
+class GeneradorCapturasManual {
+
+    private static final double ANCHO = 1200;
+    private static final double ALTO = 760;
+    private static final double ESCALA = 1.5;
+    private static final Color ROJO = Color.web("#e11d48");
+
+    /** @param selector #id | t:texto | .clase (un ^ delante = subir al padre) | lado: I D A B | dist en px */
+    record Marca(String selector, int numero, char lado, int dist, int desp) { }
+
+    private static Marca m(String selector, int n, char lado, int dist) {
+        return new Marca(selector, n, lado, dist, 0);
+    }
+
+    /** Con {@code desp} la insignia se desplaza a lo largo del borde y la flecha sale perpendicular. */
+    private static Marca m(String selector, int n, char lado, int dist, int desp) {
+        return new Marca(selector, n, lado, dist, desp);
+    }
+
+    private double alto = ALTO;
+
+    @Autowired private ApplicationContext contexto;
+    @Autowired private ServicioAutenticacion autenticacion;
+    @Autowired private ServicioDocumentos documentos;
+    @Autowired private OrquestadorConversacion orquestador;
+
+    private Stage ventana;
+    private StackPane envoltorio;
+    private Pane capa;
+    private Path salida;
+
+    @Test
+    void generaTodasLasCapturas() throws Exception {
+        salida = Path.of("docs", "capturas");
+        Files.createDirectories(salida);
+        Platform.startup(() -> { });
+        fx(() -> {
+            javafx.application.Application.setUserAgentStylesheet(new atlantafx.base.theme.PrimerLight().getUserAgentStylesheet());
+            ventana = new Stage(StageStyle.UNDECORATED);
+            capa = new Pane();
+            capa.setMouseTransparent(true);
+            envoltorio = new StackPane();
+            Scene escena = new Scene(envoltorio, ANCHO, ALTO);
+            escena.getStylesheets().add(getClass().getResource("/css/app.css").toExternalForm());
+            ventana.setScene(escena);
+            ventana.setX(40);
+            ventana.setY(40);
+            ventana.show();
+            return null;
+        });
+
+        autenticacion.registrar("Administrador de Atlas", "admin", "Admin123", Rol.ADMINISTRADOR);
+        autenticacion.registrar("Docente de prueba", "docente", "Docente123", Rol.DOCENTE);
+        autenticacion.registrar("Estudiante de prueba", "estudiante", "Estudiante123", Rol.ESTUDIANTE);
+        autenticacion.registrar("Estudiante de ejemplo", "estudiante2", "Ejemplo123", Rol.ESTUDIANTE);
+
+        // ---------- Acceso (sin sesión) ----------
+        mostrar("/view/login-view.fxml");
+        fx(() -> {
+            ((javafx.scene.control.TextField) buscar("#txtUsuario")).setText("estudiante");
+            ((javafx.scene.control.PasswordField) buscar("#txtClave")).setText("Estudiante123");
+            return null;
+        });
+        capturar("01-login", 600, List.of(m("#txtUsuario", 1, 'D', 90), m("#txtClave", 2, 'D', 90),
+                m("#btnEntrar", 3, 'D', 90), m("t:¿Eres estudiante y no tienes cuenta? Regístrate", 4, 'I', 90)));
+
+        fx(() -> {
+            ((javafx.scene.control.PasswordField) buscar("#txtClave")).setText("clave-equivocada");
+            ((ButtonBase) buscar("#btnEntrar")).fire();
+            return null;
+        });
+        capturar("02-login-error", 2500, List.of(m("#lblError", 1, 'D', 90)));
+
+        fx(() -> {
+            ((ButtonBase) buscar("t:¿Eres estudiante y no tienes cuenta? Regístrate")).fire();
+            ((javafx.scene.control.TextField) buscar("#txtNombre")).setText("Ana Torres Quispe");
+            ((javafx.scene.control.TextField) buscar("#txtNuevoUsuario")).setText("ana.torres");
+            ((javafx.scene.control.PasswordField) buscar("#txtNuevaClave")).setText("secreto1");
+            ((javafx.scene.control.PasswordField) buscar("#txtRepetirClave")).setText("secreto1");
+            return null;
+        });
+        capturar("03-registro", 600, List.of(m("#txtNombre", 1, 'D', 90), m("#txtNuevoUsuario", 2, 'D', 90),
+                m("#txtNuevaClave", 3, 'D', 90), m("#txtRepetirClave", 4, 'D', 90),
+                m("#btnCrear", 5, 'D', 90), m("t:Ya tengo cuenta: volver", 6, 'I', 90)));
+
+        // ---------- Sesión de administrador: datos de ejemplo ----------
+        autenticacion.iniciarSesion("admin", "Admin123");
+        Path tmp = Files.createTempDirectory("atlas-capturas");
+        Path apuntes = Files.writeString(tmp.resolve("Apuntes de Redes.txt"),
+                "Una red LAN (Local Area Network) conecta computadoras en un área pequeña, como un laboratorio, "
+                        + "una oficina o una casa. Suele usar cables Ethernet o Wi-Fi y ofrece alta velocidad.\n\n"
+                        + "Una red WAN (Wide Area Network) conecta redes en grandes distancias, por ejemplo entre ciudades. "
+                        + "Internet es la WAN más grande del mundo.\n\n"
+                        + "El modelo OSI tiene siete capas: física, enlace de datos, red, transporte, sesión, presentación "
+                        + "y aplicación. La capa de transporte se encarga de la entrega confiable de los datos.");
+        Path ceviche = Files.writeString(tmp.resolve("Receta de ceviche.txt"),
+                "El ceviche peruano se prepara con pescado fresco, jugo de limón, ají limo, cebolla roja, sal y "
+                        + "cilantro. Se sirve con camote y choclo. El pescado se marina solo unos minutos.");
+        documentos.importar(apuntes);
+        documentos.importar(ceviche);
+
+        // ---------- Ventana principal ----------
+        FXMLLoader cargador = new FXMLLoader(getClass().getResource("/view/main-view.fxml"));
+        cargador.setControllerFactory(contexto::getBean);
+        Parent principal = fx(() -> cargarSin(cargador));
+        MainController main = cargador.getController();
+        fx(() -> {
+            envoltorio.getChildren().setAll(principal, capa);
+            return null;
+        });
+        Thread.sleep(1500);
+
+        // Asistente: conversación real con el modelo local
+        orquestador.setVozActivada(false);
+        fx(() -> {
+            main.mostrar("asistente");
+            return null;
+        });
+        Thread.sleep(2500);
+        enviar("¿Qué hora es?");
+        enviar("¿Cuánto es 15 por 12 más 3?");
+        enviar("Según mis documentos, ¿qué es una red LAN?");
+        capturar("07-asistente", 800, List.of(m(".btn-microfono", 1, 'I', 110), m("#txtMensaje", 2, 'A', 60, -330),
+                m("#btnEnviar", 3, 'A', 70), m("#tglVoz", 4, 'A', 70), m("t:Nueva conversación", 5, 'I', 90),
+                m("t:Qué hora es", 6, 'A', 70), m(".burbuja-herramienta", 7, 'D', 90), m("#lblEstado", 8, 'D', 100)));
+        capturar("00-portada-asistente", 0, List.of()); // sin marcas, para la portada
+        orquestador.nuevaConversacion();
+        enviar("Hola, ¿cómo te llamas?");
+
+        // Manejo de archivos (ejemplo con textos reales de la herramienta) e interrumpir
+        pe.upeu.atlas.controller.AsistenteController chat = contexto.getBean(pe.upeu.atlas.controller.AsistenteController.class);
+        fx(() -> {
+            ((ButtonBase) buscar("t:Nueva conversación")).fire();
+            return null;
+        });
+        chat.mensajeUsuario("Guarda en mi carpeta de documentos un archivo llamado lista de compras con leche, pan y huevos");
+        chat.herramienta("Guardó lista de compras.txt");
+        chat.mensajeAsistente("Guardé el archivo «lista de compras.txt» en tu carpeta de documentos.");
+        chat.mensajeUsuario("Elimina el archivo viejo.txt de documentos");
+        chat.herramienta("Envió a la papelera viejo.txt");
+        chat.mensajeAsistente("Envié viejo.txt a la papelera de reciclaje; puedes restaurarlo desde allí.");
+        capturar("07c-archivos", 900, List.of(m("t:Guardó lista de compras.txt", 1, 'D', 90), m("t:Envió a la papelera viejo.txt", 2, 'D', 90),
+                m("t:Modo flotante", 3, 'B', 35)));
+        chat.mensajeUsuario("Dime cuánto es 458 por 37");
+        fx(() -> {
+            chat.estado(Estado.PENSANDO);
+            return null;
+        });
+        capturar("07b-interrumpir", 700, List.of(m("#btnInterrumpir", 1, 'A', 55), m("#lblEstado", 2, 'D', 100)));
+        fx(() -> {
+            chat.estado(Estado.INACTIVO);
+            return null;
+        });
+
+        // Historial
+        fx(() -> {
+            main.mostrar("historial");
+            return null;
+        });
+        Thread.sleep(2500);
+        fx(() -> {
+            ((ListView<?>) buscar("#lista")).getSelectionModel().select(1);
+            return null;
+        });
+        capturar("08-historial", 2000, List.of(m("#txtBuscar", 1, 'I', 22), m("#lista", 2, 'I', 22),
+                m("#lblTitulo", 3, 'D', 70), m("#btnPdf", 4, 'A', 55), m("#btnEliminar", 5, 'A', 55)));
+
+        // Documentos
+        fx(() -> {
+            main.mostrar("documentos");
+            return null;
+        });
+        Thread.sleep(2000);
+        fx(() -> {
+            ((javafx.scene.control.TextField) buscar("#txtConsulta")).setText("¿Cuántas capas tiene el modelo OSI?");
+            ((ButtonBase) buscar("#btnBuscar")).fire();
+            ((TableView<?>) buscar("#tabla")).getSelectionModel().select(0);
+            return null;
+        });
+        capturar("09-documentos", 6000, List.of(m("t:Importar documento", 1, 'B', 30), m("#tabla", 2, 'B', 40, 200),
+                m("#btnEliminar", 3, 'D', 90), m("#txtConsulta", 4, 'I', 70), m("#btnBuscar", 5, 'A', 45),
+                m("#contenedorResultados", 6, 'B', 30)));
+
+        // Reportes
+        fx(() -> {
+            main.mostrar("reportes");
+            return null;
+        });
+        capturar("10-reportes", 1500, List.of(m("#btnActividad", 1, 'B', 20), m("t:Generar informe (PDF)", 2, 'B', 40),
+                m("t:Exportar usuarios (Excel)", 3, 'B', 55)));
+
+        // Diagnóstico
+        fx(() -> {
+            main.mostrar("diagnostico");
+            return null;
+        });
+        capturar("11-diagnostico", 9000, List.of(m("#btnVerificar", 1, 'I', 90), m("#lblResumen", 2, 'D', 90),
+                m("^t:Sistema", 3, 'B', 14)), 1000, 0);
+
+        // Usuarios
+        fx(() -> {
+            main.mostrar("usuarios");
+            return null;
+        });
+        Thread.sleep(2000);
+        fx(() -> {
+            ((TableView<?>) buscar("#tabla")).getSelectionModel().select(1);
+            return null;
+        });
+        capturar("12-usuarios", 800, List.of(m("t:Nuevo usuario", 1, 'I', 90), m("#tabla", 2, 'A', 35, -100),
+                m("#btnActivar", 3, 'A', 45), m("#btnRol", 4, 'A', 45), m("#btnClave", 5, 'A', 45)));
+
+        // Inicio (al final: ya hay actividad que mostrar y varios puntos en el gráfico)
+        fx(() -> {
+            main.mostrar("inicio");
+            return null;
+        });
+        List<Marca> inicio = List.of(m(".chip-estado", 1, 'I', 90), m("^^^t:Procesador", 2, 'A', 55),
+                m("#grafico", 3, 'B', 50), m("#listaActividad", 4, 'I', 90), m("^t:Accesos rápidos", 5, 'B', 25),
+                m("^t:Tu equipo", 6, 'B', 25));
+        capturar("05-inicio", 14000, inicio, 1000, 0);
+        capturar("00-portada-inicio", 0, List.of(), 1000, 0); // sin marcas, para la portada
+        vaciarContenido();
+        capturar("04-menu", 300, List.of(m("t:Inicio", 1, 'D', 70), m("t:Asistente", 2, 'D', 70), m("t:Historial", 3, 'D', 70),
+                m("t:Documentos", 4, 'D', 70), m("t:Reportes", 5, 'D', 70), m("t:Diagnóstico", 6, 'D', 70),
+                m("t:Usuarios", 7, 'D', 70), m("#chipUsuario", 8, 'D', 70), m("#btnFlotante", 9, 'D', 70),
+                m("t:Cerrar sesión", 10, 'D', 70), m("#btnContraer", 11, 'D', 70)), ALTO, 400);
+        fx(() -> {
+            ((ButtonBase) buscar("#btnContraer")).fire();
+            return null;
+        });
+        capturar("06-menu-contraido", 900, List.of(m("#btnContraer", 1, 'D', 50)), ALTO, 200);
+        fx(() -> {
+            ((ButtonBase) buscar("#btnContraer")).fire();
+            return null;
+        });
+
+        // ---------- Estudiante: menú reducido ----------
+        autenticacion.cerrarSesion();
+        autenticacion.iniciarSesion("estudiante", "Estudiante123");
+        FXMLLoader cargador2 = new FXMLLoader(getClass().getResource("/view/main-view.fxml"));
+        cargador2.setControllerFactory(contexto::getBean);
+        Parent principal2 = fx(() -> cargarSin(cargador2));
+        fx(() -> {
+            envoltorio.getChildren().setAll(principal2, capa);
+            return null;
+        });
+        vaciarContenido();
+        capturar("13-estudiante", 800, List.of(m("t:Inicio", 1, 'D', 70), m("t:Asistente", 2, 'D', 70),
+                m("t:Historial", 3, 'D', 70), m("t:Documentos", 4, 'D', 70), m("t:Reportes", 5, 'D', 70),
+                m("#chipUsuario", 6, 'D', 70)), ALTO, 400);
+        // ---------- Modo flotante ----------
+        autenticacion.cerrarSesion();
+        autenticacion.iniciarSesion("admin", "Admin123");
+        FXMLLoader cargadorMini = new FXMLLoader(getClass().getResource("/view/mini-view.fxml"));
+        cargadorMini.setControllerFactory(contexto::getBean);
+        Parent mini = fx(() -> cargarSin(cargadorMini));
+        pe.upeu.atlas.controller.MiniController mc = cargadorMini.getController();
+        ((javafx.scene.layout.Region) mini).setMaxSize(javafx.scene.layout.Region.USE_PREF_SIZE, javafx.scene.layout.Region.USE_PREF_SIZE);
+        StackPane fondoMini = new StackPane(mini);
+        fondoMini.setAlignment(javafx.geometry.Pos.TOP_LEFT);
+        fondoMini.setStyle("-fx-background-color: linear-gradient(to bottom right, #5f6f8f, #cfd8e6); -fx-padding: 24;");
+        fx(() -> {
+            envoltorio.getChildren().setAll(fondoMini, capa);
+            return null;
+        });
+        mc.mensajeUsuario("Toma una captura de pantalla");
+        mc.herramienta("Tomó una captura de pantalla");
+        mc.mensajeAsistente("Listo, guardé la captura en la carpeta de capturas de Atlas.");
+        mc.estado(Estado.INACTIVO);
+        capturar("07d-mini", 700, List.of(m("#btnExpandir", 1, 'D', 32), m("#scrollRespuesta", 2, 'D', 32),
+                m("#btnMicrofono", 3, 'B', 26), m("#txtMensaje", 4, 'B', 26)), 340, 480);
+        mc.mensajeUsuario("Dime cuánto es 458 por 37");
+        mc.estado(Estado.PENSANDO);
+        capturar("07e-mini-pensando", 700, List.of(m("#btnInterrumpir", 1, 'B', 26), m("#lblEstado", 2, 'A', 22, 60)), 340, 480);
+        mc.estado(Estado.INACTIVO);
+
+        autenticacion.cerrarSesion();
+        fx(() -> {
+            ventana.close();
+            return null;
+        });
+        System.out.println("CAPTURAS -> " + salida.toAbsolutePath());
+    }
+
+    // ===== Utilidades =====
+
+    private void vaciarContenido() throws Exception {
+        fx(() -> {
+            ((Pane) buscar("#contenido")).getChildren().clear();
+            return null;
+        });
+    }
+
+    private static Parent cargarSin(FXMLLoader l) {
+        try {
+            return l.load();
+        } catch (java.io.IOException e) {
+            throw new java.io.UncheckedIOException(e);
+        }
+    }
+
+    private void mostrar(String fxml) throws Exception {
+        FXMLLoader c = new FXMLLoader(getClass().getResource(fxml));
+        c.setControllerFactory(contexto::getBean);
+        Parent nodo = fx(() -> cargarSin(c));
+        fx(() -> {
+            envoltorio.getChildren().setAll(nodo, capa);
+            return null;
+        });
+    }
+
+    /** Envía un mensaje al asistente real y espera a que termine de responder. */
+    private void enviar(String texto) throws Exception {
+        // Si el asistente aún carga el modelo de voz, el mensaje se ignora: esperar a que esté libre y reintentar
+        boolean aceptado = false;
+        for (int intento = 0; intento < 5 && !aceptado; intento++) {
+            long libre = System.currentTimeMillis() + 60_000;
+            while (orquestador.getEstado() != OrquestadorConversacion.Estado.INACTIVO && System.currentTimeMillis() < libre) {
+                Thread.sleep(300);
+            }
+            orquestador.turnoPorTexto(texto);
+            long limite0 = System.currentTimeMillis() + 4000;
+            while (orquestador.getEstado() == OrquestadorConversacion.Estado.INACTIVO && System.currentTimeMillis() < limite0) {
+                Thread.sleep(100);
+            }
+            aceptado = orquestador.getEstado() != OrquestadorConversacion.Estado.INACTIVO;
+        }
+        long limite = System.currentTimeMillis() + 240_000;
+        while (orquestador.getEstado() != OrquestadorConversacion.Estado.INACTIVO && System.currentTimeMillis() < limite) {
+            Thread.sleep(300);
+        }
+        Thread.sleep(700);
+    }
+
+    private void capturar(String nombre, long esperaMs, List<Marca> marcas) throws Exception {
+        capturar(nombre, esperaMs, marcas, ALTO, 0);
+    }
+
+    /** @param altoVentana alto lógico de la ventana; @param recorteAncho si &gt; 0, recorta la imagen a ese ancho lógico */
+    private void capturar(String nombre, long esperaMs, List<Marca> marcas, double altoVentana, double recorteAncho) throws Exception {
+        if (altoVentana != alto) {
+            fx(() -> {
+                ventana.setHeight(altoVentana);
+                return null;
+            });
+            alto = altoVentana;
+            Thread.sleep(800);
+        }
+        Thread.sleep(esperaMs);
+        BufferedImage completa = fx(() -> {
+            capa.getChildren().clear();
+            envoltorio.applyCss();
+            envoltorio.layout();
+            for (Marca marca : marcas) {
+                Node nodo = buscar(marca.selector());
+                if (nodo == null) {
+                    throw new IllegalStateException("No encontré " + marca.selector() + " en " + nombre);
+                }
+                dibujar(nodo, marca);
+            }
+            SnapshotParameters p = new SnapshotParameters();
+            p.setTransform(Transform.scale(ESCALA, ESCALA));
+            WritableImage wi = envoltorio.snapshot(p, new WritableImage((int) (ANCHO * ESCALA), (int) (alto * ESCALA)));
+            capa.getChildren().clear();
+            return aBuffered(wi);
+        });
+        BufferedImage imagen = recorteAncho > 0
+                ? completa.getSubimage(0, 0, (int) (recorteAncho * ESCALA), completa.getHeight()) : completa;
+        if (altoVentana != ALTO) {
+            fx(() -> {
+                ventana.setHeight(ALTO);
+                return null;
+            });
+            alto = ALTO;
+            Thread.sleep(500);
+        }
+        ImageIO.write(imagen, "png", salida.resolve(nombre + ".png").toFile());
+        System.out.println("Captura " + nombre + " (" + imagen.getWidth() + "x" + imagen.getHeight() + ")");
+    }
+
+    private Node buscar(String selector) {
+        int subir = 0;
+        while (selector.startsWith("^")) {
+            subir++;
+            selector = selector.substring(1);
+        }
+        Node nodo;
+        if (selector.startsWith("t:")) {
+            nodo = porTexto(envoltorio, selector.substring(2));
+        } else {
+            nodo = envoltorio.lookup(selector);
+        }
+        for (int i = 0; nodo != null && i < subir; i++) {
+            nodo = nodo.getParent();
+        }
+        return nodo;
+    }
+
+    private static Node porTexto(Node raiz, String texto) {
+        Deque<Node> pila = new ArrayDeque<>();
+        pila.push(raiz);
+        while (!pila.isEmpty()) {
+            Node n = pila.pop();
+            if (n.isVisible() && n.getScene() != null) {
+                if (n instanceof Labeled l && texto.equals(l.getText())) {
+                    return n;
+                }
+                if (n instanceof TextInputControl t && texto.equals(t.getPromptText())) {
+                    return n;
+                }
+            }
+            if (n instanceof Parent p) {
+                List<Node> hijos = p.getChildrenUnmodifiable();
+                for (int i = hijos.size() - 1; i >= 0; i--) {
+                    pila.push(hijos.get(i));
+                }
+            }
+        }
+        return null;
+    }
+
+    private void dibujar(Node nodo, Marca marca) {
+        Bounds b = nodo.localToScene(nodo.getBoundsInLocal());
+        double pad = 4;
+        double x0 = b.getMinX() - pad, y0 = b.getMinY() - pad, x1 = b.getMaxX() + pad, y1 = b.getMaxY() + pad;
+        double cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+
+        Rectangle marco = new Rectangle(x0, y0, x1 - x0, y1 - y0);
+        marco.setArcWidth(12);
+        marco.setArcHeight(12);
+        marco.setFill(Color.TRANSPARENT);
+        marco.setStroke(ROJO);
+        marco.setStrokeWidth(3);
+
+        double bx, by, ex, ey;
+        int d = marca.desp();
+        switch (marca.lado()) {
+            case 'I' -> { bx = x0 - marca.dist(); by = cy + d; ex = x0; ey = by; }
+            case 'D' -> { bx = x1 + marca.dist(); by = cy + d; ex = x1; ey = by; }
+            case 'A' -> { bx = cx + d; by = y0 - marca.dist(); ex = bx; ey = y0; }
+            default -> { bx = cx + d; by = y1 + marca.dist(); ex = bx; ey = y1; }
+        }
+        double radio = 15;
+        bx = Math.max(radio + 4, Math.min(ANCHO - radio - 4, bx));
+        by = Math.max(radio + 4, Math.min(alto - radio - 4, by));
+
+        double dx = ex - bx, dy = ey - by;
+        double largo = Math.max(1, Math.hypot(dx, dy));
+        double ux = dx / largo, uy = dy / largo;
+        double sx = bx + ux * radio, sy = by + uy * radio;
+
+        Line linea = new Line(sx, sy, ex - ux * 10, ey - uy * 10);
+        linea.setStroke(ROJO);
+        linea.setStrokeWidth(3);
+        Polygon punta = new Polygon(ex, ey,
+                ex - ux * 16 - uy * 8, ey - uy * 16 + ux * 8,
+                ex - ux * 16 + uy * 8, ey - uy * 16 - ux * 8);
+        punta.setFill(ROJO);
+
+        Circle insignia = new Circle(bx, by, radio, ROJO);
+        insignia.setStroke(Color.WHITE);
+        insignia.setStrokeWidth(2);
+        insignia.setEffect(new DropShadow(4, Color.rgb(0, 0, 0, 0.35)));
+        Text numero = new Text(String.valueOf(marca.numero()));
+        numero.setFont(Font.font("Segoe UI", FontWeight.BOLD, 17));
+        numero.setFill(Color.WHITE);
+        numero.setX(bx - numero.getLayoutBounds().getWidth() / 2);
+        numero.setY(by + numero.getLayoutBounds().getHeight() / 4 + 1);
+
+        capa.getChildren().addAll(marco, linea, punta, insignia, numero);
+    }
+
+    private static BufferedImage aBuffered(WritableImage wi) {
+        int w = (int) wi.getWidth(), h = (int) wi.getHeight();
+        BufferedImage bi = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        PixelReader lector = wi.getPixelReader();
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                bi.setRGB(x, y, lector.getArgb(x, y));
+            }
+        }
+        return bi;
+    }
+
+    /** Ejecuta en el hilo de JavaFX y espera el resultado. */
+    private static <T> T fx(Supplier<T> trabajo) throws Exception {
+        CompletableFuture<T> f = new CompletableFuture<>();
+        Platform.runLater(() -> {
+            try {
+                f.complete(trabajo.get());
+            } catch (Throwable e) {
+                f.completeExceptionally(e);
+            }
+        });
+        return f.get(60, TimeUnit.SECONDS);
+    }
+}
