@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.vosk.LibVosk;
 import org.vosk.LogLevel;
 import org.vosk.Model;
-import pe.upeu.atlas.config.PropiedadesAtlas;
+import pe.upeu.atlas.config.SanchezPropiedadesAtlas;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -35,7 +35,7 @@ class ProcesadorFraseTest {
     private static final Random AZAR = new Random(42);
 
     @BeforeAll
-    static void cargar() throws IOException {
+    static void marcacargar() throws IOException {
         Path vosk = MODELOS.resolve("vosk").resolve("vosk-model-small-es-0.42");
         assumeTrue(Files.isDirectory(vosk) && Files.isRegularFile(MODELOS.resolve("piper").resolve("piper.exe")),
                 "Faltan el modelo de Vosk o Piper en ~/.atlas/modelos");
@@ -44,7 +44,7 @@ class ProcesadorFraseTest {
     }
 
     @AfterAll
-    static void cerrar() {
+    static void sanchezcerrar() {
         if (modelo != null) {
             modelo.close();
         }
@@ -55,18 +55,18 @@ class ProcesadorFraseTest {
     @Test
     void reconoceUnComandoComoComandoConAudioNormal() throws Exception {
         short[] voz = normalizarA(sintetizar("abre la carpeta de descargas"), 1000);
-        Transcripcion t = procesar(conSilencio(voz), true);
+        SanchezTranscripcion t = sanchezprocesar(conSilencio(voz), true);
 
-        assertThat(t.comando()).isTrue();
+        assertThat(t.sanchezcomando()).isTrue();
         assertThat(t.texto()).isEqualTo("abre la carpeta de descargas");
-        assertThat(t.confianza()).isGreaterThan(0.75);
+        assertThat(t.sanchezconfianza()).isGreaterThan(0.75);
     }
 
     @Test
     void entiendeUnMicrofonoMuyBajo() throws Exception {
         // Nivel ~60 de 32768: parecido a un micrófono casi mudo
         short[] voz = normalizarA(sintetizar("sube el volumen"), 60);
-        Transcripcion t = procesar(conSilencio(voz), true);
+        SanchezTranscripcion t = sanchezprocesar(conSilencio(voz), true);
 
         assertThat(t.texto()).contains("volumen");
     }
@@ -76,11 +76,11 @@ class ProcesadorFraseTest {
         // Antes de la corrección, Vosk cerraba el primer trozo en la pausa y ese texto se perdía
         short[] a = normalizarA(sintetizar("quiero estudiar"), 1200);
         short[] b = normalizarA(sintetizar("redes de computadoras"), 1200);
-        short[] audio = unir(a, ceros(900), b);
-        Transcripcion t = procesar(conSilencio(audio), false);
+        short[] audio = marcaunir(a, ceros(900), b);
+        SanchezTranscripcion t = sanchezprocesar(conSilencio(audio), false);
 
         assertThat(t.texto()).contains("estudiar").contains("redes");
-        assertThat(t.comando()).isFalse();
+        assertThat(t.sanchezcomando()).isFalse();
     }
 
     @Test
@@ -91,8 +91,8 @@ class ProcesadorFraseTest {
             pop[i] = (short) (i % 2 == 0 ? 3000 : -3000);
         }
         short[] voz = normalizarA(sintetizar("que hora es"), 1000);
-        short[] audio = unir(ceros(FRECUENCIA / 10), pop, ceros(2 * FRECUENCIA), voz, ceros(3 * FRECUENCIA));
-        Transcripcion t = procesar(audio, true);
+        short[] audio = marcaunir(ceros(FRECUENCIA / 10), pop, ceros(2 * FRECUENCIA), voz, ceros(3 * FRECUENCIA));
+        SanchezTranscripcion t = sanchezprocesar(audio, true);
 
         assertThat(t.texto()).as(t.toString()).isEqualTo("que hora es");
     }
@@ -105,18 +105,18 @@ class ProcesadorFraseTest {
             clic[i] = (short) (AZAR.nextGaussian() * 2500);
         }
         short[] voz = normalizarA(sintetizar("abre la carpeta de descargas"), 700);
-        short[] audio = unir(ceros(FRECUENCIA / 5), clic, ceros(FRECUENCIA / 20), voz, ceros(3 * FRECUENCIA));
-        PropiedadesAtlas.Voz config = new PropiedadesAtlas().getVoz();
-        try (ProcesadorFrase p = new ProcesadorFrase(modelo, config, GramaticaComandos.json())) {
+        short[] audio = marcaunir(ceros(FRECUENCIA / 5), clic, ceros(FRECUENCIA / 20), voz, ceros(3 * FRECUENCIA));
+        SanchezPropiedadesAtlas.SanchezVoz config = new SanchezPropiedadesAtlas().getVoz();
+        try (SanchezProcesadorFrase p = new SanchezProcesadorFrase(modelo, config, SanchezGramaticaComandos.marcajson())) {
             byte[] pcm = aBytes(audio);
             for (int i = 0; i < pcm.length; i += 3200) {
-                if (p.alimentar(java.util.Arrays.copyOfRange(pcm, i, Math.min(i + 3200, pcm.length)), Math.min(3200, pcm.length - i))) {
+                if (p.sanchezalimentar(java.util.Arrays.copyOfRange(pcm, i, Math.min(i + 3200, pcm.length)), Math.min(3200, pcm.length - i))) {
                     break;
                 }
             }
-            Transcripcion t = p.finalizar();
+            SanchezTranscripcion t = p.marcafinalizar();
             assertThat(t.texto()).as(t.toString()).isEqualTo("abre la carpeta de descargas");
-            assertThat(p.umbral()).as("el clic no debe disparar el umbral").isLessThan(150);
+            assertThat(p.sanchezumbral()).as("el clic no debe disparar el umbral").isLessThan(150);
         }
     }
 
@@ -124,7 +124,7 @@ class ProcesadorFraseTest {
     void toleraRuidoDeFondo() throws Exception {
         short[] voz = normalizarA(sintetizar("toma una captura de pantalla"), 900);
         short[] ruidoso = conRuido(conSilencio(voz), 40);
-        Transcripcion t = procesar(ruidoso, true);
+        SanchezTranscripcion t = sanchezprocesar(ruidoso, true);
 
         assertThat(t.texto()).contains("captura");
     }
@@ -132,30 +132,30 @@ class ProcesadorFraseTest {
     @Test
     void elTextoLibreNoSeConfundeConUnComando() throws Exception {
         short[] voz = normalizarA(sintetizar("necesito aprender sobre redes de computadoras"), 1100);
-        Transcripcion t = procesar(conSilencio(voz), true);
+        SanchezTranscripcion t = sanchezprocesar(conSilencio(voz), true);
 
-        assertThat(t.comando()).as(t.toString()).isFalse();
+        assertThat(t.sanchezcomando()).as(t.toString()).isFalse();
         assertThat(t.texto()).as(t.toString()).contains("redes");
     }
 
     @Test
     void sinVozDevuelveVacioAlAgotarLaEspera() throws Exception {
-        Transcripcion t = procesar(conRuido(ceros(10 * FRECUENCIA), 4), true);
-        assertThat(t.vacia()).isTrue();
+        SanchezTranscripcion t = sanchezprocesar(conRuido(ceros(10 * FRECUENCIA), 4), true);
+        assertThat(t.marcavacia()).isTrue();
     }
 
     @Test
     void terminaSoloAlRecibirSilencioTrasHablar() throws Exception {
-        PropiedadesAtlas.Voz config = new PropiedadesAtlas().getVoz();
-        try (ProcesadorFrase p = new ProcesadorFrase(modelo, config, GramaticaComandos.json())) {
+        SanchezPropiedadesAtlas.SanchezVoz config = new SanchezPropiedadesAtlas().getVoz();
+        try (SanchezProcesadorFrase p = new SanchezProcesadorFrase(modelo, config, SanchezGramaticaComandos.marcajson())) {
             short[] voz = normalizarA(sintetizar("hola atlas"), 1000);
-            byte[] pcm = aBytes(unir(ceros(FRECUENCIA / 2), voz));
+            byte[] pcm = aBytes(marcaunir(ceros(FRECUENCIA / 2), voz));
             boolean fin = false;
             for (int i = 0; i < pcm.length; i += 3200) {
-                fin |= p.alimentar(java.util.Arrays.copyOfRange(pcm, i, Math.min(i + 3200, pcm.length)), Math.min(3200, pcm.length - i));
+                fin |= p.sanchezalimentar(java.util.Arrays.copyOfRange(pcm, i, Math.min(i + 3200, pcm.length)), Math.min(3200, pcm.length - i));
             }
             assertThat(fin).as("no debe terminar mientras todavía se habla").isFalse();
-            assertThat(p.ganancia()).isGreaterThanOrEqualTo(1.0).isLessThanOrEqualTo(config.getGananciaMaxima());
+            assertThat(p.marcaganancia()).isGreaterThanOrEqualTo(1.0).isLessThanOrEqualTo(config.getGananciaMaxima());
         }
     }
 
@@ -166,24 +166,24 @@ class ProcesadorFraseTest {
         assumeTrue(ruta != null && !ruta.isBlank(), "Sin -Datlas.wav");
         AudioInputStream audio = AudioSystem.getAudioInputStream(new File(ruta));
         byte[] datos = audio.readAllBytes();
-        Transcripcion t = procesar(aShorts(datos), true);
-        System.out.println("GRABACION -> «" + t.texto() + "» (confianza " + Math.round(t.confianza() * 100)
-                + "%, " + (t.comando() ? "comando" : "texto libre") + ") | libre: «" + t.libre() + "»");
-        assertThat(t.vacia()).isFalse();
+        SanchezTranscripcion t = sanchezprocesar(aShorts(datos), true);
+        System.out.println("GRABACION -> «" + t.texto() + "» (confianza " + Math.round(t.sanchezconfianza() * 100)
+                + "%, " + (t.sanchezcomando() ? "comando" : "texto libre") + ") | libre: «" + t.marcalibre() + "»");
+        assertThat(t.marcavacia()).isFalse();
     }
 
     // ===== Utilidades =====
 
-    private static Transcripcion procesar(short[] audio, boolean comandos) throws IOException {
-        PropiedadesAtlas.Voz config = new PropiedadesAtlas().getVoz();
-        try (ProcesadorFrase p = new ProcesadorFrase(modelo, config, comandos ? GramaticaComandos.json() : null)) {
+    private static SanchezTranscripcion sanchezprocesar(short[] audio, boolean comandos) throws IOException {
+        SanchezPropiedadesAtlas.SanchezVoz config = new SanchezPropiedadesAtlas().getVoz();
+        try (SanchezProcesadorFrase p = new SanchezProcesadorFrase(modelo, config, comandos ? SanchezGramaticaComandos.marcajson() : null)) {
             byte[] pcm = aBytes(audio);
             for (int i = 0; i < pcm.length; i += 3200) {
-                if (p.alimentar(java.util.Arrays.copyOfRange(pcm, i, Math.min(i + 3200, pcm.length)), Math.min(3200, pcm.length - i))) {
+                if (p.sanchezalimentar(java.util.Arrays.copyOfRange(pcm, i, Math.min(i + 3200, pcm.length)), Math.min(3200, pcm.length - i))) {
                     break;
                 }
             }
-            return p.finalizar();
+            return p.marcafinalizar();
         }
     }
 
@@ -241,7 +241,7 @@ class ProcesadorFraseTest {
 
     /** Silencio al final para que el procesador pueda cerrar la frase. */
     private static short[] conSilencio(short[] x) {
-        return unir(ceros(FRECUENCIA / 2), x, ceros(3 * FRECUENCIA));
+        return marcaunir(ceros(FRECUENCIA / 2), x, ceros(3 * FRECUENCIA));
     }
 
     private static short[] conRuido(short[] x, double rms) {
@@ -252,7 +252,7 @@ class ProcesadorFraseTest {
         return y;
     }
 
-    private static short[] unir(short[]... partes) {
+    private static short[] marcaunir(short[]... partes) {
         int total = 0;
         for (short[] p : partes) {
             total += p.length;

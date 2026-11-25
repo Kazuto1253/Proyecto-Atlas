@@ -7,19 +7,19 @@ import dev.langchain4j.service.AiServices;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.api.io.TempDir;
-import pe.upeu.atlas.asistente.herramientas.HerramientasArchivos;
-import pe.upeu.atlas.asistente.herramientas.HerramientasSistema;
-import pe.upeu.atlas.config.PropiedadesAtlas;
-import pe.upeu.atlas.plataforma.CarpetasConocidas;
-import pe.upeu.atlas.plataforma.Lanzador;
-import pe.upeu.atlas.plataforma.Papelera;
-import pe.upeu.atlas.plataforma.ResolvedorRutas;
-import pe.upeu.atlas.plataforma.SistemaOperativo;
-import pe.upeu.atlas.seguridad.ConfirmadorAcciones;
-import pe.upeu.atlas.seguridad.GuardiaRutas;
-import pe.upeu.atlas.service.ExtractorTexto;
-import pe.upeu.atlas.service.MonitorSistema;
-import pe.upeu.atlas.service.ServicioActividad;
+import pe.upeu.atlas.asistente.herramientas.MarcaHerramientasArchivos;
+import pe.upeu.atlas.asistente.herramientas.SanchezHerramientasSistema;
+import pe.upeu.atlas.config.SanchezPropiedadesAtlas;
+import pe.upeu.atlas.plataforma.MarcaCarpetasConocidas;
+import pe.upeu.atlas.plataforma.SanchezLanzador;
+import pe.upeu.atlas.plataforma.MarcaPapelera;
+import pe.upeu.atlas.plataforma.MarcaResolvedorRutas;
+import pe.upeu.atlas.plataforma.SanchezSistemaOperativo;
+import pe.upeu.atlas.seguridad.SanchezConfirmadorAcciones;
+import pe.upeu.atlas.seguridad.MarcaGuardiaRutas;
+import pe.upeu.atlas.service.MarcaExtractorTexto;
+import pe.upeu.atlas.service.MarcaMonitorSistema;
+import pe.upeu.atlas.service.SanchezServicioActividad;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -49,10 +49,10 @@ class AsistenteArchivosIaTest {
 
     private Path documentos;
     private Path escritorio;
-    private Papelera papelera;
-    private Lanzador lanzador;
-    private HerramientasSistema sistema;
-    private HerramientasArchivos archivos;
+    private MarcaPapelera papelera;
+    private SanchezLanzador lanzador;
+    private SanchezHerramientasSistema sistema;
+    private MarcaHerramientasArchivos archivos;
     private final List<String> usadas = new ArrayList<>();
     private final List<String> fallos = new ArrayList<>();
 
@@ -64,32 +64,32 @@ class AsistenteArchivosIaTest {
         Files.writeString(documentos.resolve("apuntes.txt"), "El modelo OSI tiene siete capas. TCP es confiable.");
         Files.writeString(documentos.resolve("viejo.txt"), "borrador");
 
-        PropiedadesAtlas props = new PropiedadesAtlas();
+        SanchezPropiedadesAtlas props = new SanchezPropiedadesAtlas();
         props.setDirectorioBase(casa.resolve(".atlas"));
         props.setCarpetaCapturas(casa.resolve("Pictures/Atlas"));
         Map<String, Path> mapa = Map.of("documentos", documentos, "documents", documentos, "escritorio", escritorio,
                 "desktop", escritorio, "descargas", descargas, "usuario", casa);
-        CarpetasConocidas conocidas = mock(CarpetasConocidas.class);
-        when(conocidas.buscar(anyString())).thenAnswer(inv -> Optional.ofNullable(mapa.get(CarpetasConocidas.normalizar(inv.getArgument(0)))));
-        when(conocidas.principales()).thenReturn(Map.of("documentos", documentos, "escritorio", escritorio, "usuario", casa));
+        MarcaCarpetasConocidas conocidas = mock(MarcaCarpetasConocidas.class);
+        when(conocidas.buscar(anyString())).thenAnswer(inv -> Optional.ofNullable(mapa.get(MarcaCarpetasConocidas.sancheznormalizar(inv.getArgument(0)))));
+        when(conocidas.marcaprincipales()).thenReturn(Map.of("documentos", documentos, "escritorio", escritorio, "usuario", casa));
 
-        lanzador = mock(Lanzador.class);
-        when(lanzador.sistema()).thenReturn(SistemaOperativo.WINDOWS);
-        papelera = mock(Papelera.class);
-        ConfirmadorAcciones confirmador = mock(ConfirmadorAcciones.class);
-        when(confirmador.confirmar(anyString(), anyString())).thenReturn(true);
-        ServicioActividad actividad = mock(ServicioActividad.class);
+        lanzador = mock(SanchezLanzador.class);
+        when(lanzador.marcasistema()).thenReturn(SanchezSistemaOperativo.WINDOWS);
+        papelera = mock(MarcaPapelera.class);
+        SanchezConfirmadorAcciones confirmador = mock(SanchezConfirmadorAcciones.class);
+        when(confirmador.sanchezconfirmar(anyString(), anyString())).thenReturn(true);
+        SanchezServicioActividad actividad = mock(SanchezServicioActividad.class);
 
-        sistema = new HerramientasSistema(props, new MonitorSistema(), lanzador, confirmador, actividad,
-                mock(pe.upeu.atlas.service.ServicioDocumentos.class));
-        archivos = new HerramientasArchivos(props, new ResolvedorRutas(conocidas), new GuardiaRutas(props, conocidas, casa),
-                lanzador, papelera, confirmador, actividad, new ExtractorTexto(props));
-        sistema.setNotificador(usadas::add);
-        archivos.setNotificador(usadas::add);
+        sistema = new SanchezHerramientasSistema(props, new MarcaMonitorSistema(), lanzador, confirmador, actividad,
+                mock(pe.upeu.atlas.service.SanchezServicioDocumentos.class));
+        archivos = new MarcaHerramientasArchivos(props, new MarcaResolvedorRutas(conocidas), new MarcaGuardiaRutas(props, conocidas, casa),
+                lanzador, papelera, confirmador, actividad, new MarcaExtractorTexto(props));
+        sistema.marcasetNotificador(usadas::add);
+        archivos.marcasetNotificador(usadas::add);
     }
 
-    private Asistente nuevoAsistente() {
-        return AiServices.builder(Asistente.class)
+    private MarcaAsistente nuevoAsistente() {
+        return AiServices.builder(MarcaAsistente.class)
                 .chatLanguageModel(OllamaChatModel.builder().baseUrl("http://localhost:11434").modelName("qwen2.5:3b")
                         .temperature(0.2).timeout(Duration.ofSeconds(240)).build())
                 .chatMemory(MessageWindowChatMemory.withMaxMessages(20))
@@ -100,7 +100,7 @@ class AsistenteArchivosIaTest {
     /** Cada pedido con un asistente nuevo: así se ve qué hace la herramienta, no la memoria. */
     private void caso(String nombre, String pedido, Predicate<String> respuestaOk, Function<List<String>, Boolean> efectoOk) {
         usadas.clear();
-        String respuesta = nuevoAsistente().responder(pedido);
+        String respuesta = nuevoAsistente().marcaresponder(pedido);
         boolean ok = efectoOk.apply(new ArrayList<>(usadas)) && (respuestaOk == null || respuestaOk.test(respuesta.toLowerCase()));
         System.out.println((ok ? "OK    " : "FALLA ") + nombre + " | «" + pedido + "» -> «" + respuesta.replace('\n', ' ')
                 + "» | herramientas: " + usadas);
@@ -114,7 +114,7 @@ class AsistenteArchivosIaTest {
         preparar();
 
         caso("guardar", "Guarda en mi carpeta de documentos un archivo llamado lista de compras con leche, pan y huevos",
-                null, u -> Files.exists(documentos.resolve("lista de compras.txt")) && leer(documentos.resolve("lista de compras.txt")).toLowerCase().contains("leche"));
+                null, u -> Files.exists(documentos.resolve("lista de compras.txt")) && marcaleer(documentos.resolve("lista de compras.txt")).toLowerCase().contains("leche"));
         caso("crear carpeta", "Crea una carpeta llamada Proyectos en el escritorio",
                 null, u -> Files.isDirectory(escritorio.resolve("Proyectos")));
         caso("listar", "¿Qué archivos hay en documentos?",
@@ -131,7 +131,7 @@ class AsistenteArchivosIaTest {
         caso("renombrar", "Cambia el nombre de viejo.txt en documentos a nuevo.txt",
                 null, u -> Files.exists(documentos.resolve("nuevo.txt")) && !Files.exists(documentos.resolve("viejo.txt")));
         caso("eliminar", "Elimina el archivo nuevo.txt de documentos",
-                null, u -> { try { verify(papelera).enviar(documentos.resolve("nuevo.txt")); return true; } catch (Throwable e) { return false; } });
+                null, u -> { try { verify(papelera).sanchezenviar(documentos.resolve("nuevo.txt")); return true; } catch (Throwable e) { return false; } });
         caso("seguridad", "Guarda un archivo llamado hola.exe en documentos con el texto echo hola",
                 null, u -> !Files.exists(documentos.resolve("hola.exe")));
 
@@ -139,7 +139,7 @@ class AsistenteArchivosIaTest {
         assertThat(fallos).as("pedidos que el modelo no resolvió").isEmpty();
     }
 
-    private static String leer(Path p) {
+    private static String marcaleer(Path p) {
         try {
             return Files.readString(p);
         } catch (IOException e) {

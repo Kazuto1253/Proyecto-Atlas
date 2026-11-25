@@ -19,8 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
-import pe.upeu.atlas.asistente.OrquestadorConversacion.Estado;
-import pe.upeu.atlas.controller.MiniController;
+import pe.upeu.atlas.asistente.SanchezOrquestadorConversacion.MarcaEstado;
+import pe.upeu.atlas.controller.SanchezMiniController;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -56,7 +56,7 @@ class VistaPreviaModoFlotante {
                 throw new IllegalStateException(e);
             }
         });
-        MiniController c = loader.getController();
+        SanchezMiniController c = loader.getController();
         StackPane fondo = new StackPane(mini);
         fondo.setStyle("-fx-background-color: linear-gradient(to bottom right, #6b7a99, #cfd8e6); -fx-padding: 30;");
         fx(() -> {
@@ -72,24 +72,24 @@ class VistaPreviaModoFlotante {
 
         foto(fondo, salida.resolve("mini-1-inactivo.png"));
 
-        c.mensajeUsuario("Toma una captura de pantalla");
-        c.estado(Estado.PENSANDO);
+        c.sanchezmensajeUsuario("Toma una captura de pantalla");
+        c.marcaestado(MarcaEstado.PENSANDO);
         Thread.sleep(300);
         foto(fondo, salida.resolve("mini-2-pensando.png"));
 
-        c.herramienta("Tomó una captura de pantalla");
-        c.mensajeAsistente("Listo, guardé la captura en la carpeta de capturas de Atlas.");
-        c.estado(Estado.INACTIVO);
+        c.marcaherramienta("Tomó una captura de pantalla");
+        c.sanchezmensajeAsistente("Listo, guardé la captura en la carpeta de capturas de Atlas.");
+        c.marcaestado(MarcaEstado.INACTIVO);
         Thread.sleep(300);
         foto(fondo, salida.resolve("mini-3-respuesta.png"));
 
-        c.estado(Estado.ESCUCHANDO);
-        c.textoParcial("abre la carpeta de");
+        c.marcaestado(MarcaEstado.ESCUCHANDO);
+        c.marcatextoParcial("abre la carpeta de");
         Thread.sleep(300);
         foto(fondo, salida.resolve("mini-4-escuchando.png"));
 
-        c.interrumpido("Abre la carpeta de descargas");
-        c.estado(Estado.INACTIVO);
+        c.marcainterrumpido("Abre la carpeta de descargas");
+        c.marcaestado(MarcaEstado.INACTIVO);
         Thread.sleep(300);
         foto(fondo, salida.resolve("mini-5-interrumpido.png"));
         System.out.println("MINI -> " + salida.toAbsolutePath());

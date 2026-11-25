@@ -11,11 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import pe.upeu.atlas.exception.NegocioException;
-import pe.upeu.atlas.exception.PermisoDenegadoException;
-import pe.upeu.atlas.model.Documento;
-import pe.upeu.atlas.model.Rol;
-import pe.upeu.atlas.seguridad.ServicioAutenticacion;
+import pe.upeu.atlas.exception.SanchezNegocioException;
+import pe.upeu.atlas.exception.SanchezPermisoDenegadoException;
+import pe.upeu.atlas.model.MarcaDocumento;
+import pe.upeu.atlas.model.SanchezRol;
+import pe.upeu.atlas.seguridad.SanchezServicioAutenticacion;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -36,8 +36,8 @@ class ServicioDocumentosTest {
     private static final List<String> TEMAS = List.of("redes", "cocina", "java", "musica");
 
     @MockBean private EmbeddingModel embeddings;
-    @Autowired private ServicioDocumentos documentos;
-    @Autowired private ServicioAutenticacion autenticacion;
+    @Autowired private SanchezServicioDocumentos documentos;
+    @Autowired private SanchezServicioAutenticacion autenticacion;
 
     @TempDir Path carpeta;
 
@@ -64,8 +64,8 @@ class ServicioDocumentosTest {
 
     private String entrar(String base) {
         String id = base + UUID.randomUUID().toString().substring(0, 8);
-        autenticacion.registrar("Usuario Docs", id, "secreto1", Rol.ESTUDIANTE);
-        autenticacion.iniciarSesion(id, "secreto1");
+        autenticacion.sanchezregistrar("Usuario Docs", id, "secreto1", SanchezRol.ESTUDIANTE);
+        autenticacion.marcainiciarSesion(id, "secreto1");
         return id;
     }
 
@@ -78,33 +78,33 @@ class ServicioDocumentosTest {
         Path cocina = Files.writeString(carpeta.resolve("cocina.txt"),
                 "La cocina peruana usa aji. La cocina cocina cocina es cultura.");
 
-        Documento d1 = documentos.importar(redes);
-        documentos.importar(cocina);
-        assertThat(documentos.listar()).extracting(Documento::getNombre).containsExactlyInAnyOrder("redes.txt", "cocina.txt");
+        MarcaDocumento d1 = documentos.marcaimportar(redes);
+        documentos.marcaimportar(cocina);
+        assertThat(documentos.sanchezlistar()).extracting(MarcaDocumento::getNombre).containsExactlyInAnyOrder("redes.txt", "cocina.txt");
         assertThat(d1.getFragmentos()).isEqualTo(1);
 
-        List<ServicioDocumentos.Resultado> r = documentos.buscar("¿Qué son las redes?", 2);
+        List<SanchezServicioDocumentos.SanchezResultado> r = documentos.buscar("¿Qué son las redes?", 2);
         assertThat(r).hasSize(2);
-        assertThat(r.get(0).documento()).isEqualTo("redes.txt");
-        assertThat(r.get(0).similitud()).isGreaterThan(r.get(1).similitud());
+        assertThat(r.get(0).marcadocumento()).isEqualTo("redes.txt");
+        assertThat(r.get(0).marcasimilitud()).isGreaterThan(r.get(1).marcasimilitud());
 
-        documentos.eliminar(d1.getId());
-        assertThat(documentos.listar()).extracting(Documento::getNombre).containsExactly("cocina.txt");
-        autenticacion.cerrarSesion();
+        documentos.sanchezeliminar(d1.getId());
+        assertThat(documentos.sanchezlistar()).extracting(MarcaDocumento::getNombre).containsExactly("cocina.txt");
+        autenticacion.marcacerrarSesion();
     }
 
     @Test
     void cadaUsuarioVeSoloSusDocumentos() throws IOException {
         simularEmbeddings();
         entrar("ana");
-        Documento mio = documentos.importar(Files.writeString(carpeta.resolve("a.txt"), "apuntes de java java"));
-        autenticacion.cerrarSesion();
+        MarcaDocumento mio = documentos.marcaimportar(Files.writeString(carpeta.resolve("a.txt"), "apuntes de java java"));
+        autenticacion.marcacerrarSesion();
 
         entrar("beto");
-        assertThat(documentos.listar()).isEmpty();
+        assertThat(documentos.sanchezlistar()).isEmpty();
         assertThat(documentos.buscar("java", 3)).isEmpty();
-        assertThatThrownBy(() -> documentos.eliminar(mio.getId())).isInstanceOf(PermisoDenegadoException.class);
-        autenticacion.cerrarSesion();
+        assertThatThrownBy(() -> documentos.sanchezeliminar(mio.getId())).isInstanceOf(SanchezPermisoDenegadoException.class);
+        autenticacion.marcacerrarSesion();
     }
 
     @Test
@@ -113,12 +113,12 @@ class ServicioDocumentosTest {
         Path exe = Files.writeString(carpeta.resolve("virus.exe"), "MZ");
         Path vacio = Files.writeString(carpeta.resolve("vacio.txt"), "   \n  ");
 
-        assertThatThrownBy(() -> documentos.importar(exe)).isInstanceOf(PermisoDenegadoException.class); // sin sesión
+        assertThatThrownBy(() -> documentos.marcaimportar(exe)).isInstanceOf(SanchezPermisoDenegadoException.class); // sin sesión
         entrar("tipo");
-        assertThatThrownBy(() -> documentos.importar(exe)).isInstanceOf(NegocioException.class).hasMessageContaining("no admitido");
-        assertThatThrownBy(() -> documentos.importar(vacio)).isInstanceOf(NegocioException.class).hasMessageContaining("texto");
-        assertThatThrownBy(() -> documentos.importar(carpeta.resolve("no-existe.txt"))).isInstanceOf(NegocioException.class);
-        assertThatThrownBy(() -> documentos.buscar("  ", 3)).isInstanceOf(NegocioException.class);
-        autenticacion.cerrarSesion();
+        assertThatThrownBy(() -> documentos.marcaimportar(exe)).isInstanceOf(SanchezNegocioException.class).hasMessageContaining("no admitido");
+        assertThatThrownBy(() -> documentos.marcaimportar(vacio)).isInstanceOf(SanchezNegocioException.class).hasMessageContaining("texto");
+        assertThatThrownBy(() -> documentos.marcaimportar(carpeta.resolve("no-existe.txt"))).isInstanceOf(SanchezNegocioException.class);
+        assertThatThrownBy(() -> documentos.buscar("  ", 3)).isInstanceOf(SanchezNegocioException.class);
+        autenticacion.marcacerrarSesion();
     }
 }

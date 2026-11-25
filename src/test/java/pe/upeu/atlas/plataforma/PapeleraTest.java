@@ -2,7 +2,7 @@
 package pe.upeu.atlas.plataforma;
 
 import org.junit.jupiter.api.Test;
-import pe.upeu.atlas.exception.PlataformaException;
+import pe.upeu.atlas.exception.MarcaPlataformaException;
 
 import java.awt.Desktop;
 import java.awt.GraphicsEnvironment;
@@ -22,7 +22,7 @@ class PapeleraTest {
         Path archivo = Files.createTempFile("atlas-papelera-", ".txt");
         Files.writeString(archivo, "prueba");
 
-        new Papelera().enviar(archivo);
+        new MarcaPapelera().sanchezenviar(archivo);
 
         assertThat(archivo).doesNotExist();
     }
@@ -31,7 +31,7 @@ class PapeleraTest {
     void siElArchivoNoExisteDaUnErrorClaro() {
         assumeTrue(!GraphicsEnvironment.isHeadless() && Desktop.isDesktopSupported()
                 && Desktop.getDesktop().isSupported(Desktop.Action.MOVE_TO_TRASH), "Sin papelera disponible");
-        assertThatThrownBy(() -> new Papelera().enviar(Path.of("D:\\no-existe-atlas-xyz\\a.txt")))
+        assertThatThrownBy(() -> new MarcaPapelera().sanchezenviar(Path.of("D:\\no-existe-atlas-xyz\\a.txt")))
                 .isInstanceOf(RuntimeException.class);
     }
 }

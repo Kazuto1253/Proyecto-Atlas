@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import pe.upeu.atlas.config.PropiedadesAtlas;
+import pe.upeu.atlas.config.SanchezPropiedadesAtlas;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AtlasApplicationTests {
 
     @Autowired
-    private PropiedadesAtlas propiedades;
+    private SanchezPropiedadesAtlas propiedades;
 
     @Test
     void cargaElContextoYLasPropiedades() {

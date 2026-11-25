@@ -12,16 +12,16 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="pe.upeu.atlas.controller.UsuariosController">
+            fx:controller="pe.upeu.atlas.controller.SanchezUsuariosController">
     <top>
         <HBox alignment="CENTER_LEFT" spacing="12">
             <padding><Insets top="24" right="32" bottom="12" left="32"/></padding>
             <VBox spacing="4">
                 <Label text="Usuarios" styleClass="titulo-vista"/>
-                <Label fx:id="lblResumen" styleClass="text-muted"/>
+                <Label fx:id="sanchezlblResumen" styleClass="text-muted"/>
             </VBox>
             <Region HBox.hgrow="ALWAYS"/>
-            <Button text="Nuevo usuario" styleClass="accent" onAction="#alCrearUsuario">
+            <Button text="Nuevo usuario" styleClass="accent" onAction="#marcaalCrearUsuario">
                 <graphic><FontIcon iconLiteral="fth-user-plus"/></graphic>
             </Button>
         </HBox>
@@ -29,23 +29,23 @@
     <center>
         <VBox spacing="12">
             <padding><Insets top="0" right="32" bottom="12" left="32"/></padding>
-            <TableView fx:id="tabla" VBox.vgrow="ALWAYS">
+            <TableView fx:id="marcatabla" VBox.vgrow="ALWAYS">
                 <columns>
-                    <TableColumn fx:id="colNombre" text="Nombre" prefWidth="240"/>
-                    <TableColumn fx:id="colUsuario" text="Usuario" prefWidth="140"/>
-                    <TableColumn fx:id="colRol" text="Rol" prefWidth="120"/>
-                    <TableColumn fx:id="colEstado" text="Estado" prefWidth="110"/>
-                    <TableColumn fx:id="colAcceso" text="Último acceso" prefWidth="160"/>
+                    <TableColumn fx:id="sanchezcolNombre" text="Nombre" prefWidth="240"/>
+                    <TableColumn fx:id="marcacolUsuario" text="Usuario" prefWidth="140"/>
+                    <TableColumn fx:id="sanchezcolRol" text="Rol" prefWidth="120"/>
+                    <TableColumn fx:id="marcacolEstado" text="Estado" prefWidth="110"/>
+                    <TableColumn fx:id="marcacolAcceso" text="Último acceso" prefWidth="160"/>
                 </columns>
             </TableView>
             <HBox spacing="10">
-                <Button fx:id="btnActivar" text="Desactivar" onAction="#alCambiarActivo">
+                <Button fx:id="marcabtnActivar" text="Desactivar" onAction="#marcaalCambiarActivo">
                     <graphic><FontIcon iconLiteral="fth-power"/></graphic>
                 </Button>
-                <Button fx:id="btnRol" text="Cambiar rol" onAction="#alCambiarRol">
+                <Button fx:id="sanchezbtnRol" text="Cambiar rol" onAction="#sanchezalCambiarRol">
                     <graphic><FontIcon iconLiteral="fth-shield"/></graphic>
                 </Button>
-                <Button fx:id="btnClave" text="Restablecer contraseña" onAction="#alRestablecerClave">
+                <Button fx:id="sanchezbtnClave" text="Restablecer contraseña" onAction="#marcaalRestablecerClave">
                     <graphic><FontIcon iconLiteral="fth-key"/></graphic>
                 </Button>
             </HBox>

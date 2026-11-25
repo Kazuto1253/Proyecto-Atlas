@@ -10,14 +10,14 @@ import dev.langchain4j.model.output.Response;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import pe.upeu.atlas.asistente.OrquestadorConversacion.Estado;
-import pe.upeu.atlas.asistente.OrquestadorConversacion.Oyente;
-import pe.upeu.atlas.asistente.herramientas.HerramientasSistema;
-import pe.upeu.atlas.config.PropiedadesAtlas;
-import pe.upeu.atlas.service.ServicioHistorial;
-import pe.upeu.atlas.voz.ReconocedorVoz;
-import pe.upeu.atlas.voz.SintetizadorVoz;
-import pe.upeu.atlas.voz.Transcripcion;
+import pe.upeu.atlas.asistente.SanchezOrquestadorConversacion.MarcaEstado;
+import pe.upeu.atlas.asistente.SanchezOrquestadorConversacion.MarcaOyente;
+import pe.upeu.atlas.asistente.herramientas.SanchezHerramientasSistema;
+import pe.upeu.atlas.config.SanchezPropiedadesAtlas;
+import pe.upeu.atlas.service.SanchezServicioHistorial;
+import pe.upeu.atlas.voz.MarcaReconocedorVoz;
+import pe.upeu.atlas.voz.SanchezSintetizadorVoz;
+import pe.upeu.atlas.voz.SanchezTranscripcion;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -74,67 +74,67 @@ class OrquestadorInterrupcionTest {
         }
     }
 
-    static class Grabador implements Oyente {
+    static class Grabador implements MarcaOyente {
         final ConcurrentLinkedQueue<String> eventos = new ConcurrentLinkedQueue<>();
-        volatile Estado estado = Estado.INACTIVO;
+        volatile MarcaEstado estado = MarcaEstado.INACTIVO;
 
-        @Override public void estado(Estado e) { estado = e; }
-        @Override public void textoParcial(String t) { }
-        @Override public void mensajeUsuario(String t) { eventos.add("usuario:" + t); }
-        @Override public void mensajeAsistente(String t) { eventos.add("asistente:" + t); }
+        @Override public void marcaestado(MarcaEstado e) { estado = e; }
+        @Override public void marcatextoParcial(String t) { }
+        @Override public void sanchezmensajeUsuario(String t) { eventos.add("usuario:" + t); }
+        @Override public void sanchezmensajeAsistente(String t) { eventos.add("asistente:" + t); }
         @Override public void error(String m) { eventos.add("error:" + m); }
-        @Override public void interrumpido(String p) { eventos.add("interrumpido:" + p); }
+        @Override public void marcainterrumpido(String p) { eventos.add("interrumpido:" + p); }
     }
 
     private ModeloFalso modelo;
-    private ReconocedorVoz reconocedor;
-    private ServicioHistorial historial;
+    private MarcaReconocedorVoz reconocedor;
+    private SanchezServicioHistorial historial;
     private Grabador oyente;
-    private OrquestadorConversacion orquestador;
+    private SanchezOrquestadorConversacion orquestador;
 
     @BeforeEach
     void preparar() {
         modelo = new ModeloFalso();
-        reconocedor = mock(ReconocedorVoz.class);
-        historial = mock(ServicioHistorial.class);
+        reconocedor = mock(MarcaReconocedorVoz.class);
+        historial = mock(SanchezServicioHistorial.class);
         oyente = new Grabador();
-        orquestador = new OrquestadorConversacion(reconocedor, mock(SintetizadorVoz.class), modelo,
-                new PropiedadesAtlas(), mock(HerramientasSistema.class),
-                mock(pe.upeu.atlas.asistente.herramientas.HerramientasArchivos.class), historial);
-        orquestador.setVozActivada(false);
-        orquestador.agregarOyente(oyente);
+        orquestador = new SanchezOrquestadorConversacion(reconocedor, mock(SanchezSintetizadorVoz.class), modelo,
+                new SanchezPropiedadesAtlas(), mock(SanchezHerramientasSistema.class),
+                mock(pe.upeu.atlas.asistente.herramientas.MarcaHerramientasArchivos.class), historial);
+        orquestador.marcasetVozActivada(false);
+        orquestador.sanchezagregarOyente(oyente);
     }
 
     @AfterEach
-    void cerrar() {
-        orquestador.liberar();
+    void sanchezcerrar() {
+        orquestador.sanchezliberar();
     }
 
     @Test
     void interrumpirMientrasPiensaDevuelveElPedidoYNoHaceNadaMas() throws Exception {
         modelo.lento = true;
-        orquestador.turnoPorTexto("Abre la carpeta de descargas");
+        orquestador.sanchezturnoPorTexto("Abre la carpeta de descargas");
         assertThat(modelo.entro.await(5, TimeUnit.SECONDS)).isTrue();
-        assertThat(orquestador.getEstado()).isEqualTo(Estado.PENSANDO);
+        assertThat(orquestador.marcagetEstado()).isEqualTo(MarcaEstado.PENSANDO);
 
-        orquestador.interrumpir();
+        orquestador.sanchezinterrumpir();
 
-        await().atMost(Duration.ofSeconds(5)).until(() -> oyente.estado == Estado.INACTIVO);
+        await().atMost(Duration.ofSeconds(5)).until(() -> oyente.estado == MarcaEstado.INACTIVO);
         assertThat(oyente.eventos).contains("interrumpido:Abre la carpeta de descargas");
         assertThat(oyente.eventos).noneMatch(e -> e.startsWith("asistente:") || e.startsWith("error:"));
-        verify(historial, never()).registrar(org.mockito.ArgumentMatchers.anyBoolean(), any());
+        verify(historial, never()).sanchezregistrar(org.mockito.ArgumentMatchers.anyBoolean(), any());
     }
 
     @Test
     void elPedidoInterrumpidoNoContaminaLaConversacionSiguiente() throws Exception {
         modelo.lento = true;
-        orquestador.turnoPorTexto("Abre la carpeta de descargas");
+        orquestador.sanchezturnoPorTexto("Abre la carpeta de descargas");
         assertThat(modelo.entro.await(5, TimeUnit.SECONDS)).isTrue();
-        orquestador.interrumpir();
-        await().atMost(Duration.ofSeconds(5)).until(() -> oyente.estado == Estado.INACTIVO);
+        orquestador.sanchezinterrumpir();
+        await().atMost(Duration.ofSeconds(5)).until(() -> oyente.estado == MarcaEstado.INACTIVO);
 
         modelo.lento = false;
-        orquestador.turnoPorTexto("Abre la carpeta de documentos");
+        orquestador.sanchezturnoPorTexto("Abre la carpeta de documentos");
         await().atMost(Duration.ofSeconds(5)).until(() -> oyente.eventos.contains("asistente:Respuesta 1"));
 
         List<String> segundaLlamada = modelo.recibidos.get(modelo.recibidos.size() - 1);
@@ -144,56 +144,56 @@ class OrquestadorInterrupcionTest {
 
     @Test
     void unTurnoCompletoSiConservaLaMemoria() throws Exception {
-        orquestador.turnoPorTexto("Hola Atlas");
+        orquestador.sanchezturnoPorTexto("Hola Atlas");
         await().atMost(Duration.ofSeconds(5)).until(() -> oyente.eventos.contains("asistente:Respuesta 1"));
-        await().atMost(Duration.ofSeconds(5)).until(() -> oyente.estado == Estado.INACTIVO);
+        await().atMost(Duration.ofSeconds(5)).until(() -> oyente.estado == MarcaEstado.INACTIVO);
 
-        orquestador.turnoPorTexto("¿Cómo te llamas?");
+        orquestador.sanchezturnoPorTexto("¿Cómo te llamas?");
         await().atMost(Duration.ofSeconds(5)).until(() -> oyente.eventos.contains("asistente:Respuesta 2"));
 
         List<String> segunda = modelo.recibidos.get(modelo.recibidos.size() - 1);
         assertThat(segunda).anyMatch(t -> t.contains("Hola Atlas"));
-        verify(historial).registrar(true, "Hola Atlas");
-        verify(historial).registrar(false, "Respuesta 1");
+        verify(historial).sanchezregistrar(true, "Hola Atlas");
+        verify(historial).sanchezregistrar(false, "Respuesta 1");
     }
 
     @Test
     void interrumpirMientrasEscuchaCancelaSinEnviarNiMostrarErrores() throws Exception {
         CountDownLatch escuchando = new CountDownLatch(1);
         CountDownLatch cancelada = new CountDownLatch(1);
-        when(reconocedor.escucharFrase(any(), any())).thenAnswer(inv -> {
+        when(reconocedor.sanchezescucharFrase(any(), any())).thenAnswer(inv -> {
             escuchando.countDown();
             cancelada.await(5, TimeUnit.SECONDS);
-            return Transcripcion.VACIA;
+            return SanchezTranscripcion.VACIA;
         });
         doAnswer(inv -> {
             cancelada.countDown();
             return null;
-        }).when(reconocedor).cancelar();
+        }).when(reconocedor).sanchezcancelar();
 
-        orquestador.turnoPorVoz();
+        orquestador.marcaturnoPorVoz();
         assertThat(escuchando.await(5, TimeUnit.SECONDS)).isTrue();
-        orquestador.interrumpir();
+        orquestador.sanchezinterrumpir();
 
-        await().atMost(Duration.ofSeconds(5)).until(() -> oyente.estado == Estado.INACTIVO);
+        await().atMost(Duration.ofSeconds(5)).until(() -> oyente.estado == MarcaEstado.INACTIVO);
         assertThat(oyente.eventos).containsExactly("interrumpido:null");
         assertThat(modelo.recibidos).isEmpty();
     }
 
     @Test
     void interrumpirSinNadaEnCursoNoHaceNada() {
-        orquestador.interrumpir();
+        orquestador.sanchezinterrumpir();
         assertThat(oyente.eventos).isEmpty();
-        assertThat(orquestador.getEstado()).isEqualTo(Estado.INACTIVO);
+        assertThat(orquestador.marcagetEstado()).isEqualTo(MarcaEstado.INACTIVO);
     }
 
     @Test
     void todosLosOyentesRecibenLosAvisos() throws Exception {
         Grabador flotante = new Grabador();
-        orquestador.agregarOyente(flotante);
-        orquestador.agregarOyente(flotante); // no se duplica
+        orquestador.sanchezagregarOyente(flotante);
+        orquestador.sanchezagregarOyente(flotante); // no se duplica
 
-        orquestador.turnoPorTexto("Hola");
+        orquestador.sanchezturnoPorTexto("Hola");
         await().atMost(Duration.ofSeconds(5)).until(() -> flotante.eventos.contains("asistente:Respuesta 1"));
 
         assertThat(oyente.eventos).contains("asistente:Respuesta 1");

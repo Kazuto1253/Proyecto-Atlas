@@ -13,7 +13,7 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="pe.upeu.atlas.controller.HistorialController">
+            fx:controller="pe.upeu.atlas.controller.SanchezHistorialController">
     <top>
         <VBox spacing="4">
             <padding><Insets top="24" right="32" bottom="12" left="32"/></padding>
@@ -24,8 +24,8 @@
     <left>
         <VBox spacing="10" prefWidth="320" minWidth="320">
             <padding><Insets top="0" right="12" bottom="16" left="32"/></padding>
-            <TextField fx:id="txtBuscar" promptText="Buscar en tus conversaciones..."/>
-            <ListView fx:id="lista" VBox.vgrow="ALWAYS"/>
+            <TextField fx:id="marcatxtBuscar" promptText="Buscar en tus conversaciones..."/>
+            <ListView fx:id="sanchezlista" VBox.vgrow="ALWAYS"/>
         </VBox>
     </left>
     <center>
@@ -33,20 +33,20 @@
             <padding><Insets top="0" right="32" bottom="16" left="12"/></padding>
             <HBox alignment="CENTER_LEFT" spacing="10">
                 <VBox spacing="2" HBox.hgrow="ALWAYS">
-                    <Label fx:id="lblTitulo" styleClass="titulo-grupo" wrapText="true"/>
-                    <Label fx:id="lblMeta" styleClass="text-small, text-muted"/>
+                    <Label fx:id="sanchezlblTitulo" styleClass="titulo-grupo" wrapText="true"/>
+                    <Label fx:id="sanchezlblMeta" styleClass="text-small, text-muted"/>
                 </VBox>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Button fx:id="btnPdf" text="Exportar PDF" onAction="#alExportarPdf">
+                <Button fx:id="marcabtnPdf" text="Exportar PDF" onAction="#marcaalExportarPdf">
                     <graphic><FontIcon iconLiteral="fth-download"/></graphic>
                 </Button>
-                <Button fx:id="btnEliminar" text="Eliminar" onAction="#alEliminar">
+                <Button fx:id="sanchezbtnEliminar" text="Eliminar" onAction="#marcaalEliminar">
                     <graphic><FontIcon iconLiteral="fth-trash-2"/></graphic>
                 </Button>
             </HBox>
-            <Label fx:id="lblVacio" text="Elige una conversación de la lista." styleClass="text-muted"/>
+            <Label fx:id="marcalblVacio" text="Elige una conversación de la lista." styleClass="text-muted"/>
             <ScrollPane fitToWidth="true" styleClass="scroll-chat" VBox.vgrow="ALWAYS">
-                <VBox fx:id="contenedorMensajes" spacing="10">
+                <VBox fx:id="sanchezcontenedorMensajes" spacing="10">
                     <padding><Insets top="8" right="8" bottom="8" left="8"/></padding>
                 </VBox>
             </ScrollPane>

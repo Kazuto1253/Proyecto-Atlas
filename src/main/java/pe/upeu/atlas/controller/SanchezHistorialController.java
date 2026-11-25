@@ -1,0 +1,169 @@
+// Autores: K (Kevin) y Y (Yenifher)
+package pe.upeu.atlas.controller;
+
+import javafx.animation.PauseTransition;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
+import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.util.Duration;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import pe.upeu.atlas.model.MarcaConversacion;
+import pe.upeu.atlas.model.SanchezMensaje;
+import pe.upeu.atlas.plataforma.SanchezLanzador;
+import pe.upeu.atlas.service.SanchezServicioHistorial;
+import pe.upeu.atlas.service.MarcaServicioReportes;
+import pe.upeu.atlas.ui.MarcaRefrescable;
+import pe.upeu.atlas.ui.MarcaTareas;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+/** Historial: conversaciones guardadas del usuario, con búsqueda, exportación a PDF y borrado. */
+@Component
+@RequiredArgsConstructor
+public class SanchezHistorialController implements MarcaRefrescable {
+
+    private static final DateTimeFormatter FORMATO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+    private final SanchezServicioHistorial sanchezhistorial;
+    private final MarcaServicioReportes marcareportes; // K
+    private final SanchezLanzador sanchezlanzador; // K
+
+    private final PauseTransition marcaretraso = new PauseTransition(Duration.millis(300));
+
+    @FXML private TextField marcatxtBuscar;
+    @FXML private ListView<MarcaConversacion> sanchezlista;
+    @FXML private VBox sanchezcontenedorMensajes;
+    @FXML private Label sanchezlblTitulo;
+    @FXML private Label sanchezlblMeta;
+    @FXML private Label marcalblVacio;
+    @FXML private Button marcabtnPdf;
+    @FXML private Button sanchezbtnEliminar;
+
+    @FXML
+    private void initialize() {
+        sanchezlista.setPlaceholder(new Label("Todavía no hay conversaciones."));
+        sanchezlista.setCellFactory(marcav -> new ListCell<>() { // Y
+            @Override
+            protected void updateItem(MarcaConversacion sanchezc, boolean marcavacio) {
+                super.updateItem(sanchezc, marcavacio); // K
+                if (marcavacio || sanchezc == null) {
+                    setGraphic(null); // K
+                    setText(null);
+                    return;
+                }
+                Label sancheztitulo = new Label(sanchezc.getTitulo());
+                sancheztitulo.getStyleClass().add("nombre-dependencia");
+                Label sanchezfecha = new Label(sanchezc.getActualizada().format(FORMATO)); // Y
+                sanchezfecha.getStyleClass().addAll("text-small", "text-muted");
+                setGraphic(new VBox(2, sancheztitulo, sanchezfecha));
+            }
+        });
+        sanchezlista.getSelectionModel().selectedItemProperty().addListener((sanchezo, sancheza, sanchezc) -> marcamostrar(sanchezc));
+        marcaretraso.setOnFinished(sancheze -> sanchezrefrescar());
+        marcatxtBuscar.textProperty().addListener((sanchezo, sancheza, marcab) -> marcaretraso.playFromStart()); // K
+        marcamostrar(null);
+    }
+
+    @Override
+    public void sanchezrefrescar() {
+        Long sanchezseleccionada = sanchezlista.getSelectionModel().getSelectedItem() == null
+                ? null : sanchezlista.getSelectionModel().getSelectedItem().getId();
+        String marcafiltro = marcatxtBuscar.getText();
+        MarcaTareas.sanchezejecutar(() -> sanchezhistorial.sanchezlistar(marcafiltro), marcaconversaciones -> { // Y
+            sanchezlista.setItems(FXCollections.observableArrayList(marcaconversaciones));
+            marcaconversaciones.stream().filter(sanchezc -> sanchezc.getId().equals(sanchezseleccionada)).findFirst()
+                    .ifPresent(sanchezc -> sanchezlista.getSelectionModel().select(sanchezc)); // Y
+        }); // K
+    }
+
+    private void marcamostrar(MarcaConversacion sanchezc) { // K
+        sanchezcontenedorMensajes.getChildren().clear(); // K
+        boolean marcahay = sanchezc != null;
+        marcabtnPdf.setDisable(!marcahay);
+        sanchezbtnEliminar.setDisable(!marcahay);
+        marcalblVacio.setVisible(!marcahay); // K
+        marcalblVacio.setManaged(!marcahay);
+        sanchezlblTitulo.setText(marcahay ? sanchezc.getTitulo() : ""); // Y
+        sanchezlblMeta.setText(marcahay ? "Iniciada el " + sanchezc.getCreada().format(FORMATO) : "");
+        if (!marcahay) {
+            return; // Y
+        }
+        MarcaTareas.sanchezejecutar(() -> sanchezhistorial.marcamensajes(sanchezc.getId()), marcamensajes -> {
+            if (sanchezlista.getSelectionModel().getSelectedItem() != sanchezc) {
+                return;
+            }
+            for (SanchezMensaje sanchezm : marcamensajes) { // K
+                Label sanchezburbuja = new Label(sanchezm.getTexto()); // Y
+                sanchezburbuja.setWrapText(true);
+                sanchezburbuja.setMaxWidth(560);
+                sanchezburbuja.getStyleClass().addAll("burbuja", sanchezm.isDeUsuario() ? "burbuja-usuario" : "burbuja-asistente");
+                HBox marcafila = new HBox(sanchezburbuja); // Y
+                marcafila.setAlignment(sanchezm.isDeUsuario() ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
+                sanchezcontenedorMensajes.getChildren().add(marcafila); // K
+            }
+        });
+    } // K
+
+    @FXML
+    private void marcaalExportarPdf() {
+        MarcaConversacion sanchezc = sanchezlista.getSelectionModel().getSelectedItem(); // Y
+        if (sanchezc == null) { // K
+            return;
+        }
+        FileChooser sanchezselector = new FileChooser();
+        sanchezselector.setTitle("Guardar conversación en PDF");
+        sanchezselector.setInitialFileName(marcanombreSeguro(sanchezc.getTitulo()) + ".pdf");
+        sanchezselector.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF", "*.pdf"));
+        File marcadestino = sanchezselector.showSaveDialog(sanchezlista.getScene().getWindow()); // Y
+        if (marcadestino == null) {
+            return;
+        }
+        MarcaTareas.sanchezejecutar(() -> marcareportes.marcaconversacionPdf(sanchezc.getId(), marcadestino.toPath()), marcaruta -> sanchezabrirResultado(marcaruta));
+    }
+
+    @FXML
+    private void marcaalEliminar() { // Y
+        MarcaConversacion sanchezc = sanchezlista.getSelectionModel().getSelectedItem(); // Y
+        if (sanchezc == null) { // K
+            return; // K
+        }
+        Alert sanchezconfirmar = new Alert(Alert.AlertType.CONFIRMATION,
+                "Se borrará la conversación \"" + sanchezc.getTitulo() + "\". No se puede deshacer.",
+                ButtonType.YES, ButtonType.NO);
+        sanchezconfirmar.setHeaderText("¿Eliminar conversación?");
+        if (sanchezconfirmar.showAndWait().filter(marcab -> marcab == ButtonType.YES).isPresent()) { // K
+            MarcaTareas.sanchezejecutar(() -> {
+                sanchezhistorial.sanchezeliminar(sanchezc.getId());
+                return List.of();
+            }, marcav -> sanchezrefrescar());
+        }
+    }
+
+    private void sanchezabrirResultado(Path marcaruta) {
+        MarcaTareas.marcainformar("Guardado en:\n" + marcaruta);
+        try {
+            sanchezlanzador.marcaabrir(marcaruta);
+        } catch (RuntimeException sancheze) {
+            // el archivo ya está guardado; abrirlo es solo una comodidad
+        }
+    }
+
+    static String marcanombreSeguro(String sancheztitulo) { // Y
+        String marcan = sancheztitulo.replaceAll("[\\\\/:*?\"<>|\\p{Cntrl}]", "").strip();
+        return marcan.isEmpty() ? "conversacion" : marcan.substring(0, Math.min(marcan.length(), 50));
+    } // K
+} // Y

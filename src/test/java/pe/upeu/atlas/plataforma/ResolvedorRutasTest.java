@@ -4,7 +4,7 @@ package pe.upeu.atlas.plataforma;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import pe.upeu.atlas.exception.NegocioException;
+import pe.upeu.atlas.exception.SanchezNegocioException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,7 +23,7 @@ class ResolvedorRutasTest {
 
     @TempDir Path casa;
 
-    private ResolvedorRutas resolvedor;
+    private MarcaResolvedorRutas resolvedor;
     private Path documentos;
     private Path escritorio;
     private Path descargas;
@@ -51,51 +51,51 @@ class ResolvedorRutasTest {
         }
         mapa.put("usuario", casa);
 
-        CarpetasConocidas conocidas = mock(CarpetasConocidas.class);
-        when(conocidas.buscar(anyString())).thenAnswer(inv -> Optional.ofNullable(mapa.get(CarpetasConocidas.normalizar(inv.getArgument(0)))));
-        when(conocidas.principales()).thenReturn(Map.of("documentos", documentos, "escritorio", escritorio));
-        resolvedor = new ResolvedorRutas(conocidas);
+        MarcaCarpetasConocidas conocidas = mock(MarcaCarpetasConocidas.class);
+        when(conocidas.buscar(anyString())).thenAnswer(inv -> Optional.ofNullable(mapa.get(MarcaCarpetasConocidas.sancheznormalizar(inv.getArgument(0)))));
+        when(conocidas.marcaprincipales()).thenReturn(Map.of("documentos", documentos, "escritorio", escritorio));
+        resolvedor = new MarcaResolvedorRutas(conocidas);
     }
 
     @Test
     void entiendeNombresEnEspanolEIngles() {
-        assertThat(resolvedor.resolver("documentos")).isEqualTo(documentos);
-        assertThat(resolvedor.resolver("Documents")).isEqualTo(documentos);
-        assertThat(resolvedor.resolver("Mis Descargas")).isEqualTo(descargas);
-        assertThat(resolvedor.resolver("imágenes")).isEqualTo(imagenes);
-        assertThat(resolvedor.resolver("la carpeta de descargas")).isEqualTo(descargas);
-        assertThat(resolvedor.resolver("  \"escritorio\"  ")).isEqualTo(escritorio);
+        assertThat(resolvedor.marcaresolver("documentos")).isEqualTo(documentos);
+        assertThat(resolvedor.marcaresolver("Documents")).isEqualTo(documentos);
+        assertThat(resolvedor.marcaresolver("Mis Descargas")).isEqualTo(descargas);
+        assertThat(resolvedor.marcaresolver("imágenes")).isEqualTo(imagenes);
+        assertThat(resolvedor.marcaresolver("la carpeta de descargas")).isEqualTo(descargas);
+        assertThat(resolvedor.marcaresolver("  \"escritorio\"  ")).isEqualTo(escritorio);
     }
 
     @Test
     void resuelveSubcarpetasConCualquierSeparador() {
-        assertThat(resolvedor.resolver("escritorio/redes/tareas")).isEqualTo(escritorio.resolve("redes").resolve("tareas"));
-        assertThat(resolvedor.resolver("documentos\\clase\\apuntes.txt")).isEqualTo(documentos.resolve("clase").resolve("apuntes.txt"));
-        assertThat(resolvedor.resolver("la carpeta de documentos/redes")).isEqualTo(documentos.resolve("redes"));
+        assertThat(resolvedor.marcaresolver("escritorio/redes/tareas")).isEqualTo(escritorio.resolve("redes").resolve("tareas"));
+        assertThat(resolvedor.marcaresolver("documentos\\clase\\apuntes.txt")).isEqualTo(documentos.resolve("clase").resolve("apuntes.txt"));
+        assertThat(resolvedor.marcaresolver("la carpeta de documentos/redes")).isEqualTo(documentos.resolve("redes"));
     }
 
     @Test
     void aceptaRutasCompletasYDiscos() {
-        assertThat(resolvedor.resolver("D:\\Proyectos\\atlas")).isEqualTo(Path.of("D:\\Proyectos\\atlas"));
-        assertThat(resolvedor.resolver("d:/Proyectos")).isEqualTo(Path.of("D:\\Proyectos"));
-        assertThat(resolvedor.resolver("disco D")).isEqualTo(Path.of("D:\\"));
-        assertThat(resolvedor.resolver("unidad d:")).isEqualTo(Path.of("D:\\"));
-        assertThat(resolvedor.resolver("D:\\a\\..\\b")).isEqualTo(Path.of("D:\\b"));
+        assertThat(resolvedor.marcaresolver("D:\\Proyectos\\atlas")).isEqualTo(Path.of("D:\\Proyectos\\atlas"));
+        assertThat(resolvedor.marcaresolver("d:/Proyectos")).isEqualTo(Path.of("D:\\Proyectos"));
+        assertThat(resolvedor.marcaresolver("disco D")).isEqualTo(Path.of("D:\\"));
+        assertThat(resolvedor.marcaresolver("unidad d:")).isEqualTo(Path.of("D:\\"));
+        assertThat(resolvedor.marcaresolver("D:\\a\\..\\b")).isEqualTo(Path.of("D:\\b"));
     }
 
     @Test
     void encuentraUnaCarpetaPorSuNombreDentroDeTusSitiosHabituales() throws IOException {
         Files.createDirectories(escritorio.resolve("Redes de Computadoras"));
-        assertThat(resolvedor.resolver("redes de computadoras")).isEqualTo(escritorio.resolve("Redes de Computadoras"));
-        assertThat(resolvedor.resolver("redes de computadoras/tarea1")).isEqualTo(escritorio.resolve("Redes de Computadoras").resolve("tarea1"));
+        assertThat(resolvedor.marcaresolver("redes de computadoras")).isEqualTo(escritorio.resolve("Redes de Computadoras"));
+        assertThat(resolvedor.marcaresolver("redes de computadoras/tarea1")).isEqualTo(escritorio.resolve("Redes de Computadoras").resolve("tarea1"));
     }
 
     @Test
     void siNoLaEncuentraExplicaQueHacer() {
-        assertThatThrownBy(() -> resolvedor.resolver("carpeta fantasma"))
-                .isInstanceOf(NegocioException.class).hasMessageContaining("No encontré").hasMessageContaining("ruta completa");
-        assertThatThrownBy(() -> resolvedor.resolver("   ")).isInstanceOf(NegocioException.class);
-        assertThatThrownBy(() -> resolvedor.resolver(null)).isInstanceOf(NegocioException.class);
-        assertThatThrownBy(() -> resolvedor.resolver("disco Q")).isInstanceOf(NegocioException.class).hasMessageContaining("Q:");
+        assertThatThrownBy(() -> resolvedor.marcaresolver("carpeta fantasma"))
+                .isInstanceOf(SanchezNegocioException.class).hasMessageContaining("No encontré").hasMessageContaining("ruta completa");
+        assertThatThrownBy(() -> resolvedor.marcaresolver("   ")).isInstanceOf(SanchezNegocioException.class);
+        assertThatThrownBy(() -> resolvedor.marcaresolver(null)).isInstanceOf(SanchezNegocioException.class);
+        assertThatThrownBy(() -> resolvedor.marcaresolver("disco Q")).isInstanceOf(SanchezNegocioException.class).hasMessageContaining("Q:");
     }
 }

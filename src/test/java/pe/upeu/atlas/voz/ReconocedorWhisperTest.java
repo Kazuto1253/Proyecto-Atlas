@@ -2,7 +2,7 @@
 package pe.upeu.atlas.voz;
 
 import org.junit.jupiter.api.Test;
-import pe.upeu.atlas.config.PropiedadesAtlas;
+import pe.upeu.atlas.config.SanchezPropiedadesAtlas;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -21,45 +21,45 @@ class ReconocedorWhisperTest {
 
     @Test
     void limpiaEtiquetasYDescartaAlucinaciones() {
-        assertThat(ReconocedorWhisper.limpiar("  Quiero que me hagas un resumen.  ")).isEqualTo("Quiero que me hagas un resumen.");
-        assertThat(ReconocedorWhisper.limpiar("[Música] Hola atlas (risas)")).isEqualTo("Hola atlas");
-        assertThat(ReconocedorWhisper.limpiar("Gracias por ver el video")).isEmpty();
-        assertThat(ReconocedorWhisper.limpiar("Subtítulos realizados por la comunidad de Amara.org")).isEmpty();
-        assertThat(ReconocedorWhisper.limpiar("[ruido]")).isEmpty();
-        assertThat(ReconocedorWhisper.limpiar(".")).isEmpty();
-        assertThat(ReconocedorWhisper.limpiar(null)).isEmpty();
+        assertThat(SanchezReconocedorWhisper.marcalimpiar("  Quiero que me hagas un resumen.  ")).isEqualTo("Quiero que me hagas un resumen.");
+        assertThat(SanchezReconocedorWhisper.marcalimpiar("[Música] Hola atlas (risas)")).isEqualTo("Hola atlas");
+        assertThat(SanchezReconocedorWhisper.marcalimpiar("Gracias por ver el video")).isEmpty();
+        assertThat(SanchezReconocedorWhisper.marcalimpiar("Subtítulos realizados por la comunidad de Amara.org")).isEmpty();
+        assertThat(SanchezReconocedorWhisper.marcalimpiar("[ruido]")).isEmpty();
+        assertThat(SanchezReconocedorWhisper.marcalimpiar(".")).isEmpty();
+        assertThat(SanchezReconocedorWhisper.marcalimpiar(null)).isEmpty();
     }
 
     @Test
     void noEstaDisponibleSiFaltanLosArchivos() {
-        PropiedadesAtlas p = new PropiedadesAtlas();
+        SanchezPropiedadesAtlas p = new SanchezPropiedadesAtlas();
         p.getVoz().setWhisperEjecutable(Path.of("no/existe/whisper-cli.exe"));
         p.getVoz().setWhisperModelo(Path.of("no/existe/ggml-base.bin"));
-        ReconocedorWhisper w = new ReconocedorWhisper(p);
+        SanchezReconocedorWhisper w = new SanchezReconocedorWhisper(p);
 
-        assertThat(w.disponible()).isFalse();
-        assertThat(w.transcribir(new byte[64000])).isEmpty();
+        assertThat(w.sanchezdisponible()).isFalse();
+        assertThat(w.sancheztranscribir(new byte[64000])).isEmpty();
     }
 
     @Test
     void estaDesactivadoSiLaConfiguracionLoPide() {
-        PropiedadesAtlas p = configuradaConWhisper();
+        SanchezPropiedadesAtlas p = configuradaConWhisper();
         assumeTrue(p != null, "Whisper no está instalado en " + DIR_WHISPER);
         p.getVoz().setUsarWhisper(false);
 
-        assertThat(new ReconocedorWhisper(p).disponible()).isFalse();
+        assertThat(new SanchezReconocedorWhisper(p).sanchezdisponible()).isFalse();
     }
 
     /** Integración real: Piper habla y Whisper transcribe. */
     @Test
     void transcribeUnaFraseLibreDePiper() throws Exception {
-        PropiedadesAtlas p = configuradaConWhisper();
+        SanchezPropiedadesAtlas p = configuradaConWhisper();
         assumeTrue(p != null, "Whisper no está instalado en " + DIR_WHISPER);
         Path piper = Path.of(System.getProperty("user.home"), ".atlas", "modelos", "piper", "piper.exe");
         assumeTrue(Files.isRegularFile(piper), "Falta Piper");
 
         byte[] pcm = sintetizar(piper, "Quiero que me hagas un resumen de las redes de computadoras");
-        var texto = new ReconocedorWhisper(p).transcribir(pcm);
+        var texto = new SanchezReconocedorWhisper(p).sancheztranscribir(pcm);
 
         System.out.println("WHISPER -> " + texto.orElse("(nada)"));
         assertThat(texto).isPresent();
@@ -67,13 +67,13 @@ class ReconocedorWhisperTest {
         assertThat(texto.get().toLowerCase()).contains("resum").contains("redes");
     }
 
-    private static PropiedadesAtlas configuradaConWhisper() {
+    private static SanchezPropiedadesAtlas configuradaConWhisper() {
         Path exe = DIR_WHISPER.resolve("bin/Release/whisper-cli.exe");
         Path modelo = DIR_WHISPER.resolve("ggml-base.bin");
         if (!Files.isRegularFile(exe) || !Files.isRegularFile(modelo)) {
             return null;
         }
-        PropiedadesAtlas p = new PropiedadesAtlas();
+        SanchezPropiedadesAtlas p = new SanchezPropiedadesAtlas();
         p.getVoz().setWhisperEjecutable(exe);
         p.getVoz().setWhisperModelo(modelo);
         return p;

@@ -6,9 +6,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import pe.upeu.atlas.config.PropiedadesAtlas;
-import pe.upeu.atlas.ia.ResultadoVerificacion.Estado;
-import pe.upeu.atlas.plataforma.DetectorEntorno;
+import pe.upeu.atlas.config.SanchezPropiedadesAtlas;
+import pe.upeu.atlas.ia.SanchezResultadoVerificacion.MarcaEstado;
+import pe.upeu.atlas.plataforma.SanchezDetectorEntorno;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -26,7 +26,7 @@ class VerificadorDependenciasTest {
     Path base;
 
     private HttpServer ollamaFalso;
-    private PropiedadesAtlas propiedades;
+    private SanchezPropiedadesAtlas propiedades;
 
     @BeforeEach
     void preparar() throws IOException {
@@ -41,7 +41,7 @@ class VerificadorDependenciasTest {
         });
         ollamaFalso.start();
 
-        propiedades = new PropiedadesAtlas();
+        propiedades = new SanchezPropiedadesAtlas();
         propiedades.setDirectorioBase(base);
         propiedades.setDirectorioModelos(base.resolve("modelos"));
         propiedades.setCarpetaCapturas(base.resolve("capturas"));
@@ -53,35 +53,35 @@ class VerificadorDependenciasTest {
     }
 
     @AfterEach
-    void cerrar() {
+    void sanchezcerrar() {
         ollamaFalso.stop(0);
     }
 
-    private ResultadoVerificacion buscar(List<ResultadoVerificacion> r, String nombre) {
+    private SanchezResultadoVerificacion buscar(List<SanchezResultadoVerificacion> r, String nombre) {
         return r.stream().filter(x -> x.nombre().startsWith(nombre)).findFirst().orElseThrow();
     }
 
     @Test
     void reportaOllamaYModelosInstalados() {
-        var r = new VerificadorDependencias(propiedades, new DetectorEntorno()).verificarTodo();
+        var r = new SanchezVerificadorDependencias(propiedades, new SanchezDetectorEntorno()).sanchezverificarTodo();
 
-        assertThat(buscar(r, "Ollama").estado()).isEqualTo(Estado.OK);
-        assertThat(buscar(r, "Modelo de lenguaje").estado()).isEqualTo(Estado.OK);
-        assertThat(buscar(r, "Modelo de embeddings").estado()).isEqualTo(Estado.OK);
+        assertThat(buscar(r, "Ollama").marcaestado()).isEqualTo(MarcaEstado.OK);
+        assertThat(buscar(r, "Modelo de lenguaje").marcaestado()).isEqualTo(MarcaEstado.OK);
+        assertThat(buscar(r, "Modelo de embeddings").marcaestado()).isEqualTo(MarcaEstado.OK);
         // La vision es opcional: falta, pero solo como advertencia, con el comando para instalarla
         var vision = buscar(r, "Modelo de visión");
-        assertThat(vision.estado()).isEqualTo(Estado.ADVERTENCIA);
-        assertThat(vision.solucion()).isEqualTo("ollama pull qwen2.5vl:3b");
+        assertThat(vision.marcaestado()).isEqualTo(MarcaEstado.ADVERTENCIA);
+        assertThat(vision.marcasolucion()).isEqualTo("ollama pull qwen2.5vl:3b");
     }
 
     @Test
     void indicaComoInstalarLosModelosLocalesQueFaltan() {
-        var r = new VerificadorDependencias(propiedades, new DetectorEntorno()).verificarTodo();
+        var r = new SanchezVerificadorDependencias(propiedades, new SanchezDetectorEntorno()).sanchezverificarTodo();
 
         for (String nombre : List.of("Modelo Vosk", "Piper", "Voz de Piper", "Tesseract")) {
             var res = buscar(r, nombre);
-            assertThat(res.estado()).as(nombre).isEqualTo(Estado.FALTA);
-            assertThat(res.solucion()).as(nombre).contains("instalar-dependencias");
+            assertThat(res.marcaestado()).as(nombre).isEqualTo(MarcaEstado.FALTA);
+            assertThat(res.marcasolucion()).as(nombre).contains("instalar-dependencias");
         }
     }
 
@@ -96,29 +96,29 @@ class VerificadorDependenciasTest {
         Files.createDirectories(base.resolve("modelos/tessdata"));
         Files.createFile(base.resolve("modelos/tessdata/spa.traineddata"));
 
-        var r = new VerificadorDependencias(propiedades, new DetectorEntorno()).verificarTodo();
+        var r = new SanchezVerificadorDependencias(propiedades, new SanchezDetectorEntorno()).sanchezverificarTodo();
 
         for (String nombre : List.of("Modelo Vosk", "Piper", "Voz de Piper", "Tesseract", "Carpeta de datos")) {
-            assertThat(buscar(r, nombre).estado()).as(nombre).isEqualTo(Estado.OK);
+            assertThat(buscar(r, nombre).marcaestado()).as(nombre).isEqualTo(MarcaEstado.OK);
         }
     }
 
     @Test
     void siOllamaNoRespondeLoDiceSinFallar() {
         ollamaFalso.stop(0);
-        var r = new VerificadorDependencias(propiedades, new DetectorEntorno()).verificarTodo();
+        var r = new SanchezVerificadorDependencias(propiedades, new SanchezDetectorEntorno()).sanchezverificarTodo();
 
         var ollama = buscar(r, "Ollama");
-        assertThat(ollama.estado()).isEqualTo(Estado.FALTA);
-        assertThat(ollama.solucion()).contains("ollama.com");
+        assertThat(ollama.marcaestado()).isEqualTo(MarcaEstado.FALTA);
+        assertThat(ollama.marcasolucion()).contains("ollama.com");
         assertThat(r).noneMatch(x -> x.nombre().startsWith("Modelo de lenguaje"));
     }
 
     @Test
     void comparaNombresDeModeloConEtiquetaLatest() {
         var instalados = List.of("nomic-embed-text:latest", "qwen2.5:3b");
-        assertThat(VerificadorDependencias.contieneModelo(instalados, "nomic-embed-text")).isTrue();
-        assertThat(VerificadorDependencias.contieneModelo(instalados, "qwen2.5:3b")).isTrue();
-        assertThat(VerificadorDependencias.contieneModelo(instalados, "qwen2.5:7b")).isFalse();
+        assertThat(SanchezVerificadorDependencias.sanchezcontieneModelo(instalados, "nomic-embed-text")).isTrue();
+        assertThat(SanchezVerificadorDependencias.sanchezcontieneModelo(instalados, "qwen2.5:3b")).isTrue();
+        assertThat(SanchezVerificadorDependencias.sanchezcontieneModelo(instalados, "qwen2.5:7b")).isFalse();
     }
 }

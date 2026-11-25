@@ -8,8 +8,8 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import pe.upeu.atlas.config.PropiedadesAtlas;
-import pe.upeu.atlas.exception.NegocioException;
+import pe.upeu.atlas.config.SanchezPropiedadesAtlas;
+import pe.upeu.atlas.exception.SanchezNegocioException;
 
 import javax.imageio.ImageIO;
 import java.awt.Color;
@@ -30,21 +30,21 @@ class ExtractorTextoTest {
 
     @TempDir Path carpeta;
 
-    private ExtractorTexto extractor;
+    private MarcaExtractorTexto extractor;
     private Path tessdata;
 
     @BeforeEach
     void preparar() {
         tessdata = Path.of(System.getProperty("user.home"), ".atlas", "modelos", "tessdata");
-        PropiedadesAtlas props = new PropiedadesAtlas();
+        SanchezPropiedadesAtlas props = new SanchezPropiedadesAtlas();
         props.getOcr().setDirectorioTessdata(tessdata);
-        extractor = new ExtractorTexto(props);
+        extractor = new MarcaExtractorTexto(props);
     }
 
     @Test
     void leeTextoPlano() throws IOException {
         Path txt = Files.writeString(carpeta.resolve("n.md"), "# Título\nContenido con tildes: canción");
-        assertThat(extractor.extraer(txt)).contains("canción");
+        assertThat(extractor.sanchezextraer(txt)).contains("canción");
     }
 
     @Test
@@ -54,7 +54,7 @@ class ExtractorTextoTest {
             d.createParagraph().createRun().setText("Apuntes de redes en Word");
             d.write(out);
         }
-        assertThat(extractor.extraer(docx)).contains("Apuntes de redes en Word");
+        assertThat(extractor.sanchezextraer(docx)).contains("Apuntes de redes en Word");
     }
 
     @Test
@@ -67,16 +67,16 @@ class ExtractorTextoTest {
             doc.add(new Paragraph("Modelo OSI de siete capas"));
             doc.close();
         }
-        assertThat(extractor.extraer(pdf)).contains("Modelo OSI");
+        assertThat(extractor.sanchezextraer(pdf)).contains("Modelo OSI");
     }
 
     @Test
     void rechazaTiposYArchivosDanados() throws IOException {
-        assertThatThrownBy(() -> extractor.extraer(carpeta.resolve("a.exe"))).isInstanceOf(NegocioException.class);
+        assertThatThrownBy(() -> extractor.sanchezextraer(carpeta.resolve("a.exe"))).isInstanceOf(SanchezNegocioException.class);
         Path falso = Files.writeString(carpeta.resolve("malo.docx"), "esto no es un docx");
-        assertThatThrownBy(() -> extractor.extraer(falso)).isInstanceOf(NegocioException.class);
+        assertThatThrownBy(() -> extractor.sanchezextraer(falso)).isInstanceOf(SanchezNegocioException.class);
         Path pdfFalso = Files.writeString(carpeta.resolve("malo.pdf"), "tampoco");
-        assertThatThrownBy(() -> extractor.extraer(pdfFalso)).isInstanceOf(NegocioException.class);
+        assertThatThrownBy(() -> extractor.sanchezextraer(pdfFalso)).isInstanceOf(SanchezNegocioException.class);
     }
 
     @Test
@@ -94,19 +94,19 @@ class ExtractorTextoTest {
         Path png = carpeta.resolve("ocr.png");
         ImageIO.write(img, "png", png.toFile());
 
-        String texto = extractor.extraer(png).toLowerCase();
+        String texto = extractor.sanchezextraer(png).toLowerCase();
         System.out.println("OCR -> " + texto.strip());
         assertThat(texto).contains("hola").contains("redes");
     }
 
     @Test
     void ocrSinDatosDaUnMensajeClaro() throws IOException {
-        PropiedadesAtlas props = new PropiedadesAtlas();
+        SanchezPropiedadesAtlas props = new SanchezPropiedadesAtlas();
         props.getOcr().setDirectorioTessdata(carpeta.resolve("no-hay"));
         Path png = carpeta.resolve("x.png");
         ImageIO.write(new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB), "png", png.toFile());
 
-        assertThatThrownBy(() -> new ExtractorTexto(props).extraer(png))
-                .isInstanceOf(NegocioException.class).hasMessageContaining("traineddata");
+        assertThatThrownBy(() -> new MarcaExtractorTexto(props).sanchezextraer(png))
+                .isInstanceOf(SanchezNegocioException.class).hasMessageContaining("traineddata");
     }
 }

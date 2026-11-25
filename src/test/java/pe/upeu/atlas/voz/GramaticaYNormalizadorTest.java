@@ -12,7 +12,7 @@ class GramaticaYNormalizadorTest {
 
     @Test
     void laGramaticaUsaSoloLetrasSinTildesNiMayusculas() {
-        List<String> frases = GramaticaComandos.frases();
+        List<String> frases = SanchezGramaticaComandos.marcafrases();
         assertThat(frases).hasSizeGreaterThan(80);
         assertThat(new HashSet<>(frases)).hasSameSizeAs(frases);
         // Vosk es no usa tildes: una palabra con tilde no está en su vocabulario y se ignoraría
@@ -23,27 +23,27 @@ class GramaticaYNormalizadorTest {
 
     @Test
     void generaUnJsonValidoQueTerminaEnUnk() {
-        String json = GramaticaComandos.json();
+        String json = SanchezGramaticaComandos.marcajson();
         assertThat(json).startsWith("[\"").endsWith(",\"[unk]\"]");
         assertThat(json).contains("\"abre la carpeta de descargas\"").doesNotContain("\"\"");
     }
 
     @Test
     void conviertePreguntasHabladasEnTextoNatural() {
-        assertThat(NormalizadorTranscripcion.formatear("que hora es")).isEqualTo("¿Qué hora es?");
-        assertThat(NormalizadorTranscripcion.formatear("como esta mi equipo")).isEqualTo("¿Cómo está mi equipo?");
-        assertThat(NormalizadorTranscripcion.formatear("cuanto es quince por doce mas tres"))
+        assertThat(SanchezNormalizadorTranscripcion.sanchezformatear("que hora es")).isEqualTo("¿Qué hora es?");
+        assertThat(SanchezNormalizadorTranscripcion.sanchezformatear("como esta mi equipo")).isEqualTo("¿Cómo está mi equipo?");
+        assertThat(SanchezNormalizadorTranscripcion.sanchezformatear("cuanto es quince por doce mas tres"))
                 .isEqualTo("¿Cuánto es quince por doce mas tres?");
-        assertThat(NormalizadorTranscripcion.formatear("por que el cielo es azul")).isEqualTo("¿Por qué el cielo es azul?");
-        assertThat(NormalizadorTranscripcion.formatear("segun mis documentos que es una red lan"))
+        assertThat(SanchezNormalizadorTranscripcion.sanchezformatear("por que el cielo es azul")).isEqualTo("¿Por qué el cielo es azul?");
+        assertThat(SanchezNormalizadorTranscripcion.sanchezformatear("segun mis documentos que es una red lan"))
                 .isEqualTo("Segun mis documentos que es una red lan");
     }
 
     @Test
     void noInventaNadaConTextoVacioOAfirmaciones() {
-        assertThat(NormalizadorTranscripcion.formatear(null)).isEmpty();
-        assertThat(NormalizadorTranscripcion.formatear("   ")).isEmpty();
-        assertThat(NormalizadorTranscripcion.formatear("abre la carpeta de descargas")).isEqualTo("Abre la carpeta de descargas");
-        assertThat(NormalizadorTranscripcion.formatear("  hola   atlas ")).isEqualTo("Hola atlas");
+        assertThat(SanchezNormalizadorTranscripcion.sanchezformatear(null)).isEmpty();
+        assertThat(SanchezNormalizadorTranscripcion.sanchezformatear("   ")).isEmpty();
+        assertThat(SanchezNormalizadorTranscripcion.sanchezformatear("abre la carpeta de descargas")).isEqualTo("Abre la carpeta de descargas");
+        assertThat(SanchezNormalizadorTranscripcion.sanchezformatear("  hola   atlas ")).isEqualTo("Hola atlas");
     }
 }

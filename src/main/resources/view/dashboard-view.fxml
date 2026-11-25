@@ -14,19 +14,19 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane fx:id="raiz" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="pe.upeu.atlas.controller.DashboardController">
+<BorderPane fx:id="marcaraiz" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pe.upeu.atlas.controller.MarcaDashboardController">
     <top>
         <HBox alignment="CENTER_LEFT" spacing="12">
             <padding><Insets top="24" right="32" bottom="8" left="32"/></padding>
             <VBox spacing="4">
-                <Label fx:id="lblSaludo" styleClass="titulo-vista"/>
-                <Label fx:id="lblFecha" styleClass="text-muted"/>
+                <Label fx:id="marcalblSaludo" styleClass="titulo-vista"/>
+                <Label fx:id="sanchezlblFecha" styleClass="text-muted"/>
             </VBox>
             <Region HBox.hgrow="ALWAYS"/>
             <HBox alignment="CENTER" spacing="8" styleClass="chip-estado">
-                <FontIcon fx:id="icoOllama" iconLiteral="fth-cpu" iconSize="16"/>
-                <Label fx:id="lblOllama" text="Comprobando Ollama..."/>
+                <FontIcon fx:id="sanchezicoOllama" iconLiteral="fth-cpu" iconSize="16"/>
+                <Label fx:id="marcalblOllama" text="Comprobando Ollama..."/>
             </HBox>
         </HBox>
     </top>
@@ -42,36 +42,36 @@
                             <FontIcon iconLiteral="fth-cpu" iconSize="18" styleClass="icono-marca"/>
                             <Label text="Procesador" styleClass="nombre-dependencia"/>
                         </HBox>
-                        <Label fx:id="lblCpu" text="—" styleClass="valor-metrica"/>
-                        <ProgressBar fx:id="pbCpu" progress="0" maxWidth="Infinity"/>
-                        <Label fx:id="lblCpuDetalle" styleClass="text-small, text-muted"/>
+                        <Label fx:id="marcalblCpu" text="—" styleClass="valor-metrica"/>
+                        <ProgressBar fx:id="marcapbCpu" progress="0" maxWidth="Infinity"/>
+                        <Label fx:id="sanchezlblCpuDetalle" styleClass="text-small, text-muted"/>
                     </VBox>
                     <VBox styleClass="tarjeta-metrica" spacing="8" HBox.hgrow="ALWAYS" maxWidth="Infinity">
                         <HBox spacing="8" alignment="CENTER_LEFT">
                             <FontIcon iconLiteral="fth-server" iconSize="18" styleClass="icono-marca"/>
                             <Label text="Memoria" styleClass="nombre-dependencia"/>
                         </HBox>
-                        <Label fx:id="lblRam" text="—" styleClass="valor-metrica"/>
-                        <ProgressBar fx:id="pbRam" progress="0" maxWidth="Infinity"/>
-                        <Label fx:id="lblRamDetalle" styleClass="text-small, text-muted"/>
+                        <Label fx:id="marcalblRam" text="—" styleClass="valor-metrica"/>
+                        <ProgressBar fx:id="marcapbRam" progress="0" maxWidth="Infinity"/>
+                        <Label fx:id="sanchezlblRamDetalle" styleClass="text-small, text-muted"/>
                     </VBox>
                     <VBox styleClass="tarjeta-metrica" spacing="8" HBox.hgrow="ALWAYS" maxWidth="Infinity">
                         <HBox spacing="8" alignment="CENTER_LEFT">
                             <FontIcon iconLiteral="fth-hard-drive" iconSize="18" styleClass="icono-marca"/>
                             <Label text="Disco" styleClass="nombre-dependencia"/>
                         </HBox>
-                        <Label fx:id="lblDisco" text="—" styleClass="valor-metrica"/>
-                        <ProgressBar fx:id="pbDisco" progress="0" maxWidth="Infinity"/>
-                        <Label fx:id="lblDiscoDetalle" styleClass="text-small, text-muted"/>
+                        <Label fx:id="marcalblDisco" text="—" styleClass="valor-metrica"/>
+                        <ProgressBar fx:id="marcapbDisco" progress="0" maxWidth="Infinity"/>
+                        <Label fx:id="sanchezlblDiscoDetalle" styleClass="text-small, text-muted"/>
                     </VBox>
                     <VBox styleClass="tarjeta-metrica" spacing="8" HBox.hgrow="ALWAYS" maxWidth="Infinity">
                         <HBox spacing="8" alignment="CENTER_LEFT">
                             <FontIcon iconLiteral="fth-battery-charging" iconSize="18" styleClass="icono-marca"/>
                             <Label text="Batería" styleClass="nombre-dependencia"/>
                         </HBox>
-                        <Label fx:id="lblBateria" text="—" styleClass="valor-metrica"/>
-                        <ProgressBar fx:id="pbBateria" progress="0" maxWidth="Infinity"/>
-                        <Label fx:id="lblBateriaDetalle" styleClass="text-small, text-muted"/>
+                        <Label fx:id="marcalblBateria" text="—" styleClass="valor-metrica"/>
+                        <ProgressBar fx:id="marcapbBateria" progress="0" maxWidth="Infinity"/>
+                        <Label fx:id="sanchezlblBateriaDetalle" styleClass="text-small, text-muted"/>
                     </VBox>
                 </HBox>
 
@@ -80,8 +80,8 @@
                     <VBox styleClass="tarjeta-diagnostico" spacing="8" HBox.hgrow="ALWAYS" maxWidth="Infinity">
                         <padding><Insets top="16" right="16" bottom="12" left="16"/></padding>
                         <Label text="Uso del equipo (últimos 2 minutos)" styleClass="titulo-grupo"/>
-                        <LineChart fx:id="grafico" prefHeight="240" legendVisible="true">
-                            <xAxis><NumberAxis fx:id="ejeX" side="BOTTOM" tickLabelsVisible="false"
+                        <LineChart fx:id="sanchezgrafico" prefHeight="240" legendVisible="true">
+                            <xAxis><NumberAxis fx:id="marcaejeX" side="BOTTOM" tickLabelsVisible="false"
                                                tickMarkVisible="false" minorTickVisible="false" autoRanging="true"/></xAxis>
                             <yAxis><NumberAxis side="LEFT" autoRanging="false" lowerBound="0" upperBound="100"
                                                tickUnit="25"/></yAxis>
@@ -90,7 +90,7 @@
                     <VBox styleClass="tarjeta-diagnostico" spacing="10" prefWidth="320" minWidth="320">
                         <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
                         <Label text="Actividad reciente" styleClass="titulo-grupo"/>
-                        <VBox fx:id="listaActividad" spacing="10"/>
+                        <VBox fx:id="marcalistaActividad" spacing="10"/>
                     </VBox>
                 </HBox>
 
@@ -99,30 +99,30 @@
                     <VBox styleClass="tarjeta-diagnostico" spacing="8" HBox.hgrow="ALWAYS" maxWidth="Infinity">
                         <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
                         <Label text="Tu equipo" styleClass="titulo-grupo"/>
-                        <Label fx:id="lblSo"/>
-                        <Label fx:id="lblProcesador" wrapText="true"/>
-                        <Label fx:id="lblNucleos" styleClass="text-muted"/>
-                        <Label fx:id="lblJava" styleClass="text-muted"/>
-                        <HBox spacing="6"><Label text="Encendido hace:" styleClass="text-muted"/><Label fx:id="lblEncendido"/></HBox>
-                        <HBox spacing="6"><Label text="Modelo de IA:" styleClass="text-muted"/><Label fx:id="lblModelo"/></HBox>
+                        <Label fx:id="marcalblSo"/>
+                        <Label fx:id="marcalblProcesador" wrapText="true"/>
+                        <Label fx:id="sanchezlblNucleos" styleClass="text-muted"/>
+                        <Label fx:id="marcalblJava" styleClass="text-muted"/>
+                        <HBox spacing="6"><Label text="Encendido hace:" styleClass="text-muted"/><Label fx:id="sanchezlblEncendido"/></HBox>
+                        <HBox spacing="6"><Label text="Modelo de IA:" styleClass="text-muted"/><Label fx:id="marcalblModelo"/></HBox>
                     </VBox>
                     <VBox styleClass="tarjeta-diagnostico" spacing="10" HBox.hgrow="ALWAYS" maxWidth="Infinity">
                         <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
                         <Label text="Accesos rápidos" styleClass="titulo-grupo"/>
                         <FlowPane hgap="10" vgap="10">
-                            <Button text="Hablar con Atlas" onAction="#alIrAlAsistente" styleClass="accent">
+                            <Button text="Hablar con Atlas" onAction="#sanchezalIrAlAsistente" styleClass="accent">
                                 <graphic><FontIcon iconLiteral="fth-mic"/></graphic>
                             </Button>
-                            <Button fx:id="btnDiagnostico" text="Diagnóstico" onAction="#alIrAlDiagnostico">
+                            <Button fx:id="marcabtnDiagnostico" text="Diagnóstico" onAction="#sanchezalIrAlDiagnostico">
                                 <graphic><FontIcon iconLiteral="fth-activity"/></graphic>
                             </Button>
-                            <Button text="Carpeta de datos" onAction="#alAbrirCarpetaDatos">
+                            <Button text="Carpeta de datos" onAction="#marcaalAbrirCarpetaDatos">
                                 <graphic><FontIcon iconLiteral="fth-folder"/></graphic>
                             </Button>
-                            <Button text="Capturas" onAction="#alAbrirCapturas">
+                            <Button text="Capturas" onAction="#marcaalAbrirCapturas">
                                 <graphic><FontIcon iconLiteral="fth-camera"/></graphic>
                             </Button>
-                            <Button text="Mis notas" onAction="#alAbrirNotas">
+                            <Button text="Mis notas" onAction="#marcaalAbrirNotas">
                                 <graphic><FontIcon iconLiteral="fth-file-text"/></graphic>
                             </Button>
                         </FlowPane>

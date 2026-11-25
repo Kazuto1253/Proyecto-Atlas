@@ -11,7 +11,7 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-           styleClass="raiz" fx:controller="pe.upeu.atlas.controller.LoginController">
+           styleClass="raiz" fx:controller="pe.upeu.atlas.controller.SanchezLoginController">
     <VBox alignment="CENTER" spacing="14" styleClass="login-tarjeta" maxWidth="420" maxHeight="-Infinity">
         <padding><Insets top="36" right="40" bottom="32" left="40"/></padding>
         <FontIcon iconLiteral="fth-mic" iconSize="56" styleClass="icono-marca"/>
@@ -20,33 +20,33 @@
                wrapText="true" textAlignment="CENTER"/>
 
         <!-- Inicio de sesión -->
-        <VBox fx:id="formLogin" spacing="10">
+        <VBox fx:id="sanchezformLogin" spacing="10">
             <padding><Insets top="10"/></padding>
             <Label text="Usuario"/>
-            <TextField fx:id="txtUsuario" promptText="Tu usuario" onAction="#alIniciarSesion"/>
+            <TextField fx:id="marcatxtUsuario" promptText="Tu usuario" onAction="#sanchezalIniciarSesion"/>
             <Label text="Contraseña"/>
-            <PasswordField fx:id="txtClave" promptText="Tu contraseña" onAction="#alIniciarSesion"/>
-            <Button fx:id="btnEntrar" text="Iniciar sesión" defaultButton="true" maxWidth="Infinity"
-                    styleClass="accent" onAction="#alIniciarSesion"/>
-            <Hyperlink text="¿Eres estudiante y no tienes cuenta? Regístrate" onAction="#alVerRegistro"/>
+            <PasswordField fx:id="sancheztxtClave" promptText="Tu contraseña" onAction="#sanchezalIniciarSesion"/>
+            <Button fx:id="marcabtnEntrar" text="Iniciar sesión" defaultButton="true" maxWidth="Infinity"
+                    styleClass="accent" onAction="#sanchezalIniciarSesion"/>
+            <Hyperlink text="¿Eres estudiante y no tienes cuenta? Regístrate" onAction="#sanchezalVerRegistro"/>
         </VBox>
 
         <!-- Registro de estudiantes -->
-        <VBox fx:id="formRegistro" spacing="10">
+        <VBox fx:id="sanchezformRegistro" spacing="10">
             <padding><Insets top="10"/></padding>
             <Label text="Nombre completo"/>
-            <TextField fx:id="txtNombre" promptText="Nombres y apellidos"/>
+            <TextField fx:id="sancheztxtNombre" promptText="Nombres y apellidos"/>
             <Label text="Usuario"/>
-            <TextField fx:id="txtNuevoUsuario" promptText="3 a 30 caracteres, sin espacios"/>
+            <TextField fx:id="sancheztxtNuevoUsuario" promptText="3 a 30 caracteres, sin espacios"/>
             <Label text="Contraseña (mínimo 6 caracteres)"/>
-            <PasswordField fx:id="txtNuevaClave"/>
+            <PasswordField fx:id="marcatxtNuevaClave"/>
             <Label text="Repite la contraseña"/>
-            <PasswordField fx:id="txtRepetirClave" onAction="#alCrearCuenta"/>
-            <Button fx:id="btnCrear" text="Crear cuenta de estudiante" maxWidth="Infinity"
-                    styleClass="accent" onAction="#alCrearCuenta"/>
-            <Hyperlink text="Ya tengo cuenta: volver" onAction="#alVerLogin"/>
+            <PasswordField fx:id="marcatxtRepetirClave" onAction="#marcaalCrearCuenta"/>
+            <Button fx:id="sanchezbtnCrear" text="Crear cuenta de estudiante" maxWidth="Infinity"
+                    styleClass="accent" onAction="#marcaalCrearCuenta"/>
+            <Hyperlink text="Ya tengo cuenta: volver" onAction="#sanchezalVerLogin"/>
         </VBox>
 
-        <Label fx:id="lblError" styleClass="burbuja-error" wrapText="true" visible="false"/>
+        <Label fx:id="marcalblError" styleClass="burbuja-error" wrapText="true" visible="false"/>
     </VBox>
 </StackPane>

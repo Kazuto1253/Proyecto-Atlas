@@ -15,7 +15,7 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="pe.upeu.atlas.controller.DocumentosController">
+            fx:controller="pe.upeu.atlas.controller.SanchezDocumentosController">
     <top>
         <HBox alignment="CENTER_LEFT" spacing="12">
             <padding><Insets top="24" right="32" bottom="12" left="32"/></padding>
@@ -25,9 +25,9 @@
                        styleClass="text-muted"/>
             </VBox>
             <Region HBox.hgrow="ALWAYS"/>
-            <ProgressIndicator fx:id="indicador" prefWidth="22" prefHeight="22"/>
-            <Label fx:id="lblEstado" styleClass="text-muted"/>
-            <Button fx:id="btnImportar" text="Importar documento" styleClass="accent" onAction="#alImportar">
+            <ProgressIndicator fx:id="sanchezindicador" prefWidth="22" prefHeight="22"/>
+            <Label fx:id="marcalblEstado" styleClass="text-muted"/>
+            <Button fx:id="marcabtnImportar" text="Importar documento" styleClass="accent" onAction="#sanchezalImportar">
                 <graphic><FontIcon iconLiteral="fth-upload"/></graphic>
             </Button>
         </HBox>
@@ -35,29 +35,29 @@
     <center>
         <VBox spacing="12">
             <padding><Insets top="0" right="32" bottom="16" left="32"/></padding>
-            <TableView fx:id="tabla" prefHeight="190" minHeight="190" maxHeight="190">
+            <TableView fx:id="marcatabla" prefHeight="190" minHeight="190" maxHeight="190">
                 <columns>
-                    <TableColumn fx:id="colNombre" text="Documento" prefWidth="380"/>
-                    <TableColumn fx:id="colTipo" text="Tipo" prefWidth="80"/>
-                    <TableColumn fx:id="colFragmentos" text="Fragmentos" prefWidth="110"/>
-                    <TableColumn fx:id="colFecha" text="Importado" prefWidth="160"/>
+                    <TableColumn fx:id="sanchezcolNombre" text="Documento" prefWidth="380"/>
+                    <TableColumn fx:id="marcacolTipo" text="Tipo" prefWidth="80"/>
+                    <TableColumn fx:id="marcacolFragmentos" text="Fragmentos" prefWidth="110"/>
+                    <TableColumn fx:id="sanchezcolFecha" text="Importado" prefWidth="160"/>
                 </columns>
             </TableView>
             <HBox spacing="10">
-                <Button fx:id="btnEliminar" text="Quitar de la biblioteca" onAction="#alEliminar">
+                <Button fx:id="sanchezbtnEliminar" text="Quitar de la biblioteca" onAction="#marcaalEliminar">
                     <graphic><FontIcon iconLiteral="fth-trash-2"/></graphic>
                 </Button>
             </HBox>
             <Label text="Buscar en mis documentos" styleClass="titulo-grupo"/>
             <HBox spacing="10">
-                <TextField fx:id="txtConsulta" promptText="Ej.: ¿qué es una red LAN?" HBox.hgrow="ALWAYS"
-                           onAction="#alBuscar"/>
-                <Button fx:id="btnBuscar" text="Buscar" onAction="#alBuscar">
+                <TextField fx:id="sancheztxtConsulta" promptText="Ej.: ¿qué es una red LAN?" HBox.hgrow="ALWAYS"
+                           onAction="#sanchezalBuscar"/>
+                <Button fx:id="marcabtnBuscar" text="Buscar" onAction="#sanchezalBuscar">
                     <graphic><FontIcon iconLiteral="fth-search"/></graphic>
                 </Button>
             </HBox>
             <ScrollPane fitToWidth="true" styleClass="scroll-chat" VBox.vgrow="ALWAYS">
-                <VBox fx:id="contenedorResultados" spacing="10"/>
+                <VBox fx:id="sanchezcontenedorResultados" spacing="10"/>
             </ScrollPane>
         </VBox>
     </center>

@@ -9,8 +9,8 @@ class MonitorSistemaTest {
 
     @Test
     void midePorcentajesCoherentesYCpuQueReaccionaALaCarga() throws Exception {
-        MonitorSistema monitor = new MonitorSistema();
-        monitor.medir(); // la primera lectura solo fija la referencia
+        MarcaMonitorSistema monitor = new MarcaMonitorSistema();
+        monitor.sanchezmedir(); // la primera lectura solo fija la referencia
 
         // Carga artificial en todos los núcleos durante ~2 s
         long fin = System.currentTimeMillis() + 2000;
@@ -25,27 +25,27 @@ class MonitorSistemaTest {
             hilos[i].start();
         }
         Thread.sleep(1500);
-        MonitorSistema.Metricas m = monitor.medir();
+        MarcaMonitorSistema.MarcaMetricas m = monitor.sanchezmedir();
         for (Thread h : hilos) {
             h.join();
         }
-        System.out.println("MEDIDA bajo carga -> cpu=" + Math.round(m.cpu() * 100) + "% ram=" + Math.round(m.ram() * 100)
-                + "% disco=" + Math.round(m.disco() * 100) + "% bateria=" + m.bateria());
+        System.out.println("MEDIDA bajo carga -> cpu=" + Math.round(m.marcacpu() * 100) + "% ram=" + Math.round(m.marcaram() * 100)
+                + "% disco=" + Math.round(m.marcadisco() * 100) + "% bateria=" + m.marcabateria());
 
-        assertThat(m.ramTotal()).isPositive();
-        assertThat(m.ram()).isBetween(0.01, 1.0);
-        assertThat(m.discoTotal()).isPositive();
-        assertThat(m.cpu()).as("el procesador debe reflejar la carga artificial").isGreaterThan(0.15);
-        assertThat(monitor.info().nucleos()).isPositive();
+        assertThat(m.marcaramTotal()).isPositive();
+        assertThat(m.marcaram()).isBetween(0.01, 1.0);
+        assertThat(m.marcadiscoTotal()).isPositive();
+        assertThat(m.marcacpu()).as("el procesador debe reflejar la carga artificial").isGreaterThan(0.15);
+        assertThat(monitor.info().sancheznucleos()).isPositive();
     }
 
     @Test
     void formateaBytesYDuraciones() {
-        assertThat(MonitorSistema.bytes(8L * 1_073_741_824L)).isEqualTo("8,0 GB");
-        assertThat(MonitorSistema.bytes(512L * 1_048_576L)).isEqualTo("512 MB");
-        assertThat(MonitorSistema.bytes(350 * 1024L)).isEqualTo("350 KB");
-        assertThat(MonitorSistema.bytes(12)).isEqualTo("12 B");
-        assertThat(MonitorSistema.duracion(90_061)).isEqualTo("1 d 1 h 1 min");
-        assertThat(MonitorSistema.duracion(125)).isEqualTo("2 min");
+        assertThat(MarcaMonitorSistema.sanchezbytes(8L * 1_073_741_824L)).isEqualTo("8,0 GB");
+        assertThat(MarcaMonitorSistema.sanchezbytes(512L * 1_048_576L)).isEqualTo("512 MB");
+        assertThat(MarcaMonitorSistema.sanchezbytes(350 * 1024L)).isEqualTo("350 KB");
+        assertThat(MarcaMonitorSistema.sanchezbytes(12)).isEqualTo("12 B");
+        assertThat(MarcaMonitorSistema.sanchezduracion(90_061)).isEqualTo("1 d 1 h 1 min");
+        assertThat(MarcaMonitorSistema.sanchezduracion(125)).isEqualTo("2 min");
     }
 }

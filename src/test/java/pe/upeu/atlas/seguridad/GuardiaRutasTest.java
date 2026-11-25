@@ -4,10 +4,10 @@ package pe.upeu.atlas.seguridad;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import pe.upeu.atlas.config.PropiedadesAtlas;
-import pe.upeu.atlas.exception.PermisoDenegadoException;
-import pe.upeu.atlas.plataforma.CarpetasConocidas;
-import pe.upeu.atlas.seguridad.GuardiaRutas.Operacion;
+import pe.upeu.atlas.config.SanchezPropiedadesAtlas;
+import pe.upeu.atlas.exception.SanchezPermisoDenegadoException;
+import pe.upeu.atlas.plataforma.MarcaCarpetasConocidas;
+import pe.upeu.atlas.seguridad.MarcaGuardiaRutas.MarcaOperacion;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -23,105 +23,105 @@ class GuardiaRutasTest {
 
     @TempDir Path casa;
 
-    private GuardiaRutas guardia;
+    private MarcaGuardiaRutas guardia;
     private Path documentos;
 
     @BeforeEach
     void preparar() {
         assumeTrue(System.getProperty("os.name").toLowerCase().contains("win"), "Pruebas pensadas para Windows");
         documentos = casa.resolve("Documents");
-        PropiedadesAtlas props = new PropiedadesAtlas();
+        SanchezPropiedadesAtlas props = new SanchezPropiedadesAtlas();
         props.setDirectorioBase(casa.resolve(".atlas"));
         props.setCarpetasProtegidas(java.util.List.of(casa.resolve("Privado")));
-        CarpetasConocidas conocidas = mock(CarpetasConocidas.class);
-        when(conocidas.principales()).thenReturn(Map.of("documentos", documentos, "usuario", casa));
-        guardia = new GuardiaRutas(props, conocidas, casa);
+        MarcaCarpetasConocidas conocidas = mock(MarcaCarpetasConocidas.class);
+        when(conocidas.marcaprincipales()).thenReturn(Map.of("documentos", documentos, "usuario", casa));
+        guardia = new MarcaGuardiaRutas(props, conocidas, casa);
     }
 
     @Test
     void permiteTrabajarEnTusCarpetasYEnOtrosDiscos() {
-        assertThat(guardia.verificar(documentos.resolve("redes/tarea.txt"), Operacion.ESCRIBIR)).isNotNull();
-        assertThat(guardia.verificar(casa.resolve("Desktop"), Operacion.ELIMINAR)).isNotNull();
-        assertThat(guardia.verificar(Path.of("D:\\Proyectos\\atlas\\notas.md"), Operacion.ESCRIBIR)).isNotNull();
-        assertThat(guardia.verificar(Path.of("D:\\"), Operacion.LEER)).isNotNull();
+        assertThat(guardia.sanchezverificar(documentos.resolve("redes/tarea.txt"), MarcaOperacion.ESCRIBIR)).isNotNull();
+        assertThat(guardia.sanchezverificar(casa.resolve("Desktop"), MarcaOperacion.ELIMINAR)).isNotNull();
+        assertThat(guardia.sanchezverificar(Path.of("D:\\Proyectos\\atlas\\notas.md"), MarcaOperacion.ESCRIBIR)).isNotNull();
+        assertThat(guardia.sanchezverificar(Path.of("D:\\"), MarcaOperacion.LEER)).isNotNull();
     }
 
     @Test
     void bloqueaElSistemaYLasCredenciales() {
         for (String ruta : new String[]{"C:\\Windows\\System32\\drivers", "C:\\Program Files\\Java", "C:\\ProgramData\\x"}) {
-            assertThatThrownBy(() -> guardia.verificar(Path.of(ruta), Operacion.LEER))
-                    .as(ruta).isInstanceOf(PermisoDenegadoException.class).hasMessageContaining("protegida");
+            assertThatThrownBy(() -> guardia.sanchezverificar(Path.of(ruta), MarcaOperacion.LEER))
+                    .as(ruta).isInstanceOf(SanchezPermisoDenegadoException.class).hasMessageContaining("protegida");
         }
-        assertThatThrownBy(() -> guardia.verificar(casa.resolve(".ssh/id_rsa"), Operacion.LEER)).isInstanceOf(PermisoDenegadoException.class);
-        assertThatThrownBy(() -> guardia.verificar(casa.resolve("AppData/Local/Google"), Operacion.LEER)).isInstanceOf(PermisoDenegadoException.class);
-        assertThatThrownBy(() -> guardia.verificar(casa.resolve("Privado/secreto.txt"), Operacion.LEER)).isInstanceOf(PermisoDenegadoException.class);
+        assertThatThrownBy(() -> guardia.sanchezverificar(casa.resolve(".ssh/id_rsa"), MarcaOperacion.LEER)).isInstanceOf(SanchezPermisoDenegadoException.class);
+        assertThatThrownBy(() -> guardia.sanchezverificar(casa.resolve("AppData/Local/Google"), MarcaOperacion.LEER)).isInstanceOf(SanchezPermisoDenegadoException.class);
+        assertThatThrownBy(() -> guardia.sanchezverificar(casa.resolve("Privado/secreto.txt"), MarcaOperacion.LEER)).isInstanceOf(SanchezPermisoDenegadoException.class);
     }
 
     @Test
     void noSeSaltaLaProteccionConPuntosPuntos() {
-        assertThatThrownBy(() -> guardia.verificar(documentos.resolve("..\\AppData\\Local\\x"), Operacion.ESCRIBIR))
-                .isInstanceOf(PermisoDenegadoException.class);
-        assertThatThrownBy(() -> guardia.verificar(Path.of("C:\\Users\\Alguien\\..\\..\\Windows\\System32"), Operacion.LEER))
-                .isInstanceOf(PermisoDenegadoException.class);
+        assertThatThrownBy(() -> guardia.sanchezverificar(documentos.resolve("..\\AppData\\Local\\x"), MarcaOperacion.ESCRIBIR))
+                .isInstanceOf(SanchezPermisoDenegadoException.class);
+        assertThatThrownBy(() -> guardia.sanchezverificar(Path.of("C:\\Users\\Alguien\\..\\..\\Windows\\System32"), MarcaOperacion.LEER))
+                .isInstanceOf(SanchezPermisoDenegadoException.class);
     }
 
     @Test
     void protegeLosDatosInternosDeAtlas() {
-        assertThat(guardia.verificar(casa.resolve(".atlas/logs/atlas.log"), Operacion.LEER)).isNotNull();
-        assertThatThrownBy(() -> guardia.verificar(casa.resolve(".atlas/modelos/x"), Operacion.ESCRIBIR))
-                .isInstanceOf(PermisoDenegadoException.class).hasMessageContaining("Atlas");
-        assertThat(guardia.verificar(casa.resolve(".atlas/documentos/notas/a.txt"), Operacion.ESCRIBIR)).isNotNull();
-        assertThatThrownBy(() -> guardia.verificar(casa.resolve("Documents/atlas.db"), Operacion.LEER))
-                .isInstanceOf(PermisoDenegadoException.class);
+        assertThat(guardia.sanchezverificar(casa.resolve(".atlas/logs/atlas.log"), MarcaOperacion.LEER)).isNotNull();
+        assertThatThrownBy(() -> guardia.sanchezverificar(casa.resolve(".atlas/modelos/x"), MarcaOperacion.ESCRIBIR))
+                .isInstanceOf(SanchezPermisoDenegadoException.class).hasMessageContaining("Atlas");
+        assertThat(guardia.sanchezverificar(casa.resolve(".atlas/documentos/notas/a.txt"), MarcaOperacion.ESCRIBIR)).isNotNull();
+        assertThatThrownBy(() -> guardia.sanchezverificar(casa.resolve("Documents/atlas.db"), MarcaOperacion.LEER))
+                .isInstanceOf(SanchezPermisoDenegadoException.class);
     }
 
     @Test
     void noBorraCarpetasPrincipalesNiTuUsuarioNiUnaUnidad() {
-        assertThatThrownBy(() -> guardia.verificar(documentos, Operacion.ELIMINAR)).isInstanceOf(PermisoDenegadoException.class)
+        assertThatThrownBy(() -> guardia.sanchezverificar(documentos, MarcaOperacion.ELIMINAR)).isInstanceOf(SanchezPermisoDenegadoException.class)
                 .hasMessageContaining("principales");
-        assertThatThrownBy(() -> guardia.verificar(casa, Operacion.ELIMINAR)).isInstanceOf(PermisoDenegadoException.class);
-        assertThatThrownBy(() -> guardia.verificar(Path.of("D:\\"), Operacion.ELIMINAR)).isInstanceOf(PermisoDenegadoException.class);
-        assertThat(guardia.verificar(documentos.resolve("viejo.txt"), Operacion.ELIMINAR)).isNotNull();
+        assertThatThrownBy(() -> guardia.sanchezverificar(casa, MarcaOperacion.ELIMINAR)).isInstanceOf(SanchezPermisoDenegadoException.class);
+        assertThatThrownBy(() -> guardia.sanchezverificar(Path.of("D:\\"), MarcaOperacion.ELIMINAR)).isInstanceOf(SanchezPermisoDenegadoException.class);
+        assertThat(guardia.sanchezverificar(documentos.resolve("viejo.txt"), MarcaOperacion.ELIMINAR)).isNotNull();
     }
 
     @Test
     void noEscribeEnLaRaizDelDiscoDelSistema() {
         Path raiz = casa.getRoot();
-        assertThatThrownBy(() -> guardia.verificar(raiz, Operacion.ESCRIBIR)).isInstanceOf(PermisoDenegadoException.class);
+        assertThatThrownBy(() -> guardia.sanchezverificar(raiz, MarcaOperacion.ESCRIBIR)).isInstanceOf(SanchezPermisoDenegadoException.class);
     }
 
     @Test
     void noEntraEnElPerfilDeOtroUsuario() {
         Path vecino = casa.getParent().resolve("OtraPersona").resolve("Documents");
-        assertThatThrownBy(() -> guardia.verificar(vecino, Operacion.LEER)).isInstanceOf(PermisoDenegadoException.class)
+        assertThatThrownBy(() -> guardia.sanchezverificar(vecino, MarcaOperacion.LEER)).isInstanceOf(SanchezPermisoDenegadoException.class)
                 .hasMessageContaining("otro usuario");
-        assertThat(guardia.verificar(casa.getParent().resolve("Public").resolve("x.txt"), Operacion.LEER)).isNotNull();
+        assertThat(guardia.sanchezverificar(casa.getParent().resolve("Public").resolve("x.txt"), MarcaOperacion.LEER)).isNotNull();
     }
 
     @Test
     void noCreaNiAbreProgramasNiScripts() {
         for (String nombre : new String[]{"a.exe", "run.BAT", "x.ps1", "setup.msi", "m.vbs", "j.jar", "atajo.lnk", "app.js"}) {
-            assertThatThrownBy(() -> guardia.verificarNoEjecutable(documentos.resolve(nombre))).as(nombre)
-                    .isInstanceOf(PermisoDenegadoException.class);
+            assertThatThrownBy(() -> guardia.marcaverificarNoEjecutable(documentos.resolve(nombre))).as(nombre)
+                    .isInstanceOf(SanchezPermisoDenegadoException.class);
         }
-        guardia.verificarNoEjecutable(documentos.resolve("notas.txt"));
-        guardia.verificarNoEjecutable(documentos.resolve("tarea.docx"));
-        guardia.verificarNoEjecutable(documentos.resolve("README"));
+        guardia.marcaverificarNoEjecutable(documentos.resolve("notas.txt"));
+        guardia.marcaverificarNoEjecutable(documentos.resolve("tarea.docx"));
+        guardia.marcaverificarNoEjecutable(documentos.resolve("README"));
     }
 
     @Test
     void pideConfirmacionSoloParaEscribirFueraDeTuUsuarioEnElDiscoDelSistema() {
         Path enSistema = casa.getRoot().resolve("Proyectos").resolve("a.txt");
-        assertThat(guardia.pideConfirmacionPorUbicacion(enSistema)).isTrue();
-        assertThat(guardia.pideConfirmacionPorUbicacion(documentos.resolve("a.txt"))).isFalse();
-        assertThat(guardia.pideConfirmacionPorUbicacion(Path.of("D:\\Proyectos\\a.txt"))).isFalse();
+        assertThat(guardia.marcapideConfirmacionPorUbicacion(enSistema)).isTrue();
+        assertThat(guardia.marcapideConfirmacionPorUbicacion(documentos.resolve("a.txt"))).isFalse();
+        assertThat(guardia.marcapideConfirmacionPorUbicacion(Path.of("D:\\Proyectos\\a.txt"))).isFalse();
     }
 
     @Test
     void labusquedaOmiteZonasProtegidasYOcultas() {
-        assertThat(guardia.debeOmitirseAlBuscar(casa.resolve("AppData"))).isTrue();
-        assertThat(guardia.debeOmitirseAlBuscar(casa.resolve(".git"))).isTrue();
-        assertThat(guardia.debeOmitirseAlBuscar(documentos.resolve("node_modules"))).isTrue();
-        assertThat(guardia.debeOmitirseAlBuscar(documentos.resolve("redes"))).isFalse();
+        assertThat(guardia.sanchezdebeOmitirseAlBuscar(casa.resolve("AppData"))).isTrue();
+        assertThat(guardia.sanchezdebeOmitirseAlBuscar(casa.resolve(".git"))).isTrue();
+        assertThat(guardia.sanchezdebeOmitirseAlBuscar(documentos.resolve("node_modules"))).isTrue();
+        assertThat(guardia.sanchezdebeOmitirseAlBuscar(documentos.resolve("redes"))).isFalse();
     }
 }

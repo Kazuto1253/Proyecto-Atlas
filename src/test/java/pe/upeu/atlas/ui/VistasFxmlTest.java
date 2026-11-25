@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
-import pe.upeu.atlas.model.Rol;
-import pe.upeu.atlas.seguridad.ServicioAutenticacion;
+import pe.upeu.atlas.model.SanchezRol;
+import pe.upeu.atlas.seguridad.SanchezServicioAutenticacion;
 
 import java.awt.GraphicsEnvironment;
 import java.util.List;
@@ -41,7 +41,7 @@ class VistasFxmlTest {
     private static volatile boolean toolkitDisponible = true;
 
     @Autowired private ApplicationContext contexto;
-    @Autowired private ServicioAutenticacion autenticacion;
+    @Autowired private SanchezServicioAutenticacion autenticacion;
 
     @BeforeAll
     static void iniciarJavaFx() {
@@ -61,14 +61,14 @@ class VistasFxmlTest {
     void todasLasVistasCargan() throws Exception {
         assumeFalse(GraphicsEnvironment.isHeadless() || !toolkitDisponible,
                 "Sin pantalla: no se puede iniciar JavaFX");
-        autenticacion.registrar("Admin Vistas", "adminvistas", "secreto1", Rol.ADMINISTRADOR);
-        autenticacion.iniciarSesion("adminvistas", "secreto1");
+        autenticacion.sanchezregistrar("Admin Vistas", "adminvistas", "secreto1", SanchezRol.ADMINISTRADOR);
+        autenticacion.marcainiciarSesion("adminvistas", "secreto1");
 
         for (String fxml : VISTAS) {
             Parent nodo = enHiloFx(fxml);
             assertThat(nodo).as(fxml).isNotNull();
         }
-        autenticacion.cerrarSesion();
+        autenticacion.marcacerrarSesion();
     }
 
     private Parent enHiloFx(String fxml) throws Exception {
