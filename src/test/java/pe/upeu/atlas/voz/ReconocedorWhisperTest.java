@@ -50,7 +50,6 @@ class ReconocedorWhisperTest {
         assertThat(new SanchezReconocedorWhisper(p).sanchezdisponible()).isFalse();
     }
 
-    /** Integración real: Piper habla y Whisper transcribe. */
     @Test
     void transcribeUnaFraseLibreDePiper() throws Exception {
         SanchezPropiedadesAtlas p = configuradaConWhisper();
@@ -63,7 +62,6 @@ class ReconocedorWhisperTest {
 
         System.out.println("WHISPER -> " + texto.orElse("(nada)"));
         assertThat(texto).isPresent();
-        // Whisper base varía un poco entre ejecuciones ("resumen"/"resumo"): se comprueba que el circuito funciona
         assertThat(texto.get().toLowerCase()).contains("resum").contains("redes");
     }
 
@@ -79,7 +77,6 @@ class ReconocedorWhisperTest {
         return p;
     }
 
-    /** Habla con Piper y devuelve PCM de 16 kHz mono. */
     private static byte[] sintetizar(Path piper, String texto) throws Exception {
         Path voz = piper.getParent().getParent().resolve("voces").resolve("es_ES-davefx-medium.onnx");
         Path wav = Files.createTempFile("atlas-prueba-", ".wav");

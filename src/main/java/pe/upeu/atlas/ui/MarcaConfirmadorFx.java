@@ -10,7 +10,6 @@ import pe.upeu.atlas.seguridad.SanchezConfirmadorAcciones;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-/** Confirmación mediante un diálogo de JavaFX; si nadie responde en 60 s se considera un "no". */
 @Component
 public class MarcaConfirmadorFx implements SanchezConfirmadorAcciones {
 

@@ -18,10 +18,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Las carpetas de siempre del usuario (Documentos, Escritorio, Descargas...) con sus nombres en español e inglés.
- * En Windows se le pregunta al sistema dónde están de verdad (pueden estar en OneDrive o en otro disco).
- */
 @Slf4j
 @Component
 public class MarcaCarpetasConocidas {
@@ -42,17 +38,14 @@ public class MarcaCarpetasConocidas {
         this.marcapropiedades = marcapropiedades; // Y
     }
 
-    /** La carpeta de ese nombre ("documents", "Mis descargas", "capturas"...), si es una de las conocidas. */
     public Optional<Path> buscar(String marcaalias) {
         return Optional.ofNullable(sanchezmapa().get(sancheznormalizar(marcaalias))); // Y
     }
 
-    /** Carpeta personal del usuario (C:\Users\nombre). */
     public Path marcausuario() {
         return sanchezmapa().get("usuario");
     }
 
-    /** Las carpetas conocidas con su nombre principal, para mostrarlas al usuario o al modelo. */
     public Map<String, Path> marcaprincipales() {
         Map<String, Path> marcar = new LinkedHashMap<>();
         for (String sanchezclave : List.of("documentos", "escritorio", "descargas", "imagenes", "musica", "videos", "usuario")) {
@@ -104,10 +97,8 @@ public class MarcaCarpetasConocidas {
         if (marcaonedrive != null && Files.isDirectory(marcaonedrive)) {
             sanchezm.put("onedrive", marcaonedrive);
         }
-        // Atlas
         sanchezm.put("capturas", marcapropiedades.getCarpetaCapturas());
         sanchezm.put("notas", marcapropiedades.getDirectorioBase().resolve("documentos").resolve("notas"));
-        // Carpetas extra que el usuario haya configurado
         for (Path marcap : marcapropiedades.getCarpetasPermitidas()) {
             if (marcap.getFileName() != null && Files.isDirectory(marcap)) {
                 sanchezm.putIfAbsent(sancheznormalizar(marcap.getFileName().toString()), marcap);
@@ -126,7 +117,6 @@ public class MarcaCarpetasConocidas {
         return marcacasa.resolve(marcanombres[0]);
     }
 
-    /** Pregunta a Windows dónde están realmente las carpetas (cubre OneDrive y rutas redirigidas). */
     private void marcaconsultarWindows(Map<String, Path> sanchezbase) {
         String sanchezscript = "[Console]::OutputEncoding=[Text.Encoding]::UTF8;"
                 + "'documentos='+[Environment]::GetFolderPath('MyDocuments');"
@@ -161,7 +151,6 @@ public class MarcaCarpetasConocidas {
         }
     } // K
 
-    /** Minúsculas y sin tildes ni espacios sobrantes. */
     public static String sancheznormalizar(String marcatexto) { // K
         if (marcatexto == null) { // Y
             return ""; // Y

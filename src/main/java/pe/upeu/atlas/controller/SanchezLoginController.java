@@ -18,7 +18,6 @@ import pe.upeu.atlas.ui.SanchezNavegador;
 
 import java.util.concurrent.Callable;
 
-/** Pantalla de acceso: inicio de sesión y autoregistro de estudiantes. */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -97,7 +96,6 @@ public class SanchezLoginController { // Y
         });
     }
 
-    /** El hash BCrypt tarda unos cientos de ms: se hace fuera del hilo de JavaFX. */
     private <T> void sanchezejecutar(Callable<T> sancheztrabajo, java.util.function.Consumer<T> sanchezalTerminar) {
         marcaocultarError(); // Y
         sanchezocupado(true); // Y

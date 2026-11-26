@@ -1,7 +1,6 @@
 // Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.plataforma;
 
-/** Sistemas operativos que Atlas reconoce. */
 public enum SanchezSistemaOperativo {
     LINUX, WINDOWS, MAC, OTRO;
 

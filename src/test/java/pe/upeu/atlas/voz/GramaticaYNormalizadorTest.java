@@ -15,7 +15,6 @@ class GramaticaYNormalizadorTest {
         List<String> frases = SanchezGramaticaComandos.marcafrases();
         assertThat(frases).hasSizeGreaterThan(80);
         assertThat(new HashSet<>(frases)).hasSameSizeAs(frases);
-        // Vosk es no usa tildes: una palabra con tilde no está en su vocabulario y se ignoraría
         assertThat(frases).allMatch(f -> f.matches("[a-z ]+"), "solo a-z y espacios");
         assertThat(frases).contains("abre la carpeta de descargas", "que hora es", "sube el volumen",
                 "toma una captura de pantalla", "bloquea la pantalla", "abre la calculadora");

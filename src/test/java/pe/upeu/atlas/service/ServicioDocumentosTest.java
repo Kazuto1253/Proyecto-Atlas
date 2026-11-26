@@ -28,7 +28,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
-/** Importar, buscar y borrar documentos, con embeddings simulados (sin Ollama). */
 @SpringBootTest
 @ActiveProfiles("test")
 class ServicioDocumentosTest {
@@ -41,7 +40,6 @@ class ServicioDocumentosTest {
 
     @TempDir Path carpeta;
 
-    /** Vector de conteo de palabras clave: textos del mismo tema quedan cerca. */
     private static float[] vector(String texto) {
         String t = texto.toLowerCase();
         float[] v = new float[TEMAS.size()];
@@ -113,7 +111,7 @@ class ServicioDocumentosTest {
         Path exe = Files.writeString(carpeta.resolve("virus.exe"), "MZ");
         Path vacio = Files.writeString(carpeta.resolve("vacio.txt"), "   \n  ");
 
-        assertThatThrownBy(() -> documentos.marcaimportar(exe)).isInstanceOf(SanchezPermisoDenegadoException.class); // sin sesión
+        assertThatThrownBy(() -> documentos.marcaimportar(exe)).isInstanceOf(SanchezPermisoDenegadoException.class);
         entrar("tipo");
         assertThatThrownBy(() -> documentos.marcaimportar(exe)).isInstanceOf(SanchezNegocioException.class).hasMessageContaining("no admitido");
         assertThatThrownBy(() -> documentos.marcaimportar(vacio)).isInstanceOf(SanchezNegocioException.class).hasMessageContaining("texto");

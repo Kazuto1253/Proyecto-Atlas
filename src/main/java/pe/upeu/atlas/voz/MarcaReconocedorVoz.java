@@ -27,10 +27,6 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-/**
- * Escucha el micrófono y transcribe una frase con Vosk (sin Internet). La lógica de audio vive en
- * {@link ProcesadorFrase}; aquí solo se abre el micrófono, se le pasan los bloques y se registra lo ocurrido.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -42,7 +38,6 @@ public class MarcaReconocedorVoz {
     private final AtomicBoolean marcacancelado = new AtomicBoolean(false);
     private volatile Model modelo;
 
-    /** Carga el modelo de Vosk (tarda unos segundos la primera vez). */
     public synchronized void marcacargarModelo() throws IOException {
         if (modelo != null) { // K
             return;
@@ -58,32 +53,22 @@ public class MarcaReconocedorVoz {
         log.info("Modelo Vosk cargado en {} ms", System.currentTimeMillis() - sanchezinicio);
     }
 
-    /** Un procesador nuevo con la configuración actual (también lo usan las pruebas con grabaciones). */
     public SanchezProcesadorFrase sancheznuevoProcesador() throws IOException {
         marcacargarModelo();
         var sanchezvoz = marcapropiedades.getVoz(); // Y
         return new SanchezProcesadorFrase(modelo, sanchezvoz, sanchezvoz.isUsarComandos() ? SanchezGramaticaComandos.marcajson() : null); // K
     }
 
-    /** Pide que la escucha en curso termine ya y transcriba lo captado. */
     public void sanchezdetener() { // Y
         marcadetenerSolicitado.set(true);
     } // K
 
-    /** Cancela la escucha o el análisis en curso: no se transcribe ni se envía nada. */
     public void sanchezcancelar() {
         marcacancelado.set(true); // Y
         marcadetenerSolicitado.set(true);
         marcawhisper.sanchezcancelar();
     }
 
-    /**
-     * Graba hasta detectar el fin de la frase y devuelve lo reconocido
-     * ({@link Transcripcion#VACIA} si no se entendió nada).
-     *
-     * @param parcial     recibe el texto provisional mientras el usuario habla
-     * @param alProcesar  se llama cuando termina la grabación y empieza el análisis (Whisper tarda unos segundos)
-     */
     public SanchezTranscripcion sanchezescucharFrase(Consumer<String> marcaparcial, Runnable marcaalProcesar) throws IOException, LineUnavailableException {
         marcadetenerSolicitado.set(false); // K
         marcacancelado.set(false); // Y
@@ -95,7 +80,7 @@ public class MarcaReconocedorVoz {
             throw new LineUnavailableException("No hay un micrófono compatible (16 kHz, mono)"); // Y
         } // Y
 
-        byte[] marcabloque = new byte[(int) (sanchezfrecuencia / 10) * 2]; // ~100 ms
+        byte[] marcabloque = new byte[(int) (sanchezfrecuencia / 10) * 2];
         ByteArrayOutputStream marcagrabacion = sanchezvoz.isGuardarAudioDepuracion() ? new ByteArrayOutputStream() : null;
         String marcaultimoParcial = "";
 
@@ -128,7 +113,6 @@ public class MarcaReconocedorVoz {
             marcaalProcesar.run();
             SanchezTranscripcion sanchezresultado = marcaprocesador.marcafinalizar();
             String sancheztextoVosk = sanchezresultado.texto();
-            // Órdenes conocidas: el reconocedor de comandos es instantáneo y muy preciso. Frases libres: Whisper
             if (!sanchezresultado.sanchezcomando() && marcaprocesador.sanchezhuboVoz() && marcawhisper.sanchezdisponible()) {
                 var sanchezporWhisper = marcawhisper.sancheztranscribir(marcaprocesador.marcaaudio());
                 if (sanchezporWhisper.isPresent()) {
@@ -147,7 +131,6 @@ public class MarcaReconocedorVoz {
         }
     } // K
 
-    /** El micrófono configurado ({@code app.atlas.voz.microfono}) o el predeterminado de Windows. */
     private TargetDataLine sanchezabrirLinea(DataLine.Info marcainfo, AudioFormat marcaformato) throws LineUnavailableException {
         String sanchezbuscado = marcapropiedades.getVoz().getMicrofono();
         if (sanchezbuscado != null && !sanchezbuscado.isBlank()) { // Y

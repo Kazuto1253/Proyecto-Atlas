@@ -1,4 +1,3 @@
-/* Estilos propios de Atlas, aplicados sobre el tema AtlantaFX. */
 
 .raiz {
     -fx-background-color: -color-bg-default;
@@ -18,7 +17,6 @@
     -fx-border-color: -color-border-default transparent transparent transparent;
 }
 
-/* ===== Conversacion ===== */
 .scroll-chat, .scroll-chat > .viewport {
     -fx-background-color: transparent;
     -fx-background: transparent;
@@ -84,7 +82,6 @@
     -fx-icon-color: -color-fg-emphasis;
 }
 
-/* ===== Menu lateral ===== */
 .menu-lateral {
     -fx-background-color: -color-bg-subtle;
     -fx-border-color: transparent -color-border-default transparent transparent;
@@ -116,13 +113,11 @@
     -fx-icon-color: -color-accent-fg;
 }
 
-/* ===== Vistas ===== */
 .titulo-vista {
     -fx-font-size: 24px;
     -fx-font-weight: bold;
 }
 
-/* ===== Diagnostico ===== */
 .tarjeta-diagnostico {
     -fx-background-color: -color-bg-subtle;
     -fx-border-color: -color-border-default;
@@ -149,7 +144,6 @@
 .estado-advertencia { -fx-icon-color: -color-warning-fg; }
 .estado-falta { -fx-icon-color: -color-danger-fg; }
 
-/* ===== Acceso (login) ===== */
 .login-tarjeta {
     -fx-background-color: -color-bg-subtle;
     -fx-border-color: -color-border-default;
@@ -158,7 +152,6 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 24, 0.1, 0, 6);
 }
 
-/* ===== Usuario en el menu ===== */
 .chip-usuario {
     -fx-background-color: -color-bg-default;
     -fx-background-radius: 10;
@@ -169,7 +162,6 @@
     -fx-font-weight: bold;
 }
 
-/* ===== Dashboard ===== */
 .tarjeta-metrica {
     -fx-background-color: -color-bg-subtle;
     -fx-border-color: -color-border-default;
@@ -191,7 +183,6 @@
     -fx-padding: 6 14 6 14;
 }
 
-/* ===== Chat: herramientas y sugerencias ===== */
 .burbuja-herramienta {
     -fx-background-color: -color-accent-subtle;
     -fx-text-fill: -color-accent-fg;
@@ -207,7 +198,6 @@
     -fx-padding: 4 12 4 12;
 }
 
-/* ===== Interrupcion ===== */
 .btn-interrumpir {
     -fx-background-color: -color-danger-subtle;
     -fx-background-radius: 28;
@@ -234,7 +224,6 @@
     -fx-graphic-text-gap: 6;
 }
 
-/* ===== Modo flotante ===== */
 .mini-raiz {
     -fx-background-color: transparent;
 }

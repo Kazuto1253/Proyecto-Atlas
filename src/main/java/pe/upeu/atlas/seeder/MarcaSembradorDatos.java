@@ -12,10 +12,6 @@ import pe.upeu.atlas.model.SanchezRol;
 import pe.upeu.atlas.model.MarcaUsuario;
 import pe.upeu.atlas.repository.MarcaUsuarioRepository;
 
-/**
- * Crea cuentas de demostración la primera vez (solo si no existe ningún usuario).
- * Se desactiva con {@code app.seeder.enabled=false}. Las credenciales están en docs/MANUAL_DE_USO.md.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor

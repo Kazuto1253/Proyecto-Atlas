@@ -3,7 +3,6 @@ package pe.upeu.atlas.asistente;
 
 import dev.langchain4j.service.SystemMessage;
 
-/** Contrato que LangChain4j implementa sobre el modelo local. */
 public interface MarcaAsistente { // K
 
     @SystemMessage("""

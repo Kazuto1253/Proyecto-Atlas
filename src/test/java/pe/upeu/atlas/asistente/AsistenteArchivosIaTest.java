@@ -38,10 +38,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Pedidos reales de manejo de archivos con el Ollama real (qwen2.5:3b), sobre un usuario simulado en una carpeta
- * temporal. {@code mvnw test -Dtest=AsistenteArchivosIaTest -Datlas.ia=true}
- */
 @EnabledIfSystemProperty(named = "atlas.ia", matches = "true")
 class AsistenteArchivosIaTest {
 
@@ -97,7 +93,6 @@ class AsistenteArchivosIaTest {
                 .build();
     }
 
-    /** Cada pedido con un asistente nuevo: así se ve qué hace la herramienta, no la memoria. */
     private void caso(String nombre, String pedido, Predicate<String> respuestaOk, Function<List<String>, Boolean> efectoOk) {
         usadas.clear();
         String respuesta = nuevoAsistente().marcaresponder(pedido);
@@ -123,7 +118,6 @@ class AsistenteArchivosIaTest {
                 null, u -> Files.exists(escritorio.resolve("apuntes.txt")) && Files.exists(documentos.resolve("apuntes.txt")));
         caso("mover", "Mueve el archivo apuntes.txt de documentos a la carpeta Redes del escritorio",
                 null, u -> Files.exists(escritorio.resolve("Redes/apuntes.txt")) && !Files.exists(documentos.resolve("apuntes.txt")));
-        // el mover anterior dejó apuntes.txt en Redes; se repone para los siguientes casos
         Files.writeString(documentos.resolve("apuntes.txt"), "El modelo OSI tiene siete capas. TCP es confiable.");
         caso("buscar", "Busca mi archivo de apuntes", null, u -> u.stream().anyMatch(a -> a.startsWith("Buscó")));
         caso("leer", "Lee el archivo apuntes.txt de documentos y dime qué dice",

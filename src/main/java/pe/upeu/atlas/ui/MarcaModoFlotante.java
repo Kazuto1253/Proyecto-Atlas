@@ -17,10 +17,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Objects;
 
-/**
- * Ventana pequeña, sin bordes y siempre por encima de las demás, con lo esencial del asistente.
- * Se crea la primera vez que se pide y se reutiliza (conserva su posición mientras Atlas siga abierto).
- */
 @Component
 @RequiredArgsConstructor
 public class MarcaModoFlotante { // K
@@ -30,7 +26,6 @@ public class MarcaModoFlotante { // K
     private Stage sanchezventana;
     private boolean marcaposicionada;
 
-    /** @param alCerrar qué hacer si la ventana se cierra (Alt+F4): normalmente volver a la ventana principal */
     public void marcamostrar(Runnable marcaalCerrar) {
         if (sanchezventana == null) {
             sanchezcrear();

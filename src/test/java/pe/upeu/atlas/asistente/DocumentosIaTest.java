@@ -25,10 +25,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Prueba de punta a punta con el Ollama real: importar documentos, búsqueda semántica y respuesta del
- * asistente basada en ellos. {@code mvnw test -Dtest=DocumentosIaTest -Datlas.ia=true -DargLine="-Datlas.ia=true"}
- */
 @EnabledIfSystemProperty(named = "atlas.ia", matches = "true")
 @SpringBootTest
 @ActiveProfiles("test")

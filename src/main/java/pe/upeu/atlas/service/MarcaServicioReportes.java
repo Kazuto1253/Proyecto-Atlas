@@ -36,7 +36,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
-/** Genera reportes en PDF (OpenPDF) y Excel (Apache POI) en la ruta que elija el usuario. */
 @Service
 @RequiredArgsConstructor
 public class MarcaServicioReportes { // K
@@ -50,7 +49,6 @@ public class MarcaServicioReportes { // K
     private final SanchezSesionActual sanchezsesion;
     private final SanchezServicioActividad sanchezactividad;
 
-    /** PDF con todos los mensajes de una conversación propia. */
     public Path marcaconversacionPdf(Long sanchezconversacionId, Path marcadestino) { // Y
         MarcaConversacion sanchezc = sanchezhistorial.sanchezobtener(sanchezconversacionId);
         List<SanchezMensaje> marcamensajes = sanchezhistorial.marcamensajes(sanchezconversacionId);
@@ -72,7 +70,6 @@ public class MarcaServicioReportes { // K
         return marcaruta;
     } // K
 
-    /** Excel con la actividad: del usuario actual, o de todos si es administrador. */
     public Path marcaactividadExcel(Path marcadestino) {
         MarcaUsuario sanchezu = sanchezsesion.marcaactual().orElseThrow(() -> new SanchezPermisoDenegadoException("Inicia sesión."));
         boolean sancheztodos = sanchezu.getRol() == SanchezRol.ADMINISTRADOR;
@@ -88,7 +85,6 @@ public class MarcaServicioReportes { // K
         return marcaruta;
     }
 
-    /** Excel con las cuentas (solo administradores). Nunca incluye contraseñas. */
     public Path marcausuariosExcel(Path marcadestino) { // Y
         if (sanchezsesion.sanchezrol().filter(SanchezRol::marcapuedeAdministrarUsuarios).isEmpty()) {
             throw new SanchezPermisoDenegadoException("Solo un administrador puede exportar los usuarios."); // K
@@ -104,7 +100,6 @@ public class MarcaServicioReportes { // K
         return marcaruta; // K
     }
 
-    /** PDF con una foto del estado del equipo en este momento. */
     public Path sanchezequipoPdf(Path marcadestino) { // K
         MarcaUsuario sanchezu = sanchezsesion.marcaactual().orElseThrow(() -> new SanchezPermisoDenegadoException("Inicia sesión.")); // Y
         MarcaMonitorSistema.MarcaMetricas sanchezm = marcamonitor.sanchezmedir();
@@ -130,8 +125,6 @@ public class MarcaServicioReportes { // K
         sanchezactividad.sanchezregistrar("Reporte generado", "Informe del equipo en PDF");
         return marcaruta;
     } // Y
-
-    // ===== Escritura =====
 
     @FunctionalInterface
     private interface SanchezContenido { // K

@@ -12,11 +12,9 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 
-/** Lectura de CPU, memoria, disco y batería con OSHI. Las llamadas bloquean: no usarlas en el hilo de JavaFX. */
 @Service
 public class MarcaMonitorSistema { // K
 
-    /** Fracciones de 0 a 1; {@code bateria} es -1 si el equipo no tiene batería. */
     public record MarcaMetricas(double marcacpu, long marcaramUsada, long marcaramTotal, long marcadiscoUsado, long marcadiscoTotal,
                            double marcabateria, boolean sanchezcargando, long sanchezsegundosEncendido) {
 
@@ -94,10 +92,8 @@ public class MarcaMonitorSistema { // K
         return marcaraiz == null ? new File(System.getProperty("user.home")) : marcaraiz.toFile();
     }
 
-    /** Texto breve de bytes: "7,8 GB". */
     public static String sanchezbytes(long marcavalor) { // K
         double sanchezgb = marcavalor / 1_073_741_824.0; // K
-        // Coma decimal fija (no depende de la configuración regional de Java)
         if (sanchezgb >= 1) { // Y
             return String.format(java.util.Locale.ROOT, "%.1f GB", sanchezgb).replace('.', ',');
         }
@@ -107,7 +103,6 @@ public class MarcaMonitorSistema { // K
         return marcavalor >= 1024 ? Math.round(marcavalor / 1024.0) + " KB" : marcavalor + " B"; // K
     }
 
-    /** "3 d 4 h 12 min" a partir de segundos. */
     public static String sanchezduracion(long marcasegundos) {
         long marcad = marcasegundos / 86_400;
         long marcah = (marcasegundos % 86_400) / 3_600;

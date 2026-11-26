@@ -4,13 +4,6 @@ package pe.upeu.atlas.plataforma;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Lista blanca de comandos externos que Atlas puede llegar a usar, con el paquete que
- * los instala. Ningun otro programa se ejecuta (ver AdaptadorPlataforma, Fase 6).
- *
- * @param sesiones   sesiones donde aplica (vacio = todas las del SO)
- * @param obligatorio si su falta impide una funcion basica (si no, hay alternativas)
- */
 public record SanchezComandoSistema(
         String nombre,
         String marcafuncion,
@@ -40,7 +33,6 @@ public record SanchezComandoSistema(
         return new SanchezComandoSistema(sancheznombre, marcafuncion, "", "", SanchezSistemaOperativo.WINDOWS, Set.of(), true);
     }
 
-    /** Catalogo completo. */
     public static final List<SanchezComandoSistema> CATALOGO = List.of(
             marcalinux("xdg-open", "Abrir archivos y carpetas", "xdg-utils", "xdg-utils", true),
             marcalinux("gio", "Enviar a la papelera", "libglib2.0-bin", "glib2", true),

@@ -35,10 +35,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/** El usuario puede interrumpir a Atlas en cualquier momento y corregir su pedido. */
 class OrquestadorInterrupcionTest {
 
-    /** Modelo falso: puede tardar mucho (se interrumpe) y recuerda lo que recibió. */
     static class ModeloFalso implements ChatLanguageModel {
         volatile boolean lento;
         final CountDownLatch entro = new CountDownLatch(1);
@@ -50,7 +48,7 @@ class OrquestadorInterrupcionTest {
             List<String> textos = new ArrayList<>();
             for (ChatMessage m : mensajes) {
                 if (m instanceof dev.langchain4j.data.message.SystemMessage) {
-                    continue; // las instrucciones fijas mencionan palabras de ejemplo: no son la conversación
+                    continue;
                 }
                 textos.add(m instanceof UserMessage u ? u.singleText() : String.valueOf(m));
             }
@@ -58,7 +56,7 @@ class OrquestadorInterrupcionTest {
             entro.countDown();
             if (lento) {
                 try {
-                    wait(20_000); // se libera al interrumpir el hilo
+                    wait(20_000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     throw new IllegalStateException("interrumpido", e);
@@ -191,7 +189,7 @@ class OrquestadorInterrupcionTest {
     void todosLosOyentesRecibenLosAvisos() throws Exception {
         Grabador flotante = new Grabador();
         orquestador.sanchezagregarOyente(flotante);
-        orquestador.sanchezagregarOyente(flotante); // no se duplica
+        orquestador.sanchezagregarOyente(flotante);
 
         orquestador.sanchezturnoPorTexto("Hola");
         await().atMost(Duration.ofSeconds(5)).until(() -> flotante.eventos.contains("asistente:Respuesta 1"));

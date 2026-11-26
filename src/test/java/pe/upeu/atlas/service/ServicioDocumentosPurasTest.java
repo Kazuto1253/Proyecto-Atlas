@@ -19,7 +19,6 @@ class ServicioDocumentosPurasTest {
             assertThat(t.length()).isLessThanOrEqualTo(200);
             assertThat(t).doesNotStartWith(" ").doesNotEndWith(" ");
         });
-        // el solape hace que el final de un trozo reaparezca al inicio del siguiente
         assertThat(trozos.get(1)).startsWith("palabra");
     }
 

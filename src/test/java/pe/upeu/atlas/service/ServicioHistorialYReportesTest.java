@@ -58,7 +58,6 @@ class ServicioHistorialYReportesTest {
         assertThat(todas.get(0).getTitulo()).isEqualTo("Dame una receta de ceviche");
         assertThat(todas.get(1).getTitulo()).isEqualTo("¿Qué es el protocolo TCP?");
 
-        // La búsqueda mira títulos y también el contenido de los mensajes
         assertThat(historial.sanchezlistar("orientado")).extracting(MarcaConversacion::getTitulo).containsExactly("¿Qué es el protocolo TCP?");
         assertThat(historial.sanchezlistar("CEVICHE")).hasSize(1);
         assertThat(historial.sanchezlistar("nada-de-esto")).isEmpty();
@@ -73,7 +72,7 @@ class ServicioHistorialYReportesTest {
 
     @Test
     void nadieVeLasConversacionesDeOtroNiGuardaSinSesion() {
-        historial.sanchezregistrar(true, "mensaje sin sesión"); // se ignora
+        historial.sanchezregistrar(true, "mensaje sin sesión");
         entrar("due", SanchezRol.ESTUDIANTE);
         historial.sanchezregistrar(true, "Mi conversación privada");
         Long ajena = historial.sanchezlistar(null).get(0).getId();
@@ -93,7 +92,7 @@ class ServicioHistorialYReportesTest {
         historial.sanchezregistrar(false, "Muy bien, gracias. ¿En qué te ayudo?");
         Long id = historial.sanchezlistar(null).get(0).getId();
 
-        Path ruta = reportes.marcaconversacionPdf(id, carpeta.resolve("chat")); // sin extensión: se agrega
+        Path ruta = reportes.marcaconversacionPdf(id, carpeta.resolve("chat"));
         assertThat(ruta.getFileName().toString()).isEqualTo("chat.pdf");
         assertThat(Files.size(ruta)).isGreaterThan(500);
         assertThat(new String(Files.readAllBytes(ruta), 0, 5, StandardCharsets.US_ASCII)).isEqualTo("%PDF-");
@@ -107,7 +106,6 @@ class ServicioHistorialYReportesTest {
         try (InputStream in = Files.newInputStream(actividad); Workbook libro = new XSSFWorkbook(in)) {
             var hoja = libro.getSheet("Actividad");
             assertThat(hoja.getRow(0).getCell(0).getStringCellValue()).isEqualTo("Fecha");
-            // un estudiante solo ve su propia actividad
             for (int i = 1; i <= hoja.getLastRowNum(); i++) {
                 assertThat(hoja.getRow(i).getCell(1).getStringCellValue()).isEqualTo(est);
             }

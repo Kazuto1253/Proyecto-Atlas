@@ -19,7 +19,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** Sin Ollama real: un HttpServer del JDK simula /api/tags. */
 class VerificadorDependenciasTest {
 
     @TempDir
@@ -68,7 +67,6 @@ class VerificadorDependenciasTest {
         assertThat(buscar(r, "Ollama").marcaestado()).isEqualTo(MarcaEstado.OK);
         assertThat(buscar(r, "Modelo de lenguaje").marcaestado()).isEqualTo(MarcaEstado.OK);
         assertThat(buscar(r, "Modelo de embeddings").marcaestado()).isEqualTo(MarcaEstado.OK);
-        // La vision es opcional: falta, pero solo como advertencia, con el comando para instalarla
         var vision = buscar(r, "Modelo de visión");
         assertThat(vision.marcaestado()).isEqualTo(MarcaEstado.ADVERTENCIA);
         assertThat(vision.marcasolucion()).isEqualTo("ollama pull qwen2.5vl:3b");

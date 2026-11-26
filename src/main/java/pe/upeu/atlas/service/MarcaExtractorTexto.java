@@ -24,7 +24,6 @@ import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Set;
 
-/** Saca el texto de PDF, Word, texto plano e imágenes (con OCR Tesseract, también para PDF escaneados). */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -35,7 +34,6 @@ public class MarcaExtractorTexto {
 
     private final SanchezPropiedadesAtlas marcapropiedades;
 
-    /** Extensión en minúsculas, o "" si no tiene. */
     public static String sancheztipoDe(Path marcaarchivo) {
         String marcan = marcaarchivo.getFileName().toString();
         int marcapunto = marcan.lastIndexOf('.');
@@ -74,7 +72,6 @@ public class MarcaExtractorTexto {
             if (!marcatexto.isBlank() || marcadoc.getNumberOfPages() == 0) { // Y
                 return marcatexto;
             }
-            // PDF escaneado: sin capa de texto, se reconoce página por página
             log.info("El PDF no tiene texto; se aplica OCR a las primeras {} páginas", MAX_PAGINAS_OCR);
             PDFRenderer marcarender = new PDFRenderer(marcadoc);
             StringBuilder sanchezsb = new StringBuilder();
@@ -95,7 +92,6 @@ public class MarcaExtractorTexto {
         return sanchezimagen;
     }
 
-    /** Reconoce el texto de una imagen con Tesseract (datos en español en la carpeta de modelos). */
     public String marcaocr(BufferedImage sanchezimagen) { // Y
         Path sanchezdatos = marcapropiedades.getOcr().getDirectorioTessdata();
         String sanchezidioma = marcapropiedades.getOcr().getIdioma();

@@ -76,7 +76,6 @@ class ServicioAutenticacionTest {
         for (int i = 0; i < SanchezServicioAutenticacion.MAX_INTENTOS; i++) {
             assertThatThrownBy(() -> autenticacion.marcainiciarSesion(id, "mala")).isInstanceOf(SanchezNegocioException.class);
         }
-        // Ni siquiera la clave correcta entra mientras dura el bloqueo
         assertThatThrownBy(() -> autenticacion.marcainiciarSesion(id, "secreto1"))
                 .isInstanceOf(SanchezNegocioException.class).hasMessageContaining("bloqueado");
     }

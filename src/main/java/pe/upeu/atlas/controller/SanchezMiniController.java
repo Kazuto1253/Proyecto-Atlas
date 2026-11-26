@@ -20,10 +20,6 @@ import pe.upeu.atlas.asistente.SanchezOrquestadorConversacion;
 import pe.upeu.atlas.asistente.SanchezOrquestadorConversacion.MarcaEstado;
 import pe.upeu.atlas.ui.SanchezNavegador;
 
-/**
- * Modo flotante: una ventana pequeña, siempre visible, para pedirle cosas a Atlas con solo pulsar el micrófono.
- * Muestra únicamente lo esencial: lo último que pediste, la respuesta y los botones de hablar e interrumpir.
- */
 @Component
 @RequiredArgsConstructor
 public class SanchezMiniController implements SanchezOrquestadorConversacion.MarcaOyente {
@@ -58,7 +54,6 @@ public class SanchezMiniController implements SanchezOrquestadorConversacion.Mar
         marcalblRespuesta.getStyleClass().add("text-muted");
         marcalblEstado.setText("Listo");
 
-        // Arrastrar la ventana desde la barra superior
         marcabarra.addEventHandler(MouseEvent.MOUSE_PRESSED, sancheze -> {
             Window sanchezw = marcaraiz.getScene().getWindow(); // K
             marcaarrastreX = sancheze.getScreenX() - sanchezw.getX();
@@ -70,7 +65,6 @@ public class SanchezMiniController implements SanchezOrquestadorConversacion.Mar
             sanchezw.setY(sancheze.getScreenY() - sanchezarrastreY); // Y
         });
 
-        // F2 = hablar, Esc = interrumpir
         marcaraiz.sceneProperty().addListener((marcaobs, marcaanterior, sanchezescena) -> {
             if (sanchezescena != null) {
                 sanchezescena.addEventFilter(KeyEvent.KEY_PRESSED, sancheze -> { // K
@@ -93,7 +87,7 @@ public class SanchezMiniController implements SanchezOrquestadorConversacion.Mar
         if (sanchezorquestador.marcagetEstado() == MarcaEstado.INACTIVO) {
             sanchezorquestador.marcaturnoPorVoz();
         } else {
-            sanchezorquestador.sanchezdetener(); // escuchando: terminar; hablando: callar
+            sanchezorquestador.sanchezdetener();
         } // K
     }
 
@@ -116,8 +110,6 @@ public class SanchezMiniController implements SanchezOrquestadorConversacion.Mar
     private void marcaalExpandir() { // K
         sancheznavegador.sanchezrestaurarDesdeFlotante();
     }
-
-    // ===== Oyente (llamado desde el hilo de conversación) =====
 
     @Override
     public void marcaestado(MarcaEstado marcaestado) {

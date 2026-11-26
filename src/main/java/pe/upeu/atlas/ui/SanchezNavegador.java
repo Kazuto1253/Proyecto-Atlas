@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Objects;
 
-/** Cambia entre la pantalla de acceso y la ventana principal dentro de la misma ventana. */
 @Component
 @RequiredArgsConstructor
 public class SanchezNavegador { // K
@@ -27,7 +26,6 @@ public class SanchezNavegador { // K
     private Scene sanchezescena; // Y
     private SanchezMainController marcaprincipal;
 
-    /** Prepara la ventana y muestra el acceso. Se llama una vez, desde el hilo de JavaFX. */
     public void sancheziniciar(Stage marcastage) {
         sanchezventana = marcastage;
         sanchezescena = new Scene(new StackPane(), 1200, 760);
@@ -52,7 +50,6 @@ public class SanchezNavegador { // K
         sanchezescena.setRoot(sanchezc.marcanodo()); // Y
     }
 
-    /** Oculta la ventana principal y muestra el asistente pequeño, siempre visible. */
     public void marcaactivarModoFlotante() {
         if (marcaprincipal == null || sanchezventana == null) {
             return;
@@ -61,7 +58,6 @@ public class SanchezNavegador { // K
         sanchezventana.hide();
     } // Y
 
-    /** Cierra el asistente pequeño y vuelve a la ventana principal. */
     public void sanchezrestaurarDesdeFlotante() { // K
         sanchezflotante.marcaocultar(); // K
         if (sanchezventana != null) {
@@ -74,7 +70,6 @@ public class SanchezNavegador { // K
         return sanchezflotante.marcavisible();
     } // K
 
-    /** Muestra una vista de la ventana principal (si ya se abrió). */
     public void marcairA(String sanchezvista) {
         if (marcaprincipal != null) {
             marcaprincipal.marcamostrar(sanchezvista);

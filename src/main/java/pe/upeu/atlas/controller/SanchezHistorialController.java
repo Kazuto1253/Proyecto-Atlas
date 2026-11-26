@@ -31,7 +31,6 @@ import java.nio.file.Path;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-/** Historial: conversaciones guardadas del usuario, con búsqueda, exportación a PDF y borrado. */
 @Component
 @RequiredArgsConstructor
 public class SanchezHistorialController implements MarcaRefrescable {
@@ -158,7 +157,6 @@ public class SanchezHistorialController implements MarcaRefrescable {
         try {
             sanchezlanzador.marcaabrir(marcaruta);
         } catch (RuntimeException sancheze) {
-            // el archivo ya está guardado; abrirlo es solo una comodidad
         }
     }
 

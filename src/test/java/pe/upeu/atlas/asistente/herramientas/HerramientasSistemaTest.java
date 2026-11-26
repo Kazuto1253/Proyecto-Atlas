@@ -70,7 +70,6 @@ class HerramientasSistemaTest {
         assertThat(herramientas.abrirAplicacion("calculadora")).contains("solo lectura");
         assertThat(herramientas.bloquearPantalla()).contains("solo lectura");
         verify(lanzador, never()).sanchezejecutar(any(String[].class));
-        // Lo que solo lee sigue funcionando
         assertThat(herramientas.calcular("1+1")).contains("2");
     }
 
@@ -118,7 +117,6 @@ class HerramientasSistemaTest {
         } finally {
             SanchezHerramientasSistema.TURNO.remove();
         }
-        // Sin cancelación todo vuelve a funcionar
         assertThat(herramientas.calcular("1+1")).contains("2");
     }
 

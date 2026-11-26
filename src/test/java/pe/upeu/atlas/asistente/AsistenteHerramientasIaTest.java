@@ -28,10 +28,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Prueba de integración con el Ollama real (qwen2.5:3b). No corre por defecto:
- * {@code mvnw test -Dtest=AsistenteHerramientasIaTest -Datlas.ia=true}
- */
 @EnabledIfSystemProperty(named = "atlas.ia", matches = "true")
 class AsistenteHerramientasIaTest {
 
@@ -69,7 +65,6 @@ class AsistenteHerramientasIaTest {
         System.out.println("HORA -> " + hora + " | herramientas: " + usadas);
         assertThat(usadas).isNotEmpty();
 
-        // Sin herramienta: conversación normal
         usadas.clear();
         String charla = asistente.marcaresponder("Hola, ¿cómo te llamas?");
         System.out.println("CHARLA -> " + charla + " | herramientas: " + usadas);

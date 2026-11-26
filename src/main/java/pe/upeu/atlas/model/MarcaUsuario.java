@@ -15,7 +15,6 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-/** Cuenta de acceso a Atlas. La contraseña se guarda solo como hash BCrypt. */
 @Getter
 @Setter
 @NoArgsConstructor

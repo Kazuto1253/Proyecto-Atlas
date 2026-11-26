@@ -17,7 +17,6 @@
     <VBox fx:id="tarjeta" styleClass="mini-tarjeta" spacing="10" prefWidth="372" minWidth="372" maxWidth="372">
         <padding><Insets top="10" right="12" bottom="12" left="12"/></padding>
 
-        <!-- Barra superior: se arrastra para mover la ventana -->
         <HBox fx:id="marcabarra" alignment="CENTER_LEFT" spacing="8" styleClass="mini-barra">
             <FontIcon iconLiteral="fth-mic" iconSize="16" styleClass="icono-marca"/>
             <Label text="Atlas" styleClass="nombre-usuario"/>
@@ -28,7 +27,6 @@
             </Button>
         </HBox>
 
-        <!-- Lo último que pediste y la respuesta -->
         <ScrollPane fx:id="sanchezscrollRespuesta" fitToWidth="true" styleClass="scroll-chat" prefHeight="104" minHeight="104" maxHeight="104">
             <VBox spacing="6">
                 <Label fx:id="sanchezlblPedido" wrapText="true" styleClass="mini-pedido"/>
@@ -37,7 +35,6 @@
             </VBox>
         </ScrollPane>
 
-        <!-- Micrófono, interrumpir y escribir -->
         <HBox alignment="CENTER" spacing="8">
             <Button fx:id="marcabtnMicrofono" onAction="#marcaalPulsarMicrofono" styleClass="btn-microfono">
                 <graphic><FontIcon fx:id="sanchezicoMicrofono" iconLiteral="fth-mic" iconSize="24"/></graphic>

@@ -13,10 +13,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 
-/**
- * Configuracion general: activa las propiedades de Atlas, la programacion de tareas
- * (recordatorios) y garantiza que existan las carpetas de datos del usuario.
- */
 @Slf4j
 @Configuration
 @EnableScheduling

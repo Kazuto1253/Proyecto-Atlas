@@ -5,10 +5,6 @@ import pe.upeu.atlas.exception.SanchezNegocioException;
 
 import java.util.Locale;
 
-/**
- * Evaluador aritmético propio (sin ejecutar código): + - * / % ^, paréntesis, decimales y raiz(x).
- * Los modelos pequeños fallan en matemáticas, por eso el asistente delega los cálculos aquí.
- */
 public final class SanchezCalculadora {
 
     private final String texto;
@@ -36,7 +32,6 @@ public final class SanchezCalculadora {
         return marcavalor; // Y
     }
 
-    /** Entero si no tiene decimales; si no, hasta 6 decimales sin ceros de sobra. */
     public static String sanchezformatear(double marcavalor) { // Y
         if (marcavalor == Math.rint(marcavalor) && Math.abs(marcavalor) < 1e15) {
             return String.valueOf((long) marcavalor); // K
@@ -45,7 +40,6 @@ public final class SanchezCalculadora {
         return sanchezs.replace('.', ',');
     }
 
-    // expresion := termino (('+'|'-') termino)*
     private double sanchezexpresion() {
         double marcav = marcatermino();
         while (marcapos < texto.length()) {
@@ -63,7 +57,6 @@ public final class SanchezCalculadora {
         return marcav;
     }
 
-    // termino := potencia (('*'|'/'|'%') potencia)*
     private double marcatermino() { // Y
         double marcav = sanchezpotencia();
         while (marcapos < texto.length()) {
@@ -92,7 +85,6 @@ public final class SanchezCalculadora {
         return marcav; // Y
     }
 
-    // potencia := unario ('^' potencia)?
     private double sanchezpotencia() {
         double sanchezbase = marcaunario();
         if (marcapos < texto.length() && texto.charAt(marcapos) == '^') { // Y

@@ -10,7 +10,6 @@ import pe.upeu.atlas.seguridad.SanchezSesionActual;
 
 import java.util.List;
 
-/** Bitácora de actividad. Nunca debe romper la acción que registra. */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -32,7 +31,6 @@ public class SanchezServicioActividad {
         } // K
     } // Y
 
-    /** Últimas acciones: el administrador ve las de todos; los demás, solo las suyas. */
     public List<MarcaRegistroActividad> marcarecientes() {
         boolean sancheztodos = sanchezsesion.sanchezrol().filter(marcar -> marcar == pe.upeu.atlas.model.SanchezRol.ADMINISTRADOR).isPresent();
         return sancheztodos ? sanchezrepositorio.findTop8ByOrderByFechaDescIdDesc()

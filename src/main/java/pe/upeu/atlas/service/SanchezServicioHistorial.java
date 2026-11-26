@@ -16,7 +16,6 @@ import pe.upeu.atlas.seguridad.SanchezSesionActual;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/** Guarda el chat del usuario con sesión abierta y permite consultarlo, buscarlo y borrarlo. */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -31,7 +30,6 @@ public class SanchezServicioHistorial { // K
     private Long sanchezactualId; // K
     private String marcaactualUsuario;
 
-    /** Agrega un mensaje a la conversación en curso (la crea con el primer mensaje del usuario). */
     public synchronized void sanchezregistrar(boolean sanchezdeUsuario, String marcatexto) { // Y
         String marcausuario = sanchezsesion.marcaactual().map(sanchezu -> sanchezu.getUsuario()).orElse(null);
         if (marcausuario == null || marcatexto == null || marcatexto.isBlank()) { // K
@@ -54,13 +52,11 @@ public class SanchezServicioHistorial { // K
         }
     } // Y
 
-    /** La próxima vez que se escriba, se abre una conversación nueva. */
     public synchronized void marcaterminarConversacion() {
         sanchezactualId = null; // Y
         marcaactualUsuario = null;
     }
 
-    /** Conversaciones del usuario actual, las más recientes primero; con texto filtra por título o contenido. */
     public List<MarcaConversacion> sanchezlistar(String marcatexto) {
         String marcausuario = marcaexigirUsuario();
         if (marcatexto == null || marcatexto.isBlank()) {

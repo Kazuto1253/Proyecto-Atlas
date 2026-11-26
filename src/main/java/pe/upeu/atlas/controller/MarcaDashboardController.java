@@ -46,11 +46,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Vista Inicio: métricas del equipo en vivo (OSHI), historial de uso, estado de Ollama,
- * actividad reciente y accesos rápidos. La medición corre en un hilo propio y se detiene
- * sola cuando la vista deja de mostrarse.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -118,7 +113,6 @@ public class MarcaDashboardController implements MarcaRefrescable { // Y
         marcaejeX.setForceZeroInRange(false);
 
         marcabtnDiagnostico.managedProperty().bind(marcabtnDiagnostico.visibleProperty());
-        // Al salir de pantalla (cambio de vista o cierre de sesión) se detiene la medición
         marcaraiz.sceneProperty().addListener((sanchezo, sancheza, sanchezescena) -> {
             if (sanchezescena == null) {
                 sanchezdetener(); // K
@@ -139,8 +133,6 @@ public class MarcaDashboardController implements MarcaRefrescable { // Y
         marcacargarEnSegundoPlano();
         sancheziniciar();
     }
-
-    // ===== Medición en vivo =====
 
     private synchronized void sancheziniciar() {
         if (marcamedicion == null || marcamedicion.isDone()) {
@@ -196,8 +188,6 @@ public class MarcaDashboardController implements MarcaRefrescable { // Y
             marcaserieRam.getData().remove(0);
         }
     } // Y
-
-    // ===== Datos que no cambian cada segundo =====
 
     private void marcacargarEnSegundoPlano() {
         sanchezejecutor.execute(() -> {
@@ -265,8 +255,6 @@ public class MarcaDashboardController implements MarcaRefrescable { // Y
         }
     }
 
-    // ===== Accesos rápidos =====
-
     @FXML
     private void sanchezalIrAlAsistente() {
         sancheznavegador.marcairA("asistente");
@@ -302,8 +290,6 @@ public class MarcaDashboardController implements MarcaRefrescable { // Y
             log.warn("No se pudo abrir {}", marcacarpeta, sancheze);
         }
     } // Y
-
-    // ===== Utilidades =====
 
     private static String sanchezporcentaje(double sanchezfraccion) {
         return Math.round(sanchezfraccion * 100) + " %";

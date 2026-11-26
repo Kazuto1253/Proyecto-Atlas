@@ -5,20 +5,14 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Convierte lo que entrega Vosk ("que hora es") en un texto más natural ("¿Qué hora es?") para mostrarlo
- * en el chat y para que el modelo de lenguaje distinga preguntas de afirmaciones.
- */
 public final class SanchezNormalizadorTranscripcion {
 
-    /** Primera palabra interrogativa sin tilde → con tilde. */
     private static final Map<String, String> INTERROGATIVAS = Map.ofEntries(
             Map.entry("que", "Qué"), Map.entry("cual", "Cuál"), Map.entry("cuales", "Cuáles"),
             Map.entry("como", "Cómo"), Map.entry("cuando", "Cuándo"), Map.entry("donde", "Dónde"),
             Map.entry("quien", "Quién"), Map.entry("quienes", "Quiénes"), Map.entry("cuanto", "Cuánto"),
             Map.entry("cuanta", "Cuánta"), Map.entry("cuantos", "Cuántos"), Map.entry("cuantas", "Cuántas"));
 
-    /** Verbos que, justo después de "cómo", llevan tilde ("cómo está"). */
     private static final Set<String> TRAS_COMO = Set.of("esta", "estas", "estan", "va", "vas");
 
     private SanchezNormalizadorTranscripcion() { }
@@ -34,7 +28,6 @@ public final class SanchezNormalizadorTranscripcion {
         String[] marcapalabras = marcat.split(" "); // K
         String marcaprimera = marcapalabras[0].toLowerCase(Locale.ROOT);
 
-        // "por que ..." / "para que ..." también son preguntas
         boolean marcapregunta = INTERROGATIVAS.containsKey(marcaprimera)
                 || (marcapalabras.length > 2 && (marcaprimera.equals("por") || marcaprimera.equals("para")) && marcapalabras[1].equals("que"));
         if (marcapregunta) { // K

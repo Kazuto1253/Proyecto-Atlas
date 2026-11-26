@@ -21,7 +21,6 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
-/** Carga cada FXML con JavaFX real: detecta ids, controladores o atributos mal escritos. Se omite sin pantalla. */
 @SpringBootTest
 @ActiveProfiles("test")
 class VistasFxmlTest {
@@ -51,7 +50,6 @@ class VistasFxmlTest {
         try {
             Platform.startup(() -> { });
         } catch (IllegalStateException yaIniciado) {
-            // otra prueba ya arrancó el toolkit
         } catch (Throwable sinPantalla) {
             toolkitDisponible = false;
         }

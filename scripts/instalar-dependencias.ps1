@@ -1,11 +1,4 @@
-﻿# Instala UNA sola vez (requiere internet) lo que Atlas necesita en Windows, en ~/.atlas/modelos:
-#   1. Vosk (voz a texto, espanol)
-#   2. Piper (texto a voz) + 3. voz es_ES-davefx-medium
-#   4. Datos de Tesseract en espanol (spa.traineddata; Tess4J ya trae las librerias nativas)
-#   5. Modelos de Ollama (LLM, embeddings y, con -Vision, el modelo de vision)
-# Windows ya incluye los comandos que usa Atlas (powershell, explorer, rundll32).
-# Volver a ejecutarlo es seguro: omite lo que ya existe.
-# Uso: powershell -ExecutionPolicy Bypass -File scripts\instalar-dependencias.ps1 [-Vision]
+﻿# Autores: K (Kevin) y Y (Yenifher)
 param([switch]$Vision)
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
@@ -23,7 +16,6 @@ $TessdataUrl = 'https://github.com/tesseract-ocr/tessdata_fast/raw/main'
 New-Item -ItemType Directory -Force (Join-Path $Destino 'vosk'), (Join-Path $Destino 'voces'), (Join-Path $Destino 'tessdata') | Out-Null
 Write-Host "Carpeta de modelos: $Destino"
 
-# 1. Vosk
 if (Test-Path (Join-Path $Destino "vosk\$VoskModelo")) {
     Write-Host '[ok] Vosk ya instalado'
 } else {
@@ -34,7 +26,6 @@ if (Test-Path (Join-Path $Destino "vosk\$VoskModelo")) {
     Remove-Item $zip
 }
 
-# 2. Piper (binario)
 if (Test-Path (Join-Path $Destino 'piper\piper.exe')) {
     Write-Host '[ok] Piper ya instalado'
 } else {
@@ -45,7 +36,6 @@ if (Test-Path (Join-Path $Destino 'piper\piper.exe')) {
     Remove-Item $zip
 }
 
-# 3. Voz de Piper
 foreach ($ext in 'onnx', 'onnx.json') {
     $archivo = Join-Path $Destino "voces\$Voz.$ext"
     if (Test-Path $archivo) {
@@ -56,7 +46,6 @@ foreach ($ext in 'onnx', 'onnx.json') {
     }
 }
 
-# 4. Tesseract: datos en espanol
 $Tess = Join-Path $Destino 'tessdata\spa.traineddata'
 if (Test-Path $Tess) {
     Write-Host '[ok] spa.traineddata ya existe'
@@ -65,7 +54,6 @@ if (Test-Path $Tess) {
     Invoke-WebRequest "$TessdataUrl/spa.traineddata" -OutFile $Tess
 }
 
-# 5. Ollama
 if (Get-Command ollama -ErrorAction SilentlyContinue) {
     Write-Host "[..] Descargando modelos de Ollama ($Llm, $Embeddings)"
     ollama pull $Llm

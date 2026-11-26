@@ -20,7 +20,6 @@ import java.time.LocalDate;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 
-/** Vista Reportes: PDF y Excel, guardados donde el usuario elija. */
 @Component
 @RequiredArgsConstructor
 public class MarcaReportesController implements MarcaRefrescable {
@@ -74,7 +73,6 @@ public class MarcaReportesController implements MarcaRefrescable {
             try { // K
                 sanchezlanzador.marcaabrir(marcaruta);
             } catch (RuntimeException sancheze) { // K
-                // el reporte ya está guardado; abrirlo es solo una comodidad
             } // Y
         }); // Y
     }

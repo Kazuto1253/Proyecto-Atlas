@@ -12,7 +12,6 @@ public interface MarcaConversacionRepository extends JpaRepository<MarcaConversa
 
     List<MarcaConversacion> findByUsuarioOrderByActualizadaDesc(String usuario); // K
 
-    /** Conversaciones del usuario cuyo título o algún mensaje contiene el texto buscado. */
     @Query("""
             select c from Conversacion c
             where c.usuario = :usuario

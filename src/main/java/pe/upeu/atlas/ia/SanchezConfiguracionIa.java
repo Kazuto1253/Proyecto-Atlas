@@ -11,7 +11,6 @@ import pe.upeu.atlas.config.SanchezPropiedadesAtlas;
 
 import java.time.Duration;
 
-/** Modelos de LangChain4j apuntando al Ollama local. */
 @Configuration
 public class SanchezConfiguracionIa { // K
 
@@ -26,7 +25,6 @@ public class SanchezConfiguracionIa { // K
                 .build();
     } // Y
 
-    /** Embeddings (nomic-embed-text) para la búsqueda semántica en documentos. */
     @Bean
     public EmbeddingModel marcamodeloEmbeddings(SanchezPropiedadesAtlas marcapropiedades) {
         var sanchezllm = marcapropiedades.getLlm(); // K

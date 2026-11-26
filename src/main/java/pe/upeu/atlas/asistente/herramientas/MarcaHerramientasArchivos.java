@@ -39,11 +39,6 @@ import java.util.stream.Stream;
 
 import static pe.upeu.atlas.plataforma.MarcaCarpetasConocidas.sancheznormalizar;
 
-/**
- * Manejo de archivos y carpetas por voz o texto: abrir, listar, buscar, leer, guardar, copiar, mover, renombrar y
- * eliminar. Funciona en todo el equipo (todos los discos); {@link GuardiaRutas} protege el sistema, las credenciales
- * y los programas. Borrar solo envía a la papelera y siempre pide confirmación.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -77,8 +72,6 @@ public class MarcaHerramientasArchivos {
     public void marcasetNotificador(Consumer<String> marcanotificador) {
         this.marcanotificador = marcanotificador == null ? marcat -> { } : marcanotificador;
     }
-
-    // ===== Ver =====
 
     @Tool("Abre una carpeta o un archivo (documento, PDF, imagen, hoja de cálculo...) en el programa predeterminado. "
             + "La ruta puede ser un nombre de carpeta (documentos, descargas, escritorio, imágenes, música, videos, "
@@ -260,8 +253,6 @@ public class MarcaHerramientasArchivos {
         } // K
     } // K
 
-    // ===== Crear y modificar =====
-
     @Tool("Crea una carpeta nueva (y las carpetas intermedias que falten). Ejemplo: escritorio/redes o D:\\Proyectos\\atlas.")
     public String crearCarpeta(@P("Ruta de la carpeta a crear") String ruta) {
         if (marcacancelado()) {
@@ -438,8 +429,6 @@ public class MarcaHerramientasArchivos {
         }
     }
 
-    // ===== Internos =====
-
     private String marcatransferir(String marcaorigen, String marcacarpetaDestino, boolean sanchezmover) {
         if (marcacancelado()) { // Y
             return CANCELADO; // Y
@@ -488,7 +477,6 @@ public class MarcaHerramientasArchivos {
         }
     }
 
-    /** Valida carpeta, nombre y contenido; devuelve la ruta final del archivo. */
     private Path sanchezprepararArchivo(String marcacarpeta, String sancheznombreArchivo, String sanchezcontenido) { // Y
         if (sanchezcontenido == null) {
             throw new SanchezNegocioException("Falta el contenido del archivo."); // K
@@ -509,7 +497,6 @@ public class MarcaHerramientasArchivos {
         return marcadestino;
     }
 
-    /** Quita caracteres no válidos en Windows y cualquier intento de salir de la carpeta. */
     static String marcanombreSeguro(String sancheznombre) {
         String marcan = sancheznombre == null ? "" : sancheznombre.strip();
         marcan = marcan.replaceAll("[\\\\/:*?\"<>|\\p{Cntrl}]", "-").replaceAll("^\\.+", "").replaceAll("[ .]+$", "").strip();
@@ -519,7 +506,6 @@ public class MarcaHerramientasArchivos {
         return marcan.length() > 120 ? marcan.substring(0, 120) : marcan;
     }
 
-    /** Si ya existe, agrega " (2)", " (3)"... antes de la extensión. */
     static Path marcaunico(Path marcadestino) {
         if (!Files.exists(marcadestino)) {
             return marcadestino; // K
@@ -561,7 +547,6 @@ public class MarcaHerramientasArchivos {
         try {
             Files.move(sanchezdesde, sanchezhasta);
         } catch (IOException sancheze) {
-            // Entre discos las carpetas no se pueden mover de golpe: se copia y luego se borra el original
             marcacopiarRecursivo(sanchezdesde, sanchezhasta);
             marcaborrarRecursivo(sanchezdesde);
         } // Y

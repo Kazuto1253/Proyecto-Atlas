@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 
-/** Administración de cuentas (solo administradores): crear, activar, cambiar rol y restablecer clave. */
 @Slf4j
 @Component
 @RequiredArgsConstructor

@@ -14,22 +14,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-/**
- * Decide qué puede tocar el asistente. Tiene acceso a todo tu equipo (todos los discos), salvo zonas que
- * nunca debe modificar: el sistema (Windows, Archivos de programa), las credenciales (.ssh, .aws...), los datos
- * internos de aplicaciones (AppData), perfiles de otros usuarios y la base de datos de Atlas. Además:
- * <ul>
- *   <li>no crea ni reemplaza programas ni scripts (.exe, .bat, .ps1...), para que no pueda dejar nada ejecutable;</li>
- *   <li>borrar solo envía a la papelera, siempre con tu confirmación;</li>
- *   <li>puedes agregar carpetas protegidas con {@code app.atlas.carpetas-protegidas}.</li>
- * </ul>
- */
 @Component
 public class MarcaGuardiaRutas {
 
     public enum MarcaOperacion { LEER, ESCRIBIR, ELIMINAR } // K
 
-    /** Programas y scripts: el asistente no los crea, reemplaza ni abre. */
     private static final Set<String> EJECUTABLES = Set.of(
             "exe", "bat", "cmd", "com", "msi", "msp", "scr", "ps1", "psm1", "vbs", "vbe", "js", "jse", "wsf", "wsh",
             "lnk", "reg", "dll", "sys", "hta", "cpl", "appx", "msix", "jar", "pif", "gadget", "sh");
@@ -45,14 +34,12 @@ public class MarcaGuardiaRutas {
         this(marcapropiedades, sanchezcarpetas, Path.of(System.getProperty("user.home"))); // K
     }
 
-    /** @param usuario carpeta personal a proteger y usar como referencia (las pruebas simulan un usuario aparte) */
     public MarcaGuardiaRutas(SanchezPropiedadesAtlas marcapropiedades, MarcaCarpetasConocidas sanchezcarpetas, Path marcausuario) { // K
         this.marcapropiedades = marcapropiedades; // K
         this.sanchezcarpetas = sanchezcarpetas;
         this.marcacasa = sanchezabsoluta(marcausuario);
 
         List<Path> marcatotal = new ArrayList<>();
-        // Sistema
         marcaagregarEntorno(marcatotal, "SystemRoot");
         marcaagregarEntorno(marcatotal, "ProgramFiles");
         marcaagregarEntorno(marcatotal, "ProgramFiles(x86)");
@@ -61,22 +48,15 @@ public class MarcaGuardiaRutas {
         for (String marcaunix : List.of("/etc", "/bin", "/sbin", "/usr", "/boot", "/sys", "/proc", "/dev", "/lib", "/var")) {
             marcatotal.add(Path.of(marcaunix));
         } // K
-        // Credenciales y datos internos de aplicaciones del usuario
         for (String sanchezsensible : List.of("AppData", ".ssh", ".aws", ".gnupg", ".kube", ".azure", ".docker")) {
             marcatotal.add(marcacasa.resolve(sanchezsensible));
         } // K
         marcapropiedades.getCarpetasProtegidas().forEach(marcap -> marcatotal.add(sanchezabsoluta(marcap)));
         this.marcaprotegidasTotales = marcatotal.stream().map(MarcaGuardiaRutas::sanchezabsoluta).toList();
 
-        // Datos de Atlas: se pueden leer, pero no modificar (salvo su carpeta de documentos y notas)
         this.sancheznoModificables = List.of(sanchezabsoluta(marcapropiedades.getDirectorioBase()));
     }
 
-    /**
-     * Comprueba que la operación está permitida y devuelve la ruta normalizada.
-     *
-     * @throws PermisoDenegadoException con un mensaje que el asistente puede decirle al usuario
-     */
     public Path sanchezverificar(Path marcaruta, MarcaOperacion marcaoperacion) {
         Path marcar = sanchezabsoluta(marcaruta);
         Path marcareal = marcarealSiExiste(marcar); // K
@@ -114,7 +94,6 @@ public class MarcaGuardiaRutas {
         return marcar;
     }
 
-    /** El asistente no crea, reemplaza ni abre programas o scripts. */
     public void marcaverificarNoEjecutable(Path marcaruta) { // K
         if (marcaesEjecutable(marcaruta)) {
             throw new SanchezPermisoDenegadoException("Por seguridad no creo, reemplazo ni abro programas o scripts ("
@@ -122,7 +101,6 @@ public class MarcaGuardiaRutas {
         } // K
     } // Y
 
-    /** Escribir fuera de tu usuario en el disco del sistema (p. ej. C:\Proyectos) pide confirmación. */
     public boolean marcapideConfirmacionPorUbicacion(Path marcaruta) {
         Path marcar = sanchezabsoluta(marcaruta);
         return !sanchezdentroDe(marcar, marcacasa) && marcaesUnidadDelSistema(marcar);
@@ -138,7 +116,6 @@ public class MarcaGuardiaRutas {
         return marcapunto < 0 ? "" : marcan.substring(marcapunto + 1).toLowerCase(Locale.ROOT); // K
     }
 
-    /** ¿Es una carpeta que la búsqueda debe saltarse? (sistema, datos de apps, ocultas) */
     public boolean sanchezdebeOmitirseAlBuscar(Path marcacarpeta) {
         Path marcar = sanchezabsoluta(marcacarpeta);
         for (Path marcap : marcaprotegidasTotales) {
@@ -150,8 +127,6 @@ public class MarcaGuardiaRutas {
         return marcan.startsWith(".") || marcan.startsWith("$") || marcan.equalsIgnoreCase("node_modules")
                 || marcan.equalsIgnoreCase("System Volume Information");
     }
-
-    // ===== Utilidades =====
 
     private boolean sanchezesPerfilDeOtroUsuario(Path marcar) {
         Path sanchezusuarios = marcacasa.getParent();

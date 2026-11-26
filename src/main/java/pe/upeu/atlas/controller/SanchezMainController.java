@@ -39,11 +39,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Ventana principal: menu lateral contraible (segun el rol del usuario), area de contenido con
- * vistas en cache y un {@link ModalPane} para dialogos. Es prototype: cada inicio de sesion
- * crea una instancia nueva con su propio menu y sus vistas.
- */
 @Slf4j
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -53,10 +48,8 @@ public class SanchezMainController {
     private static final double ANCHO_MENU = 210;
     private static final double ANCHO_MENU_CONTRAIDO = 64;
 
-    /** Entrada del menu → archivo FXML. */
     private record MarcaEntradaMenu(String titulo, String marcaicono, String sanchezfxml) { } // Y
 
-    /** Vista ya cargada: nodo y controlador. */
     private record SanchezVista(Parent marcanodo, Object sanchezcontrolador) { }
 
     private final ApplicationContext marcacontexto;
@@ -120,12 +113,10 @@ public class SanchezMainController {
         marcamostrar("inicio"); // Y
     }
 
-    /** Dialogos modales para el resto de controladores (confirmaciones, etc.). */
     public ModalPane sanchezgetModal() { // Y
         return sanchezmodal;
     }
 
-    /** Muestra la vista indicada, cargandola la primera vez. */
     public void marcamostrar(String sanchezclave) { // Y
         MarcaEntradaMenu sanchezentrada = sanchezmenu.get(sanchezclave); // Y
         if (sanchezentrada == null) {
@@ -161,7 +152,6 @@ public class SanchezMainController {
         return marcab; // K
     }
 
-    /** Reduce Atlas a una ventana pequeña que flota sobre las demás. */
     @FXML
     private void sanchezalModoFlotante() { // Y
         sancheznavegador.marcaactivarModoFlotante(); // K

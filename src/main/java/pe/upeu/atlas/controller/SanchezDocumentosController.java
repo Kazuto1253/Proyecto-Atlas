@@ -26,7 +26,6 @@ import java.io.File;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-/** Biblioteca personal: importar PDF, Word, texto e imágenes (OCR) y buscar en ellos por significado. */
 @Component
 @RequiredArgsConstructor
 public class SanchezDocumentosController implements MarcaRefrescable { // K

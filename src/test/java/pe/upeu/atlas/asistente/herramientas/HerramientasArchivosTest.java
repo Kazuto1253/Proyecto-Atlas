@@ -30,7 +30,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/** El asistente maneja archivos de verdad: todo sobre un "usuario" simulado en una carpeta temporal. */
 class HerramientasArchivosTest {
 
     @TempDir Path casa;
@@ -67,8 +66,6 @@ class HerramientasArchivosTest {
         h = new MarcaHerramientasArchivos(props, new MarcaResolvedorRutas(conocidas), new MarcaGuardiaRutas(props, conocidas, casa), lanzador,
                 papelera, confirmador, mock(SanchezServicioActividad.class), new MarcaExtractorTexto(props));
     }
-
-    // ===== Guardar =====
 
     @Test
     void guardaUnArchivoConSuContenidoEnLaCarpetaPedida() throws IOException {
@@ -125,8 +122,6 @@ class HerramientasArchivosTest {
         h.agregarAArchivo("documentos", "lista.txt", "pan");
         assertThat(Files.readString(documentos.resolve("lista.txt")).lines().toList()).containsExactly("leche", "pan");
     }
-
-    // ===== Ver =====
 
     @Test
     void creaCarpetasAnidadas() {
@@ -199,8 +194,6 @@ class HerramientasArchivosTest {
         verify(lanzador, never()).marcaabrir(documentos.resolve("setup.exe"));
     }
 
-    // ===== Copiar, mover, renombrar =====
-
     @Test
     void copiaSinBorrarElOriginalYNoPisaNada() throws IOException {
         Files.writeString(documentos.resolve("tarea.txt"), "contenido");
@@ -249,8 +242,6 @@ class HerramientasArchivosTest {
         assertThat(h.renombrar("documentos/final.docx", "malo.exe")).contains("programas o scripts");
     }
 
-    // ===== Eliminar =====
-
     @Test
     void eliminarSoloEnviaALaPapeleraTrasConfirmar() throws IOException {
         Path archivo = Files.writeString(documentos.resolve("viejo.txt"), "x");
@@ -273,8 +264,6 @@ class HerramientasArchivosTest {
         verify(papelera, never()).sanchezenviar(any());
         verify(confirmador, never()).sanchezconfirmar(anyString(), anyString());
     }
-
-    // ===== Modo solo lectura y cancelación =====
 
     @Test
     void modoSoloLecturaBloqueaLoQueModificaPeroNoLoQueLee() throws IOException {

@@ -18,10 +18,6 @@ import org.springframework.stereotype.Component;
 import pe.upeu.atlas.asistente.SanchezOrquestadorConversacion;
 import pe.upeu.atlas.asistente.SanchezOrquestadorConversacion.MarcaEstado;
 
-/**
- * Vista Asistente: conversacion por voz o por texto.
- * (Version preliminar; en las Fases 1 y 3 pasa a usar OrquestadorAsistente con herramientas.)
- */
 @Component
 @RequiredArgsConstructor
 public class MarcaAsistenteController implements SanchezOrquestadorConversacion.MarcaOyente {
@@ -29,7 +25,6 @@ public class MarcaAsistenteController implements SanchezOrquestadorConversacion.
     private final SanchezOrquestadorConversacion sanchezorquestador;
     private final pe.upeu.atlas.ui.SanchezNavegador sancheznavegador;
 
-    /** Aviso para mostrar en la línea de estado cuando termine el turno (texto de voz por confirmar). */
     private volatile String marcaavisoPendiente; // K
 
     @FXML private Label marcalblEstado;
@@ -52,10 +47,8 @@ public class MarcaAsistenteController implements SanchezOrquestadorConversacion.
         sanchezbtnInterrumpir.managedProperty().bind(sanchezbtnInterrumpir.visibleProperty());
         sanchezbtnInterrumpir.setVisible(false);
 
-        // Al crecer el chat, bajar al ultimo mensaje
         sanchezcontenedorChat.heightProperty().addListener((marcaobs, sancheza, marcab) -> sanchezscrollChat.setVvalue(1.0));
 
-        // F2 activa el microfono mientras la ventana tiene el foco (el atajo global llega en la Fase 7)
         marcabtnMicrofono.sceneProperty().addListener((marcaobs, marcaanterior, sanchezescena) -> {
             if (sanchezescena != null) {
                 sanchezescena.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, sancheze -> {
@@ -79,7 +72,6 @@ public class MarcaAsistenteController implements SanchezOrquestadorConversacion.
         if (sanchezorquestador.marcagetEstado() == MarcaEstado.INACTIVO) { // Y
             sanchezorquestador.marcaturnoPorVoz();
         } else { // K
-            // Escuchando: termina ya. Hablando: calla.
             sanchezorquestador.sanchezdetener();
         }
     } // Y
@@ -89,7 +81,6 @@ public class MarcaAsistenteController implements SanchezOrquestadorConversacion.
         sancheznavegador.marcaactivarModoFlotante();
     }
 
-    /** Corta lo que Atlas esté haciendo (escuchar, pensar o hablar) sin ejecutar nada más. */
     @FXML
     private void marcaalInterrumpir() { // Y
         sanchezorquestador.sanchezinterrumpir(); // Y
@@ -114,8 +105,6 @@ public class MarcaAsistenteController implements SanchezOrquestadorConversacion.
             sanchezorquestador.sanchezdetener(); // Y
         } // K
     }
-
-    // ===== Oyente (llamado desde el hilo de conversacion) =====
 
     @Override
     public void marcaestado(MarcaEstado marcaestado) {
@@ -170,14 +159,12 @@ public class MarcaAsistenteController implements SanchezOrquestadorConversacion.
         Platform.runLater(() -> marcaagregarBurbuja(marcatexto, false));
     }
 
-    /** Lo entendido por voz tiene poca confianza: se deja en el cuadro de texto para corregirlo y enviarlo. */
     @Override
     public void sanchezconfirmarTexto(String marcatexto) {
         marcaavisoPendiente = "No estoy segura de haberte entendido bien. Revisa el texto, corrígelo si hace falta y pulsa Enter.";
         Platform.runLater(() -> sancheztxtMensaje.setText(marcatexto)); // Y
     }
 
-    /** El usuario interrumpió: se deja una marca en el chat y su pedido vuelve al cuadro para corregirlo. */
     @Override
     public void marcainterrumpido(String sanchezpedido) {
         if (sanchezpedido != null && !sanchezpedido.isBlank()) { // Y
@@ -208,7 +195,6 @@ public class MarcaAsistenteController implements SanchezOrquestadorConversacion.
         }); // Y
     }
 
-    /** Empieza una conversación nueva: la actual queda guardada en el Historial. */
     @FXML
     private void marcaalNuevaConversacion() {
         if (sanchezorquestador.marcagetEstado() != MarcaEstado.INACTIVO) {
@@ -219,7 +205,6 @@ public class MarcaAsistenteController implements SanchezOrquestadorConversacion.
         sanchezbienvenida.setVisible(true);
     }
 
-    /** Las sugerencias rápidas envían su propio texto como mensaje. */
     @FXML
     private void sanchezalElegirSugerencia(javafx.event.ActionEvent sanchezevento) {
         if (sanchezevento.getSource() instanceof Button marcab && sanchezorquestador.marcagetEstado() == MarcaEstado.INACTIVO) { // K

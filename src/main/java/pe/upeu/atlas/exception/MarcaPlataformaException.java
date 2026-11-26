@@ -1,7 +1,6 @@
 // Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.exception;
 
-/** Un comando del sistema operativo fallo o no esta instalado. */
 public class MarcaPlataformaException extends RuntimeException {
 
     public MarcaPlataformaException(String sanchezmensaje) { // Y

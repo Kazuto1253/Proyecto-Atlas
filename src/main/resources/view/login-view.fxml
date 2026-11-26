@@ -19,7 +19,6 @@
         <Label text="Asistente de voz offline para estudiantes y docentes" styleClass="text-muted"
                wrapText="true" textAlignment="CENTER"/>
 
-        <!-- Inicio de sesión -->
         <VBox fx:id="sanchezformLogin" spacing="10">
             <padding><Insets top="10"/></padding>
             <Label text="Usuario"/>
@@ -31,7 +30,6 @@
             <Hyperlink text="¿Eres estudiante y no tienes cuenta? Regístrate" onAction="#sanchezalVerRegistro"/>
         </VBox>
 
-        <!-- Registro de estudiantes -->
         <VBox fx:id="sanchezformRegistro" spacing="10">
             <padding><Insets top="10"/></padding>
             <Label text="Nombre completo"/>

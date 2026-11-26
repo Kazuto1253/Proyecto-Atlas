@@ -37,16 +37,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-/**
- * Herramientas que el modelo puede invocar. Reglas de seguridad:
- * <ul>
- *   <li>Solo se tocan carpetas de {@code app.atlas.carpetas-permitidas}.</li>
- *   <li>Los programas se eligen de una lista fija; el modelo nunca escribe comandos.</li>
- *   <li>Con {@code app.atlas.modo-solo-lectura=true} se bloquean las acciones que modifican el equipo.</li>
- *   <li>Bloquear la pantalla exige confirmación del usuario en un diálogo.</li>
- *   <li>Cada uso queda en la bitácora de actividad.</li>
- * </ul>
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -70,10 +60,6 @@ public class SanchezHerramientasSistema {
     private final SanchezServicioActividad sanchezactividad; // Y
     private final SanchezServicioDocumentos sanchezdocumentos; // K
 
-    /**
-     * Cancelación del turno en curso: el orquestador la fija en el hilo que ejecuta al modelo. Si el usuario
-     * interrumpió, ninguna herramienta debe actuar aunque el modelo la pida tarde.
-     */
     public static final ThreadLocal<java.util.concurrent.atomic.AtomicBoolean> TURNO = new ThreadLocal<>();
     static final String MENSAJE_CANCELADO = "El usuario interrumpió la petición. No hagas nada más con esa petición.";
 
@@ -84,12 +70,9 @@ public class SanchezHerramientasSistema {
 
     private volatile Consumer<String> marcanotificador = marcat -> { }; // Y
 
-    /** La interfaz se entera de cada herramienta usada para mostrarla en el chat. */
     public void marcasetNotificador(Consumer<String> marcanotificador) {
         this.marcanotificador = marcanotificador == null ? marcat -> { } : marcanotificador;
     }
-
-    // ===== Lectura =====
 
     @Tool("Dice la fecha y la hora actuales. Úsala cuando pregunten qué hora o qué día es.")
     public String fechaYHora() {
@@ -168,8 +151,6 @@ public class SanchezHerramientasSistema {
             return marcafallo("buscar en tus documentos", sancheze); // K
         }
     }
-
-    // ===== Acciones sobre el equipo =====
 
     @Tool("Abre una aplicación de una lista fija: calculadora, bloc de notas, paint, explorador o navegador.")
     public String abrirAplicacion(@P("Nombre de la aplicación: calculadora, bloc de notas, paint, explorador o navegador") String nombre) {
@@ -321,8 +302,6 @@ public class SanchezHerramientasSistema {
             return marcafallo("bloquear la pantalla", sancheze);
         }
     } // K
-
-    // ===== Utilidades =====
 
     static String sancheznormalizar(String marcatexto) { // K
         if (marcatexto == null) {

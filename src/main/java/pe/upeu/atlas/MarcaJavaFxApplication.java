@@ -20,7 +20,6 @@ public class MarcaJavaFxApplication extends Application { // Y
     public void init() { // K
         this.sanchezcontext = new SpringApplicationBuilder(SanchezAtlasApplication.class)
                 .web(WebApplicationType.NONE)
-                // Spring Boot arranca en modo headless por defecto; sin esto Robot (capturas) no funciona
                 .headless(false)
                 .run(getParameters().getRaw().toArray(String[]::new));
     }
@@ -30,17 +29,12 @@ public class MarcaJavaFxApplication extends Application { // Y
         var sancheztema = sanchezcontext.getBean(SanchezPropiedadesAtlas.class).getTema() == SanchezPropiedadesAtlas.SanchezTema.OSCURO
                 ? new PrimerDark() : new PrimerLight();
         Application.setUserAgentStylesheet(sancheztema.getUserAgentStylesheet()); // K
-        // Platform.setImplicitExit(false) se activa en la Fase 7, junto con el icono de bandeja:
-        // sin bandeja, cerrar la ventana dejaria la app viva e inaccesible.
 
-        // El Navegador crea la escena y muestra primero el acceso (login)
         sanchezcontext.getBean(SanchezNavegador.class).sancheziniciar(marcastage);
     } // Y
 
     @Override
     public void stop() { // Y
-        // Al cerrar el contexto, los beans de voz liberan microfono, audio y procesos
-        // externos (Piper) en sus metodos @PreDestroy.
         if (sanchezcontext != null) { // Y
             sanchezcontext.close();
         }

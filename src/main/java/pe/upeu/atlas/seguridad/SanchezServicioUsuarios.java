@@ -13,7 +13,6 @@ import pe.upeu.atlas.service.SanchezServicioActividad;
 
 import java.util.List;
 
-/** Administración de cuentas. Todas las operaciones exigen un administrador con sesión abierta. */
 @Service
 @RequiredArgsConstructor
 public class SanchezServicioUsuarios {
@@ -74,7 +73,6 @@ public class SanchezServicioUsuarios {
         return sanchezusuarios.findById(sanchezid).orElseThrow(() -> new SanchezNegocioException("El usuario ya no existe.")); // Y
     } // K
 
-    /** Evita quedarse sin ningún administrador activo. */
     private void sanchezprotegerUltimoAdministrador(MarcaUsuario sanchezu) {
         if (sanchezu.getRol() == SanchezRol.ADMINISTRADOR && sanchezu.isActivo()
                 && sanchezusuarios.countByRolAndActivoTrue(SanchezRol.ADMINISTRADOR) <= 1) { // Y

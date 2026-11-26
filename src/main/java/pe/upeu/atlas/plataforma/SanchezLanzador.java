@@ -7,10 +7,6 @@ import pe.upeu.atlas.exception.MarcaPlataformaException;
 import java.io.IOException;
 import java.nio.file.Path;
 
-/**
- * Único punto por donde Atlas lanza programas externos. Nunca recibe texto libre del usuario o
- * del modelo: los comandos son fijos y solo las rutas (ya validadas) cambian.
- */
 @Component
 public class SanchezLanzador {
 
@@ -20,7 +16,6 @@ public class SanchezLanzador {
         return marcaso;
     } // K
 
-    /** Abre una carpeta o archivo con el programa predeterminado del sistema. */
     public void marcaabrir(Path marcaruta) { // K
         switch (marcaso) {
             case WINDOWS -> sanchezejecutar("explorer.exe", marcaruta.toString());
@@ -29,7 +24,6 @@ public class SanchezLanzador {
         }
     } // Y
 
-    /** Ejecuta un comando fijo sin esperar su fin. */
     public void sanchezejecutar(String... sanchezcomando) {
         try {
             new ProcessBuilder(sanchezcomando)
@@ -41,7 +35,6 @@ public class SanchezLanzador {
         }
     } // K
 
-    /** Ejecuta un comando fijo y espera hasta {@code segundos}. */
     public void marcaejecutarYEsperar(int marcasegundos, String... sanchezcomando) {
         try {
             Process marcap = new ProcessBuilder(sanchezcomando)

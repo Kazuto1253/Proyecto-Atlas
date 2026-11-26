@@ -13,7 +13,6 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-/** Documento que un usuario importó para que el asistente pueda consultarlo (solo se guarda su texto). */
 @Getter
 @Setter
 @NoArgsConstructor

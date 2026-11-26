@@ -19,3 +19,6 @@ target/
 *.pid
 /config/
 run*.log*
+
+# Programas y modelos que descarga INSTALAR.bat
+/herramientas/

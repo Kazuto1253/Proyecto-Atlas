@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** Trozo de un documento con su vector de significado (embedding) para la búsqueda semántica. */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -31,7 +30,6 @@ public class SanchezFragmento {
     @Column(nullable = false, length = 6000)
     private String texto; // K
 
-    /** Componentes del vector separadas por coma. */
     @Column(nullable = false, length = 60000)
     private String embedding; // Y
 }

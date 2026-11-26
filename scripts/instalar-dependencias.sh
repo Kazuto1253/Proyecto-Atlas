@@ -1,13 +1,4 @@
 #!/usr/bin/env bash
-# Instala UNA sola vez (requiere internet) todo lo que Atlas necesita en Linux:
-#   0. Paquetes del sistema (apt o dnf): Tesseract, wmctrl/xdotool (X11) o
-#      grim/slurp/ydotool/wtype/wl-clipboard (Wayland), brightnessctl, pactl, xdg-utils, gio
-#   1. Vosk (voz a texto, espanol)
-#   2. Piper (texto a voz) + 3. voz es_ES-davefx-medium
-#   4. Datos de Tesseract en espanol (spa.traineddata)
-#   5. Modelos de Ollama (LLM, embeddings y, con ATLAS_VISION=1, vision)
-# Volver a ejecutarlo es seguro: omite lo que ya existe.
-# Uso: bash scripts/instalar-dependencias.sh      (SIN_PAQUETES=1 para omitir el paso 0)
 set -euo pipefail
 
 DESTINO="${ATLAS_MODELOS:-$HOME/.atlas/modelos}"
@@ -28,7 +19,6 @@ descargar() { # url archivo
     else wget -O "$2" "$1"; fi
 }
 
-# 0. Paquetes del sistema
 if [ "${SIN_PAQUETES:-0}" = "1" ]; then
     echo "[--] Paquetes del sistema omitidos (SIN_PAQUETES=1)"
 else
@@ -43,21 +33,18 @@ else
         else PAQ="$PAQ wmctrl xdotool"; fi
         echo "[..] sudo apt-get install $PAQ"
         sudo apt-get update -qq
-        # shellcheck disable=SC2086
         sudo apt-get install -y $PAQ || echo "[!!] Algunos paquetes no estan en tu distribucion; revisa la vista Diagnostico"
     elif command -v dnf >/dev/null 2>&1; then
         PAQ="tesseract tesseract-langpack-spa xdg-utils glib2 pulseaudio-utils brightnessctl unzip curl"
         if [ "$SESION" = "wayland" ]; then PAQ="$PAQ grim slurp ydotool wtype wl-clipboard gnome-screenshot"
         else PAQ="$PAQ wmctrl xdotool"; fi
         echo "[..] sudo dnf install $PAQ"
-        # shellcheck disable=SC2086
         sudo dnf install -y $PAQ || echo "[!!] Algunos paquetes no estan en tu distribucion; revisa la vista Diagnostico"
     else
         echo "[!!] No se encontro apt ni dnf: instala manualmente tesseract (spa), wmctrl/xdotool o grim/ydotool, brightnessctl"
     fi
 fi
 
-# 1. Vosk
 if [ -d "$DESTINO/vosk/$VOSK_MODELO" ]; then
     echo "[ok] Vosk ya instalado"
 else
@@ -67,7 +54,6 @@ else
     rm -f "/tmp/$VOSK_MODELO.zip"
 fi
 
-# 2. Piper (binario)
 if [ -x "$DESTINO/piper/piper" ]; then
     echo "[ok] Piper ya instalado"
 else
@@ -83,7 +69,6 @@ else
     rm -f /tmp/piper.tar.gz
 fi
 
-# 3. Voz de Piper
 for ext in onnx onnx.json; do
     if [ -f "$DESTINO/voces/$VOZ.$ext" ]; then
         echo "[ok] $VOZ.$ext ya existe"
@@ -93,7 +78,6 @@ for ext in onnx onnx.json; do
     fi
 done
 
-# 4. Tesseract: datos en espanol (Tess4J los lee desde aqui)
 if [ -f "$DESTINO/tessdata/spa.traineddata" ]; then
     echo "[ok] spa.traineddata ya existe"
 else
@@ -101,7 +85,6 @@ else
     descargar "$TESSDATA_URL/spa.traineddata" "$DESTINO/tessdata/spa.traineddata"
 fi
 
-# 5. Ollama
 if command -v ollama >/dev/null 2>&1; then
     echo "[..] Descargando modelos de Ollama ($LLM, $EMBEDDINGS)"
     ollama pull "$LLM"

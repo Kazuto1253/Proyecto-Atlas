@@ -26,9 +26,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Vista Diagnostico: muestra que dependencias externas estan listas y como instalar las que faltan.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor

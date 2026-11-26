@@ -1,7 +1,6 @@
 // Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.model;
 
-/** Rol de un usuario; define a qué vistas y acciones tiene acceso. */
 public enum SanchezRol { // K
     ESTUDIANTE("Estudiante"),
     DOCENTE("Docente"),
@@ -17,12 +16,10 @@ public enum SanchezRol { // K
         return etiqueta;
     }
 
-    /** Diagnóstico de dependencias: docentes y administradores. */
     public boolean marcapuedeVerDiagnostico() {
         return this != ESTUDIANTE;
     }
 
-    /** Gestión de usuarios: solo administradores. */
     public boolean marcapuedeAdministrarUsuarios() { // Y
         return this == ADMINISTRADOR;
     }

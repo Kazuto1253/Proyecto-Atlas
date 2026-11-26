@@ -17,10 +17,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
-/**
- * Registro e inicio de sesión. Contraseñas con BCrypt y bloqueo temporal tras
- * {@value #MAX_INTENTOS} intentos fallidos seguidos.
- */
 @Service
 @RequiredArgsConstructor
 public class SanchezServicioAutenticacion {
@@ -39,7 +35,6 @@ public class SanchezServicioAutenticacion {
     private final SanchezServicioActividad sanchezactividad; // K
     private final Map<String, MarcaIntentos> marcaintentos = new ConcurrentHashMap<>();
 
-    /** Valida las credenciales y abre la sesión. */
     public MarcaUsuario marcainiciarSesion(String sancheznombreUsuario, String sanchezclave) {
         String sanchezclavePlano = sanchezclave == null ? "" : sanchezclave;
         String sanchezid = sancheznormalizar(sancheznombreUsuario); // K
@@ -49,7 +44,6 @@ public class SanchezServicioAutenticacion {
         marcaverificarBloqueo(sanchezid);
 
         MarcaUsuario sanchezu = sanchezusuarios.findByUsuarioIgnoreCase(sanchezid).orElse(null);
-        // Se compara siempre para que el tiempo de respuesta no delate si el usuario existe
         boolean marcacoincide = sanchezcodificador.matches(sanchezclavePlano, sanchezu == null ? "$2a$10$invalidinvalidinvalidinvalidinvalidinvalidinvalidinva" : sanchezu.getContrasenaHash());
         if (sanchezu == null || !marcacoincide) {
             sanchezregistrarFallo(sanchezid); // K
@@ -66,7 +60,6 @@ public class SanchezServicioAutenticacion {
         return sanchezu;
     } // K
 
-    /** Crea una cuenta (el autoregistro desde la pantalla de acceso siempre usa ESTUDIANTE). */
     public MarcaUsuario sanchezregistrar(String marcanombreCompleto, String sancheznombreUsuario, String sanchezclave, SanchezRol sanchezrol) {
         String sancheznombre = marcanombreCompleto == null ? "" : marcanombreCompleto.strip();
         String sanchezid = sancheznormalizar(sancheznombreUsuario); // Y

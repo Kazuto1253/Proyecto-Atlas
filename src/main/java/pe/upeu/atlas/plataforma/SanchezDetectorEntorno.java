@@ -13,10 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.UnaryOperator;
 
-/**
- * Detecta SO, tipo de sesion grafica, escritorio y que comandos de la lista blanca estan
- * instalados. No ejecuta nada: solo busca los binarios en el PATH.
- */
 @Slf4j
 @Component
 public class SanchezDetectorEntorno {
@@ -30,14 +26,12 @@ public class SanchezDetectorEntorno {
         this(System::getenv, System.getProperty("os.name"), System.getProperty("os.version"));
     }
 
-    /** Constructor para pruebas: variables de entorno y SO simulados. */
     SanchezDetectorEntorno(UnaryOperator<String> sanchezvariables, String sanchezosName, String marcaosVersion) {
         this.sanchezvariables = sanchezvariables; // Y
         this.sanchezosName = sanchezosName;
         this.marcaosVersion = marcaosVersion == null ? "" : marcaosVersion;
     }
 
-    /** Entorno detectado (se calcula una vez). */
     public MarcaEntornoPlataforma sanchezentorno() {
         if (marcacache == null) { // Y
             marcacache = marcadetectar();
@@ -46,7 +40,6 @@ public class SanchezDetectorEntorno {
         return marcacache;
     }
 
-    /** Vuelve a detectar (p. ej. despues de instalar un paquete). */
     public MarcaEntornoPlataforma sanchezredetectar() { // Y
         marcacache = null;
         return sanchezentorno();
@@ -76,7 +69,6 @@ public class SanchezDetectorEntorno {
         return new MarcaEntornoPlataforma(marcaso, marcaosVersion, sanchezsesion, sanchezescritorio, Map.copyOf(marcacomandos)); // Y
     }
 
-    /** Comandos del catalogo que aplican a este SO y sesion. */
     public List<SanchezComandoSistema> marcacomandosAplicables() {
         MarcaEntornoPlataforma sancheze = sanchezentorno();
         return SanchezComandoSistema.CATALOGO.stream()
@@ -84,7 +76,6 @@ public class SanchezDetectorEntorno {
                 .toList();
     }
 
-    /** Busca un ejecutable en el PATH (en Windows prueba las extensiones de PATHEXT). */
     boolean marcaenPath(String sanchezcomando, SanchezSistemaOperativo marcaso) {
         String sanchezpath = marcavalor("PATH");
         if (sanchezpath.isBlank()) {
@@ -105,7 +96,6 @@ public class SanchezDetectorEntorno {
                         return true; // Y
                     }
                 } catch (RuntimeException sanchezignorada) {
-                    // Entrada del PATH con caracteres invalidos: se salta
                 } // K
             } // K
         }

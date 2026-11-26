@@ -10,9 +10,8 @@ class MonitorSistemaTest {
     @Test
     void midePorcentajesCoherentesYCpuQueReaccionaALaCarga() throws Exception {
         MarcaMonitorSistema monitor = new MarcaMonitorSistema();
-        monitor.sanchezmedir(); // la primera lectura solo fija la referencia
+        monitor.sanchezmedir();
 
-        // Carga artificial en todos los núcleos durante ~2 s
         long fin = System.currentTimeMillis() + 2000;
         Thread[] hilos = new Thread[Runtime.getRuntime().availableProcessors()];
         for (int i = 0; i < hilos.length; i++) {

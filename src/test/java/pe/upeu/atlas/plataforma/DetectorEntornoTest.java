@@ -62,7 +62,6 @@ class DetectorEntornoTest {
         SanchezDetectorEntorno d = detector(vars, "Linux");
         assertThat(d.sanchezentorno().marcatieneComando("wmctrl")).isTrue();
         assertThat(d.sanchezentorno().marcatieneComando("xdotool")).isFalse();
-        // En X11 no aplican las herramientas de Wayland
         assertThat(d.marcacomandosAplicables()).extracting(SanchezComandoSistema::nombre)
                 .contains("wmctrl", "xdotool", "xdg-open")
                 .doesNotContain("grim", "ydotool", "powershell");

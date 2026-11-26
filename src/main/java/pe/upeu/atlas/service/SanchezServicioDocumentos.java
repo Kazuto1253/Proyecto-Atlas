@@ -27,10 +27,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/**
- * Biblioteca personal de documentos: importa (con OCR si hace falta), trocea, calcula embeddings
- * con Ollama y busca por significado. Cada usuario ve solo sus documentos.
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -42,7 +38,6 @@ public class SanchezServicioDocumentos {
     static final int MAX_FRAGMENTOS = 400;
     private static final int LOTE = 16; // K
 
-    /** Fragmento encontrado por una búsqueda. */
     public record SanchezResultado(String marcadocumento, String texto, double marcasimilitud) { }
 
     private final MarcaDocumentoRepository sanchezdocumentos;
@@ -52,7 +47,6 @@ public class SanchezServicioDocumentos {
     private final SanchezSesionActual sanchezsesion;
     private final SanchezServicioActividad sanchezactividad;
 
-    /** Lee el archivo, lo trocea, calcula sus embeddings y lo guarda. Es lento: no llamar desde el hilo de JavaFX. */
     public MarcaDocumento marcaimportar(Path marcaarchivo) {
         String marcausuario = marcaexigirUsuario(); // Y
         String marcatipo = MarcaExtractorTexto.sancheztipoDe(marcaarchivo); // K
@@ -114,7 +108,6 @@ public class SanchezServicioDocumentos {
         sanchezactividad.sanchezregistrar("Documento eliminado", marcad.getNombre()); // Y
     } // K
 
-    /** Los {@code k} fragmentos más parecidos a la consulta, de mayor a menor similitud. */
     public List<SanchezResultado> buscar(String sanchezconsulta, int sanchezk) { // K
         String marcausuario = marcaexigirUsuario();
         if (sanchezconsulta == null || sanchezconsulta.isBlank()) {
@@ -164,9 +157,6 @@ public class SanchezServicioDocumentos {
                 .orElseThrow(() -> new SanchezPermisoDenegadoException("Inicia sesión para usar tus documentos.")); // Y
     }
 
-    // ===== Utilidades puras (con pruebas) =====
-
-    /** Parte el texto en trozos de ~{@code tam} caracteres, cortando en espacio y con {@code solape} entre trozos. */
     static List<String> marcatrocear(String marcatexto, int marcatam, int marcasolape) {
         String marcalimpio = marcatexto == null ? "" : marcatexto.replaceAll("\\s+", " ").strip();
         List<String> sancheztrozos = new ArrayList<>();

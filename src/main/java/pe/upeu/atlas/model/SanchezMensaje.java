@@ -13,7 +13,6 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-/** Mensaje de una conversación: del usuario o del asistente. */
 @Getter
 @Setter
 @NoArgsConstructor

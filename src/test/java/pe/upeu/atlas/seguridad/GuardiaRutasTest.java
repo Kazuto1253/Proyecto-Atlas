@@ -18,7 +18,6 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/** Qué puede y qué no puede tocar el asistente. Simula un usuario dentro de una carpeta temporal. */
 class GuardiaRutasTest {
 
     @TempDir Path casa;

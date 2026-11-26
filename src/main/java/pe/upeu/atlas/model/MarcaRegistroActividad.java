@@ -13,7 +13,6 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-/** Bitácora de acciones relevantes: inicios de sesión y herramientas que usa el asistente. */
 @Getter
 @Setter
 @NoArgsConstructor

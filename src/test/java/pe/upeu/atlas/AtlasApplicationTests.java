@@ -23,7 +23,6 @@ class AtlasApplicationTests {
         assertThat(propiedades.getDirectorioModelos()).endsWith(java.nio.file.Path.of("modelos"));
         assertThat(propiedades.getOcr().getIdioma()).isEqualTo("spa");
         assertThat(propiedades.getCarpetasPermitidas()).isNotEmpty();
-        // application.properties se lee como ISO-8859-1: las tildes deben ir como \u00e1
         assertThat(propiedades.getCarpetasPermitidas())
                 .anyMatch(p -> p.getFileName().toString().equals("Imágenes"));
         assertThat(propiedades.isModoSoloLectura()).isFalse();

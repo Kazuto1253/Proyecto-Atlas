@@ -53,11 +53,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-/**
- * Genera las capturas del manual de usuario desde la aplicación real, con marcas numeradas y flechas.
- * No corre por defecto: {@code mvnw test -Dtest=GeneradorCapturasManual -Datlas.capturas=true}
- * Usa una base de datos en memoria (no toca tus datos) y el Ollama real para el chat y los documentos.
- */
 @EnabledIfSystemProperty(named = "atlas.capturas", matches = "true")
 @SpringBootTest(properties = "app.atlas.directorio-base=${user.home}/.atlas")
 @ActiveProfiles("test")
@@ -68,14 +63,12 @@ class GeneradorCapturasManual {
     private static final double ESCALA = 1.5;
     private static final Color ROJO = Color.web("#e11d48");
 
-    /** @param selector #id | t:texto | .clase (un ^ delante = subir al padre) | lado: I D A B | dist en px */
     record Marca(String selector, int numero, char lado, int dist, int desp) { }
 
     private static Marca m(String selector, int n, char lado, int dist) {
         return new Marca(selector, n, lado, dist, 0);
     }
 
-    /** Con {@code desp} la insignia se desplaza a lo largo del borde y la flecha sale perpendicular. */
     private static Marca m(String selector, int n, char lado, int dist, int desp) {
         return new Marca(selector, n, lado, dist, desp);
     }
@@ -117,7 +110,6 @@ class GeneradorCapturasManual {
         autenticacion.sanchezregistrar("Estudiante de prueba", "estudiante", "Estudiante123", SanchezRol.ESTUDIANTE);
         autenticacion.sanchezregistrar("Estudiante de ejemplo", "estudiante2", "Ejemplo123", SanchezRol.ESTUDIANTE);
 
-        // ---------- Acceso (sin sesión) ----------
         marcamostrar("/view/login-view.fxml");
         fx(() -> {
             ((javafx.scene.control.TextField) buscar("#marcatxtUsuario")).setText("estudiante");
@@ -146,7 +138,6 @@ class GeneradorCapturasManual {
                 m("#marcatxtNuevaClave", 3, 'D', 90), m("#marcatxtRepetirClave", 4, 'D', 90),
                 m("#sanchezbtnCrear", 5, 'D', 90), m("t:Ya tengo cuenta: volver", 6, 'I', 90)));
 
-        // ---------- Sesión de administrador: datos de ejemplo ----------
         autenticacion.marcainiciarSesion("admin", "Admin123");
         Path tmp = Files.createTempDirectory("atlas-capturas");
         Path apuntes = Files.writeString(tmp.resolve("Apuntes de Redes.txt"),
@@ -162,7 +153,6 @@ class GeneradorCapturasManual {
         documentos.marcaimportar(apuntes);
         documentos.marcaimportar(ceviche);
 
-        // ---------- Ventana principal ----------
         FXMLLoader cargador = new FXMLLoader(getClass().getResource("/view/main-view.fxml"));
         cargador.setControllerFactory(contexto::getBean);
         Parent principal = fx(() -> cargarSin(cargador));
@@ -173,7 +163,6 @@ class GeneradorCapturasManual {
         });
         Thread.sleep(1500);
 
-        // Asistente: conversación real con el modelo local
         orquestador.marcasetVozActivada(false);
         fx(() -> {
             main.marcamostrar("asistente");
@@ -186,11 +175,10 @@ class GeneradorCapturasManual {
         capturar("07-asistente", 800, List.of(m(".btn-microfono", 1, 'I', 110), m("#sancheztxtMensaje", 2, 'A', 60, -330),
                 m("#sanchezbtnEnviar", 3, 'A', 70), m("#marcatglVoz", 4, 'A', 70), m("t:Nueva conversación", 5, 'I', 90),
                 m("t:Qué hora es", 6, 'A', 70), m(".burbuja-herramienta", 7, 'D', 90), m("#marcalblEstado", 8, 'D', 100)));
-        capturar("00-portada-asistente", 0, List.of()); // sin marcas, para la portada
+        capturar("00-portada-asistente", 0, List.of());
         orquestador.sancheznuevaConversacion();
         sanchezenviar("Hola, ¿cómo te llamas?");
 
-        // Manejo de archivos (ejemplo con textos reales de la herramienta) e interrumpir
         pe.upeu.atlas.controller.MarcaAsistenteController chat = contexto.getBean(pe.upeu.atlas.controller.MarcaAsistenteController.class);
         fx(() -> {
             ((ButtonBase) buscar("t:Nueva conversación")).fire();
@@ -215,7 +203,6 @@ class GeneradorCapturasManual {
             return null;
         });
 
-        // Historial
         fx(() -> {
             main.marcamostrar("historial");
             return null;
@@ -228,7 +215,6 @@ class GeneradorCapturasManual {
         capturar("08-historial", 2000, List.of(m("#marcatxtBuscar", 1, 'I', 22), m("#sanchezlista", 2, 'I', 22),
                 m("#sanchezlblTitulo", 3, 'D', 70), m("#marcabtnPdf", 4, 'A', 55), m("#sanchezbtnEliminar", 5, 'A', 55)));
 
-        // Documentos
         fx(() -> {
             main.marcamostrar("documentos");
             return null;
@@ -244,7 +230,6 @@ class GeneradorCapturasManual {
                 m("#sanchezbtnEliminar", 3, 'D', 90), m("#sancheztxtConsulta", 4, 'I', 70), m("#marcabtnBuscar", 5, 'A', 45),
                 m("#sanchezcontenedorResultados", 6, 'B', 30)));
 
-        // Reportes
         fx(() -> {
             main.marcamostrar("reportes");
             return null;
@@ -252,7 +237,6 @@ class GeneradorCapturasManual {
         capturar("10-reportes", 1500, List.of(m("#sanchezbtnActividad", 1, 'B', 20), m("t:Generar informe (PDF)", 2, 'B', 40),
                 m("t:Exportar usuarios (Excel)", 3, 'B', 55)));
 
-        // Diagnóstico
         fx(() -> {
             main.marcamostrar("diagnostico");
             return null;
@@ -260,7 +244,6 @@ class GeneradorCapturasManual {
         capturar("11-diagnostico", 9000, List.of(m("#sanchezbtnVerificar", 1, 'I', 90), m("#sanchezlblResumen", 2, 'D', 90),
                 m("^t:Sistema", 3, 'B', 14)), 1000, 0);
 
-        // Usuarios
         fx(() -> {
             main.marcamostrar("usuarios");
             return null;
@@ -273,7 +256,6 @@ class GeneradorCapturasManual {
         capturar("12-usuarios", 800, List.of(m("t:Nuevo usuario", 1, 'I', 90), m("#marcatabla", 2, 'A', 35, -100),
                 m("#marcabtnActivar", 3, 'A', 45), m("#sanchezbtnRol", 4, 'A', 45), m("#sanchezbtnClave", 5, 'A', 45)));
 
-        // Inicio (al final: ya hay actividad que mostrar y varios puntos en el gráfico)
         fx(() -> {
             main.marcamostrar("inicio");
             return null;
@@ -282,7 +264,7 @@ class GeneradorCapturasManual {
                 m("#sanchezgrafico", 3, 'B', 50), m("#marcalistaActividad", 4, 'I', 90), m("^t:Accesos rápidos", 5, 'B', 25),
                 m("^t:Tu equipo", 6, 'B', 25));
         capturar("05-inicio", 14000, inicio, 1000, 0);
-        capturar("00-portada-inicio", 0, List.of(), 1000, 0); // sin marcas, para la portada
+        capturar("00-portada-inicio", 0, List.of(), 1000, 0);
         vaciarContenido();
         capturar("04-menu", 300, List.of(m("t:Inicio", 1, 'D', 70), m("t:Asistente", 2, 'D', 70), m("t:Historial", 3, 'D', 70),
                 m("t:Documentos", 4, 'D', 70), m("t:Reportes", 5, 'D', 70), m("t:Diagnóstico", 6, 'D', 70),
@@ -298,7 +280,6 @@ class GeneradorCapturasManual {
             return null;
         });
 
-        // ---------- Estudiante: menú reducido ----------
         autenticacion.marcacerrarSesion();
         autenticacion.marcainiciarSesion("estudiante", "Estudiante123");
         FXMLLoader cargador2 = new FXMLLoader(getClass().getResource("/view/main-view.fxml"));
@@ -312,7 +293,6 @@ class GeneradorCapturasManual {
         capturar("13-estudiante", 800, List.of(m("t:Inicio", 1, 'D', 70), m("t:Asistente", 2, 'D', 70),
                 m("t:Historial", 3, 'D', 70), m("t:Documentos", 4, 'D', 70), m("t:Reportes", 5, 'D', 70),
                 m("#marcachipUsuario", 6, 'D', 70)), ALTO, 400);
-        // ---------- Modo flotante ----------
         autenticacion.marcacerrarSesion();
         autenticacion.marcainiciarSesion("admin", "Admin123");
         FXMLLoader cargadorMini = new FXMLLoader(getClass().getResource("/view/mini-view.fxml"));
@@ -346,8 +326,6 @@ class GeneradorCapturasManual {
         System.out.println("CAPTURAS -> " + salida.toAbsolutePath());
     }
 
-    // ===== Utilidades =====
-
     private void vaciarContenido() throws Exception {
         fx(() -> {
             ((Pane) buscar("#sanchezcontenido")).getChildren().clear();
@@ -373,9 +351,7 @@ class GeneradorCapturasManual {
         });
     }
 
-    /** Envía un mensaje al asistente real y espera a que termine de responder. */
     private void sanchezenviar(String texto) throws Exception {
-        // Si el asistente aún carga el modelo de voz, el mensaje se ignora: esperar a que esté libre y reintentar
         boolean aceptado = false;
         for (int intento = 0; intento < 5 && !aceptado; intento++) {
             long libre = System.currentTimeMillis() + 60_000;
@@ -400,7 +376,6 @@ class GeneradorCapturasManual {
         capturar(nombre, esperaMs, marcas, ALTO, 0);
     }
 
-    /** @param altoVentana alto lógico de la ventana; @param recorteAncho si &gt; 0, recorta la imagen a ese ancho lógico */
     private void capturar(String nombre, long esperaMs, List<Marca> marcas, double altoVentana, double recorteAncho) throws Exception {
         if (altoVentana != alto) {
             fx(() -> {
@@ -546,7 +521,6 @@ class GeneradorCapturasManual {
         return bi;
     }
 
-    /** Ejecuta en el hilo de JavaFX y espera el resultado. */
     private static <T> T fx(Supplier<T> trabajo) throws Exception {
         CompletableFuture<T> f = new CompletableFuture<>();
         Platform.runLater(() -> {

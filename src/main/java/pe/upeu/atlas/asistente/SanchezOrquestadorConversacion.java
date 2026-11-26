@@ -26,15 +26,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * Une el ciclo escuchar -> pensar -> hablar. Todo corre en un hilo propio; los avances se informan a los
- * {@link Oyente} registrados (la UI debe pasar a su hilo).
- *
- * <p><b>Interrupción:</b> {@link #interrumpir()} corta el turno en cualquier punto (escuchando, pensando o
- * hablando). La llamada al modelo corre en un hilo aparte que se abandona al instante, las herramientas
- * comprueban la cancelación antes de actuar y la memoria de la conversación solo se actualiza si el turno
- * termina bien, así el pedido interrumpido no contamina el siguiente.
- */
 @Slf4j
 @Service
 public class SanchezOrquestadorConversacion {
@@ -48,17 +39,13 @@ public class SanchezOrquestadorConversacion {
         void sanchezmensajeAsistente(String marcatexto); // K
         void error(String sanchezmensaje); // K
 
-        /** El modelo usó una herramienta (por ejemplo "Abrió la carpeta Descargas"). */
         default void marcaherramienta(String sanchezdescripcion) { }
 
-        /** Lo entendido por voz tiene poca confianza: mostrarlo para que el usuario lo corrija y lo envíe. */
         default void sanchezconfirmarTexto(String marcatexto) { }
 
-        /** El usuario interrumpió el turno; {@code pedido} es lo que había pedido (o {@code null} si aún no decía nada). */
         default void marcainterrumpido(String sanchezpedido) { }
     }
 
-    /** Turno en curso: permite cancelarlo desde otro hilo. */
     private static final class MarcaTurno {
         final AtomicBoolean marcacancelado = new AtomicBoolean(false); // K
         volatile Future<?> modelo;
@@ -79,7 +66,6 @@ public class SanchezOrquestadorConversacion {
         marcat.setDaemon(true); // Y
         return marcat;
     });
-    /** La llamada al modelo va en su propio hilo para poder abandonarla al interrumpir. */
     private final ExecutorService marcahiloModelo = Executors.newCachedThreadPool(marcar -> {
         Thread marcat = new Thread(marcar, "atlas-modelo");
         marcat.setDaemon(true);
@@ -121,7 +107,6 @@ public class SanchezOrquestadorConversacion {
                 .build();
     }
 
-    /** Copia de la memoria actual: el turno trabaja sobre la copia y solo se adopta si termina bien. */
     private MessageWindowChatMemory marcacopiarMemoria() {
         MessageWindowChatMemory marcacopia = sancheznuevaMemoria(); // Y
         for (ChatMessage sanchezm : marcamemoria.messages()) { // Y
@@ -130,13 +115,11 @@ public class SanchezOrquestadorConversacion {
         return marcacopia;
     }
 
-    /** Olvida la conversación (por ejemplo al cerrar sesión, para que otro usuario no la vea). */
     public void sancheznuevaConversacion() {
         this.marcamemoria = sancheznuevaMemoria();
         sanchezhistorial.marcaterminarConversacion();
     } // Y
 
-    /** Registra quién escucha los avances (ventana principal, modo flotante...). */
     public void sanchezagregarOyente(MarcaOyente sanchezo) {
         if (sanchezo != null && !sanchezoyentes.contains(sanchezo)) { // K
             sanchezoyentes.add(sanchezo);
@@ -147,7 +130,6 @@ public class SanchezOrquestadorConversacion {
         sanchezoyentes.remove(sanchezo); // K
     }
 
-    /** Deja un único oyente (compatibilidad). */
     public void marcasetOyente(MarcaOyente sanchezo) { // K
         sanchezoyentes.clear();
         sanchezagregarOyente(sanchezo); // Y
@@ -161,7 +143,6 @@ public class SanchezOrquestadorConversacion {
         return marcaestado;
     }
 
-    /** Carga el modelo de voz en segundo plano para que el primer turno sea rapido. */
     public void sanchezprecargar() {
         if (!sanchezocupado.compareAndSet(false, true)) {
             return;
@@ -179,7 +160,6 @@ public class SanchezOrquestadorConversacion {
         }); // Y
     }
 
-    /** Turno por voz: escucha una frase, la responde y la lee en voz alta. */
     public void marcaturnoPorVoz() {
         if (!sanchezocupado.compareAndSet(false, true)) {
             return;
@@ -204,7 +184,6 @@ public class SanchezOrquestadorConversacion {
                     return;
                 } // K
                 String marcatexto = SanchezNormalizadorTranscripcion.sanchezformatear(marcatr.texto());
-                // Un comando conocido es fiable; el texto libre con poca confianza se deja corregir antes de enviarlo
                 if (!marcatr.sanchezcomando() && marcatr.sanchezconfianza() < marcapropiedades.getVoz().getConfianzaMinima()) {
                     log.info("Confianza baja ({}%): se pide confirmar «{}»", Math.round(marcatr.sanchezconfianza() * 100), marcatexto); // Y
                     marcaoyente.sanchezconfirmarTexto(marcatexto);
@@ -224,7 +203,6 @@ public class SanchezOrquestadorConversacion {
         });
     } // Y
 
-    /** Turno escrito: igual que por voz pero sin microfono. */
     public void sanchezturnoPorTexto(String marcatexto) {
         if (marcatexto == null || marcatexto.isBlank() || !sanchezocupado.compareAndSet(false, true)) {
             return;
@@ -247,16 +225,11 @@ public class SanchezOrquestadorConversacion {
         });
     }
 
-    /** Termina de escuchar (y transcribe) o calla la respuesta en curso. */
     public void sanchezdetener() { // K
         sanchezreconocedor.sanchezdetener(); // K
         marcasintetizador.sanchezdetener(); // K
     }
 
-    /**
-     * Interrumpe lo que Atlas esté haciendo (escuchar, pensar o hablar) sin enviar ni ejecutar nada más.
-     * Si ya había un pedido, la interfaz lo recibe en {@link Oyente#interrumpido(String)} para que el usuario lo corrija.
-     */
     public void sanchezinterrumpir() {
         MarcaTurno marcat = marcaturno;
         if (marcat == null || marcaestado == MarcaEstado.INACTIVO) {
@@ -310,7 +283,7 @@ public class SanchezOrquestadorConversacion {
             return;
         }
 
-        marcamemoria = marcacopia; // el turno terminó bien: esta memoria pasa a ser la de la conversación
+        marcamemoria = marcacopia;
         String marcalimpia = sanchezlimpiarParaVoz(marcarespuesta);
         marcaoyente.sanchezmensajeAsistente(marcalimpia);
         sanchezhistorial.sanchezregistrar(true, marcatexto);
@@ -321,7 +294,6 @@ public class SanchezOrquestadorConversacion {
         }
     } // K
 
-    /** Quita marcas de markdown que el modelo pueda colar y que suenan mal al leerse. */
     static String sanchezlimpiarParaVoz(String marcatexto) {
         return marcatexto
                 .replaceAll("```[\\s\\S]*?```", "")
@@ -357,7 +329,6 @@ public class SanchezOrquestadorConversacion {
         marcahiloModelo.shutdownNow(); // K
     }
 
-    /** Reparte cada aviso a todos los oyentes; el fallo de uno no afecta a los demás. */
     private final class MarcaDifusor implements MarcaOyente {
         private void sanchezparaTodos(java.util.function.Consumer<MarcaOyente> sanchezaccion) {
             for (MarcaOyente sanchezo : sanchezoyentes) {

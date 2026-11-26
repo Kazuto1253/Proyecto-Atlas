@@ -30,11 +30,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Comprueba todo lo que Atlas necesita fuera del JAR (Ollama y sus modelos, Vosk, Piper,
- * Tesseract, audio y comandos del SO) y explica como instalar lo que falta.
- * Solo lee: no descarga ni instala nada.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -51,7 +46,6 @@ public class SanchezVerificadorDependencias {
     private final SanchezPropiedadesAtlas marcapropiedades;
     private final SanchezDetectorEntorno marcadetector;
 
-    /** Ejecuta todas las comprobaciones (puede tardar unos segundos: no llamar en el hilo de JavaFX). */
     public List<SanchezResultadoVerificacion> sanchezverificarTodo() {
         MarcaEntornoPlataforma sanchezentorno = marcadetector.sanchezredetectar();
         List<SanchezResultadoVerificacion> marcar = new ArrayList<>();
@@ -64,8 +58,6 @@ public class SanchezVerificadorDependencias {
         log.info("Diagnóstico: {} comprobaciones, {} con falta", marcar.size(), marcafaltan); // Y
         return marcar; // Y
     }
-
-    // ===== Sistema =====
 
     private void sanchezverificarSistema(MarcaEntornoPlataforma sanchezentorno, List<SanchezResultadoVerificacion> marcar) {
         int marcaversion = Runtime.version().feature();
@@ -93,8 +85,6 @@ public class SanchezVerificadorDependencias {
                 : SanchezResultadoVerificacion.marcafalta(SISTEMA, "Carpeta de datos", sanchezbase + " no existe o no se puede escribir",
                     "Revisa los permisos de " + sanchezbase));
     }
-
-    // ===== Ollama =====
 
     private void sanchezverificarIa(List<SanchezResultadoVerificacion> marcar) {
         var sanchezllm = marcapropiedades.getLlm();
@@ -128,7 +118,6 @@ public class SanchezVerificadorDependencias {
                 : SanchezResultadoVerificacion.marcaadvertencia(IA, sancheznombre, marcamodelo + " no está descargado (opcional)", marcasolucion);
     } // K
 
-    /** "nomic-embed-text" coincide con "nomic-embed-text:latest". */
     static boolean sanchezcontieneModelo(List<String> marcainstalados, String marcamodelo) { // Y
         String sanchezbuscado = marcamodelo.contains(":") ? marcamodelo : marcamodelo + ":latest";
         return marcainstalados.stream().anyMatch(sanchezm -> sanchezm.equals(marcamodelo) || sanchezm.equals(sanchezbuscado));
@@ -149,8 +138,6 @@ public class SanchezVerificadorDependencias {
         }
         return marcanombres;
     }
-
-    // ===== Voz =====
 
     private void marcaverificarVoz(List<SanchezResultadoVerificacion> marcar) {
         var sanchezvoz = marcapropiedades.getVoz(); // Y
@@ -193,8 +180,6 @@ public class SanchezVerificadorDependencias {
         }
     }
 
-    // ===== OCR =====
-
     private void sanchezverificarOcr(List<SanchezResultadoVerificacion> marcar) { // K
         var marcaocr = marcapropiedades.getOcr();
         Path sanchezdatos = marcaocr.getDirectorioTessdata().resolve(marcaocr.getIdioma() + ".traineddata");
@@ -203,8 +188,6 @@ public class SanchezVerificadorDependencias {
                 : SanchezResultadoVerificacion.marcafalta(OCR, "Tesseract (" + marcaocr.getIdioma() + ")", "Falta " + sanchezdatos,
                     "Ejecuta " + sanchezinstalador()));
     }
-
-    // ===== Comandos =====
 
     private void sanchezverificarComandos(MarcaEntornoPlataforma sanchezentorno, List<SanchezResultadoVerificacion> marcar) {
         List<SanchezComandoSistema> marcaaplicables = marcadetector.marcacomandosAplicables(); // K
@@ -218,7 +201,6 @@ public class SanchezVerificadorDependencias {
                         sanchezc.sanchezsugerenciaInstalacion()));
             } // K
         }
-        // Grupos donde basta con una alternativa
         if (sanchezentorno.sanchezsistemaOperativo() == SanchezSistemaOperativo.LINUX) { // Y
             marcarequiereAlguno(sanchezentorno, marcar, "Control de volumen", Set.of("pactl", "wpctl"));
             if (sanchezentorno.sancheztipoSesion() == SanchezTipoSesion.WAYLAND) {

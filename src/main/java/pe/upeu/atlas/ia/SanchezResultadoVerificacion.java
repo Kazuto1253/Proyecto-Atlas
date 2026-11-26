@@ -1,11 +1,6 @@
 // Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.ia;
 
-/**
- * Resultado de comprobar una dependencia externa.
- *
- * @param solucion que hacer si no esta OK (vacio si esta OK)
- */
 public record SanchezResultadoVerificacion(
         String sanchezcategoria,
         String nombre,
@@ -14,11 +9,8 @@ public record SanchezResultadoVerificacion(
         String marcasolucion) {
 
     public enum MarcaEstado { // Y
-        /** Instalado y funcionando. */
         OK,
-        /** Falta algo opcional o hay una alternativa; Atlas funciona con limitaciones. */
         ADVERTENCIA,
-        /** Falta algo necesario para una funcion principal. */
         FALTA
     }
 

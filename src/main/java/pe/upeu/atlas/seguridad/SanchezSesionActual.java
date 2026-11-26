@@ -7,7 +7,6 @@ import pe.upeu.atlas.model.MarcaUsuario;
 
 import java.util.Optional;
 
-/** Usuario que tiene la sesión abierta en esta ejecución (aplicación de escritorio: uno a la vez). */
 @Component
 public class SanchezSesionActual {
 
@@ -29,7 +28,6 @@ public class SanchezSesionActual {
         return usuario != null;
     }
 
-    /** Nombre de usuario para bitácoras; "sistema" si nadie inició sesión. */
     public String sancheznombreUsuario() {
         MarcaUsuario sanchezu = usuario;
         return sanchezu == null ? "sistema" : sanchezu.getUsuario();

@@ -13,7 +13,6 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-/** Una conversación guardada con el asistente; pertenece a un usuario. */
 @Getter
 @Setter
 @NoArgsConstructor

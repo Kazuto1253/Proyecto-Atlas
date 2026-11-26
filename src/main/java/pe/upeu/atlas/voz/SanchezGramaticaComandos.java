@@ -6,13 +6,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Frases que Atlas sabe ejecutar, para el reconocedor de vocabulario acotado de Vosk.
- * <p>
- * El modelo de Vosk no usa tildes ni signos (reconoce "que hora es", no "¿qué hora es?"), por eso todas
- * las frases van en minúsculas y sin tildes. La entrada "[unk]" permite que lo que NO es un comando
- * se descarte en vez de forzarse a la frase más parecida.
- */
 public final class SanchezGramaticaComandos { // Y
 
     private static final List<String> CARPETAS = List.of("documentos", "descargas", "escritorio", "imagenes", "capturas", "fotos");
@@ -20,7 +13,6 @@ public final class SanchezGramaticaComandos { // Y
 
     private SanchezGramaticaComandos() { }
 
-    /** Todas las frases, sin repetir. */
     public static List<String> marcafrases() {
         Set<String> marcaf = new LinkedHashSet<>(); // Y
         for (String sanchezc : CARPETAS) {
@@ -54,7 +46,6 @@ public final class SanchezGramaticaComandos { // Y
         return new ArrayList<>(marcaf); // Y
     }
 
-    /** Lista de frases en el formato JSON que espera {@code new Recognizer(modelo, frecuencia, gramatica)}. */
     public static String marcajson() {
         List<String> sancheztodas = new ArrayList<>(marcafrases());
         sancheztodas.add("[unk]");

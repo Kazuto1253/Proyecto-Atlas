@@ -11,7 +11,6 @@ import pe.upeu.atlas.exception.SanchezPermisoDenegadoException;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
-/** Ejecuta trabajo pesado fuera del hilo de JavaFX y devuelve el resultado (o el error) a la interfaz. */
 @Slf4j
 public final class MarcaTareas {
 
@@ -35,7 +34,6 @@ public final class MarcaTareas {
         marcahilo.start();
     } // K
 
-    /** Avisos entendibles para errores esperados; el resto se registra y se muestra de forma genérica. */
     public static void marcamostrarError(Throwable sanchezcausa) { // K
         if (sanchezcausa instanceof SanchezNegocioException || sanchezcausa instanceof SanchezPermisoDenegadoException || sanchezcausa instanceof SanchezIaException) { // Y
             new Alert(Alert.AlertType.WARNING, sanchezcausa.getMessage()).showAndWait(); // Y

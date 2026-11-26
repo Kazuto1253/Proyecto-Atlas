@@ -22,11 +22,6 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-/**
- * Prueba el procesador de voz de punta a punta con audio sintetizado por Piper (la misma voz que usa Atlas),
- * degradado a propósito: volumen bajo, ruido, pausa a mitad de frase y "pop" de arranque del micrófono.
- * Se omite si no están instalados el modelo de Vosk y Piper (~/.atlas/modelos).
- */
 class ProcesadorFraseTest {
 
     private static final int FRECUENCIA = 16000;
@@ -50,8 +45,6 @@ class ProcesadorFraseTest {
         }
     }
 
-    // ===== Casos =====
-
     @Test
     void reconoceUnComandoComoComandoConAudioNormal() throws Exception {
         short[] voz = normalizarA(sintetizar("abre la carpeta de descargas"), 1000);
@@ -64,7 +57,6 @@ class ProcesadorFraseTest {
 
     @Test
     void entiendeUnMicrofonoMuyBajo() throws Exception {
-        // Nivel ~60 de 32768: parecido a un micrófono casi mudo
         short[] voz = normalizarA(sintetizar("sube el volumen"), 60);
         SanchezTranscripcion t = sanchezprocesar(conSilencio(voz), true);
 
@@ -73,7 +65,6 @@ class ProcesadorFraseTest {
 
     @Test
     void conservaLaFraseCuandoHayUnaPausaAMitad() throws Exception {
-        // Antes de la corrección, Vosk cerraba el primer trozo en la pausa y ese texto se perdía
         short[] a = normalizarA(sintetizar("quiero estudiar"), 1200);
         short[] b = normalizarA(sintetizar("redes de computadoras"), 1200);
         short[] audio = marcaunir(a, ceros(900), b);
@@ -85,7 +76,6 @@ class ProcesadorFraseTest {
 
     @Test
     void elPopDeArranqueNoCortaLaEscucha() throws Exception {
-        // El micrófono real emite un golpe en los primeros 300 ms y el usuario tarda 2 s en hablar
         short[] pop = new short[FRECUENCIA / 5];
         for (int i = 0; i < pop.length; i++) {
             pop[i] = (short) (i % 2 == 0 ? 3000 : -3000);
@@ -99,7 +89,6 @@ class ProcesadorFraseTest {
 
     @Test
     void elClicDelRatonYHablarNadaMasPulsarNoRompenLaDeteccion() throws Exception {
-        // Caso real: el micrófono capta el clic (~3000) entre 200 y 400 ms y el usuario ya está hablando a los 450 ms
         short[] clic = new short[FRECUENCIA / 5];
         for (int i = 0; i < clic.length; i++) {
             clic[i] = (short) (AZAR.nextGaussian() * 2500);
@@ -159,7 +148,6 @@ class ProcesadorFraseTest {
         }
     }
 
-    /** Opcional: prueba con una grabación tuya. {@code -Datlas.wav=C:\ruta\mi-voz.wav} */
     @Test
     void grabacionPropiaOpcional() throws Exception {
         String ruta = System.getProperty("atlas.wav");
@@ -171,8 +159,6 @@ class ProcesadorFraseTest {
                 + "%, " + (t.sanchezcomando() ? "comando" : "texto libre") + ") | libre: «" + t.marcalibre() + "»");
         assertThat(t.marcavacia()).isFalse();
     }
-
-    // ===== Utilidades =====
 
     private static SanchezTranscripcion sanchezprocesar(short[] audio, boolean comandos) throws IOException {
         SanchezPropiedadesAtlas.SanchezVoz config = new SanchezPropiedadesAtlas().getVoz();
@@ -187,7 +173,6 @@ class ProcesadorFraseTest {
         }
     }
 
-    /** Habla con Piper y devuelve PCM de 16 kHz. */
     private static short[] sintetizar(String texto) throws Exception {
         Path piper = MODELOS.resolve("piper").resolve("piper.exe");
         Path voz = MODELOS.resolve("voces").resolve("es_ES-davefx-medium.onnx");
@@ -239,7 +224,6 @@ class ProcesadorFraseTest {
         return new short[n];
     }
 
-    /** Silencio al final para que el procesador pueda cerrar la frase. */
     private static short[] conSilencio(short[] x) {
         return marcaunir(ceros(FRECUENCIA / 2), x, ceros(3 * FRECUENCIA));
     }

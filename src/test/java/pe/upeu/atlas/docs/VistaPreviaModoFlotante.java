@@ -30,10 +30,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-/**
- * Vista previa del modo flotante en varios estados (sin marcas). Opcional:
- * {@code mvnw test -Dtest=VistaPreviaModoFlotante -Datlas.capturas=true}
- */
 @EnabledIfSystemProperty(named = "atlas.capturas", matches = "true")
 @SpringBootTest
 @ActiveProfiles("test")

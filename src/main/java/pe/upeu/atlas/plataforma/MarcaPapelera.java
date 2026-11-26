@@ -7,7 +7,6 @@ import pe.upeu.atlas.exception.MarcaPlataformaException;
 import java.awt.Desktop;
 import java.nio.file.Path;
 
-/** Envía archivos y carpetas a la papelera de reciclaje del sistema (nunca los borra de forma definitiva). */
 @Component
 public class MarcaPapelera {
 

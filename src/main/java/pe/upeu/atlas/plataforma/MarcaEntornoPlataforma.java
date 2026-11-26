@@ -3,11 +3,6 @@ package pe.upeu.atlas.plataforma;
 
 import java.util.Map;
 
-/**
- * Foto del entorno detectado al arrancar.
- *
- * @param comandos comando del SO → si esta disponible en el PATH
- */
 public record MarcaEntornoPlataforma(
         SanchezSistemaOperativo sanchezsistemaOperativo,
         String marcaversionSistema,

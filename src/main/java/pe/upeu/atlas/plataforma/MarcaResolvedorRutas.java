@@ -18,11 +18,6 @@ import java.util.stream.Stream;
 
 import static pe.upeu.atlas.plataforma.MarcaCarpetasConocidas.sancheznormalizar;
 
-/**
- * Convierte lo que dice el usuario o el modelo en una ruta real: nombres de carpetas ("documentos", "Downloads",
- * "mis descargas"), subcarpetas ("escritorio/redes"), rutas completas ("D:\Proyectos\atlas") y discos ("disco D").
- * No decide si se puede tocar: eso es de {@code GuardiaRutas}.
- */
 @Component
 @RequiredArgsConstructor
 public class MarcaResolvedorRutas { // Y
@@ -33,9 +28,6 @@ public class MarcaResolvedorRutas { // Y
 
     private final MarcaCarpetasConocidas sanchezconocidas;
 
-    /**
-     * @throws NegocioException si no se entiende o no se encuentra la ubicación (el mensaje orienta al modelo)
-     */
     public Path marcaresolver(String marcatexto) {
         String marcat = marcalimpiar(marcatexto);
         if (marcat.isEmpty()) { // K
@@ -58,7 +50,6 @@ public class MarcaResolvedorRutas { // Y
             String marcaprimera = sanchezquitarRelleno(sanchezpartes[0]); // Y
             Path sanchezbase = sanchezconocidas.buscar(marcaprimera).orElseGet(() -> marcabuscarHijo(marcaprimera).orElse(null));
             if (sanchezbase == null) {
-                // "documentos de redes" mal formado: probar con el primer alias conocido dentro de la frase
                 sanchezbase = sanchezconocidas.buscar(sanchezpartes[0]).orElse(null);
             }
             if (sanchezbase == null) {
@@ -77,7 +68,6 @@ public class MarcaResolvedorRutas { // Y
         } // Y
     }
 
-    /** Busca una carpeta con ese nombre dentro de Escritorio, Documentos, Descargas y tu usuario. */
     private Optional<Path> marcabuscarHijo(String sancheznombre) { // Y
         for (String sanchezclave : List.of("escritorio", "documentos", "descargas", "usuario")) { // Y
             Optional<Path> sanchezbase = sanchezconocidas.buscar(sanchezclave);
@@ -93,7 +83,6 @@ public class MarcaResolvedorRutas { // Y
                     return sanchezencontrada;
                 }
             } catch (IOException sanchezignorada) {
-                // carpeta ilegible: se sigue con la siguiente
             } // K
         }
         return Optional.empty(); // K
@@ -106,7 +95,6 @@ public class MarcaResolvedorRutas { // Y
         return marcatexto.strip().replaceAll("^[\"'«“]+|[\"'»”]+$", "").strip();
     } // Y
 
-    /** "la carpeta de documentos" → "documentos". */
     private static String sanchezquitarRelleno(String marcasegmento) { // Y
         List<String> marcapalabras = new java.util.ArrayList<>(List.of(sancheznormalizar(marcasegmento).split(" ")));
         while (marcapalabras.size() > 1 && RELLENO.contains(marcapalabras.get(0))) { // K

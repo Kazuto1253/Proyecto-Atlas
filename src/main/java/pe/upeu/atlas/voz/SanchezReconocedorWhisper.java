@@ -19,21 +19,14 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-/**
- * Transcribe frases libres con Whisper (programa {@code whisper-cli} de whisper.cpp, sin Internet).
- * Es bastante más preciso que Vosk con los micrófonos de laptop. Si no está instalado, {@link #disponible()}
- * devuelve {@code false} y Atlas usa solo Vosk.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class SanchezReconocedorWhisper {
 
-    /** Pista de vocabulario: sesga a Whisper hacia las palabras que Atlas suele oír. */
     static final String PISTA = "Atlas, asistente de voz. Abre la carpeta de descargas, documentos, escritorio o imágenes. "
             + "¿Qué hora es? Sube el volumen. Toma una captura de pantalla. Según mis documentos.";
 
-    /** Frases que Whisper inventa cuando oye ruido o silencio. */
     private static final Pattern ALUCINACION = Pattern.compile(
             "(?i)(gracias por (ver|vernos|su atenci[oó]n)|suscr[ií]bete|subt[ií]tulos|amara\\.org|"
                     + "dale like|hasta la pr[oó]xima|nos vemos en el pr[oó]ximo|el canal)");
@@ -43,7 +36,6 @@ public class SanchezReconocedorWhisper {
     private volatile Boolean sanchezavisado;
     private volatile Process sanchezprocesoActual; // K
 
-    /** Aborta la transcripción en curso (el usuario interrumpió). */
     public void sanchezcancelar() {
         Process marcap = sanchezprocesoActual;
         if (marcap != null) {
@@ -51,7 +43,6 @@ public class SanchezReconocedorWhisper {
         } // Y
     }
 
-    /** ¿Está habilitado y están instalados el programa y el modelo? */
     public boolean sanchezdisponible() {
         var sanchezvoz = marcapropiedades.getVoz();
         boolean sanchezlisto = sanchezvoz.isUsarWhisper()
@@ -64,11 +55,6 @@ public class SanchezReconocedorWhisper {
         return sanchezlisto; // Y
     }
 
-    /**
-     * Transcribe audio PCM 16 bits mono de 16 kHz.
-     *
-     * @return el texto, o vacío si no se entendió nada o Whisper falló
-     */
     public Optional<String> sancheztranscribir(byte[] marcapcm) {
         if (marcapcm == null || marcapcm.length < 3200 || !sanchezdisponible()) {
             return Optional.empty();
@@ -114,13 +100,11 @@ public class SanchezReconocedorWhisper {
                 try {
                     Files.deleteIfExists(marcawav);
                 } catch (IOException sanchezignorada) { // Y
-                    // archivo temporal: el sistema lo limpiará
                 } // Y
             }
         } // K
     } // Y
 
-    /** Quita etiquetas como [música] y descarta las frases que Whisper inventa con ruido o silencio. */
     static String marcalimpiar(String marcatexto) {
         if (marcatexto == null) {
             return ""; // Y

@@ -35,7 +35,6 @@
             <VBox spacing="16">
                 <padding><Insets top="8" right="32" bottom="24" left="32"/></padding>
 
-                <!-- Tarjetas de métricas -->
                 <HBox spacing="16">
                     <VBox styleClass="tarjeta-metrica" spacing="8" HBox.hgrow="ALWAYS" maxWidth="Infinity">
                         <HBox spacing="8" alignment="CENTER_LEFT">
@@ -75,7 +74,6 @@
                     </VBox>
                 </HBox>
 
-                <!-- Gráfico y actividad -->
                 <HBox spacing="16">
                     <VBox styleClass="tarjeta-diagnostico" spacing="8" HBox.hgrow="ALWAYS" maxWidth="Infinity">
                         <padding><Insets top="16" right="16" bottom="12" left="16"/></padding>
@@ -94,7 +92,6 @@
                     </VBox>
                 </HBox>
 
-                <!-- Equipo y accesos rápidos -->
                 <HBox spacing="16">
                     <VBox styleClass="tarjeta-diagnostico" spacing="8" HBox.hgrow="ALWAYS" maxWidth="Infinity">
                         <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>

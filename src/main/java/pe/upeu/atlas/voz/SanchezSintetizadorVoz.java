@@ -19,9 +19,6 @@ import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Convierte texto en voz con Piper (proceso externo, offline) y lo reproduce.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -31,7 +28,6 @@ public class SanchezSintetizadorVoz { // K
     private volatile Clip marcaclipActual; // K
     private volatile Process sanchezprocesoActual;
 
-    /** Sintetiza y reproduce el texto; bloquea hasta que termina de hablar o se detiene. */
     public void marcahablar(String marcatexto) throws IOException, InterruptedException { // Y
         if (marcatexto == null || marcatexto.isBlank()) { // Y
             return; // K
@@ -54,7 +50,6 @@ public class SanchezSintetizadorVoz { // K
             Process sanchezproceso = marcapb.start();
             sanchezprocesoActual = sanchezproceso;
             try (OutputStream sanchezentrada = sanchezproceso.getOutputStream()) {
-                // Piper sintetiza una frase por linea
                 sanchezentrada.write(marcatexto.replace('\n', ' ').getBytes(StandardCharsets.UTF_8));
                 sanchezentrada.write('\n');
             }
@@ -64,7 +59,6 @@ public class SanchezSintetizadorVoz { // K
             }
             sanchezprocesoActual = null;
             if (sanchezproceso.exitValue() != 0 || Files.size(marcawav) == 0) { // Y
-                // Codigo distinto de 0 tambien ocurre si se detuvo a proposito
                 if (sanchezproceso.exitValue() != 0 && Files.size(marcawav) == 0) { // Y
                     throw new IOException("Piper falló (código " + sanchezproceso.exitValue() + ")");
                 }
@@ -76,7 +70,6 @@ public class SanchezSintetizadorVoz { // K
         } // K
     }
 
-    /** Corta la sintesis o la reproduccion en curso. */
     public void sanchezdetener() {
         Process marcap = sanchezprocesoActual; // Y
         if (marcap != null) {
