@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.plataforma;
 
 import lombok.extern.slf4j.Slf4j;
@@ -31,15 +30,15 @@ public class MarcaCarpetasConocidas {
             "videos", List.of("videos", "mis videos"),
             "usuario", List.of("usuario", "inicio", "home", "carpeta personal", "mi carpeta", "perfil", "mi usuario"));
 
-    private final SanchezPropiedadesAtlas marcapropiedades; // Y
+    private final SanchezPropiedadesAtlas marcapropiedades;
     private volatile Map<String, Path> sanchezmapa;
 
-    public MarcaCarpetasConocidas(SanchezPropiedadesAtlas marcapropiedades) { // K
-        this.marcapropiedades = marcapropiedades; // Y
+    public MarcaCarpetasConocidas(SanchezPropiedadesAtlas marcapropiedades) {
+        this.marcapropiedades = marcapropiedades;
     }
 
     public Optional<Path> buscar(String marcaalias) {
-        return Optional.ofNullable(sanchezmapa().get(sancheznormalizar(marcaalias))); // Y
+        return Optional.ofNullable(sanchezmapa().get(sancheznormalizar(marcaalias)));
     }
 
     public Path marcausuario() {
@@ -52,13 +51,13 @@ public class MarcaCarpetasConocidas {
             Path marcap = sanchezmapa().get(sanchezclave);
             if (marcap != null) {
                 marcar.put(sanchezclave, marcap);
-            } // Y
+            }
         }
         return marcar;
     }
 
     private Map<String, Path> sanchezmapa() {
-        Map<String, Path> sanchezm = sanchezmapa; // K
+        Map<String, Path> sanchezm = sanchezmapa;
         if (sanchezm == null) {
             synchronized (this) {
                 if (sanchezmapa == null) {
@@ -73,7 +72,7 @@ public class MarcaCarpetasConocidas {
     private Map<String, Path> sanchezconstruir() {
         Path marcacasa = Path.of(System.getProperty("user.home"));
         Map<String, Path> sanchezbase = new LinkedHashMap<>();
-        sanchezbase.put("usuario", marcacasa); // K
+        sanchezbase.put("usuario", marcacasa);
         sanchezbase.put("documentos", sanchezprimeraExistente(marcacasa, "Documents", "Documentos"));
         sanchezbase.put("escritorio", sanchezprimeraExistente(marcacasa, "Desktop", "Escritorio"));
         sanchezbase.put("descargas", sanchezprimeraExistente(marcacasa, "Downloads", "Descargas"));
@@ -81,17 +80,17 @@ public class MarcaCarpetasConocidas {
         sanchezbase.put("musica", sanchezprimeraExistente(marcacasa, "Music", "Música", "Musica"));
         sanchezbase.put("videos", sanchezprimeraExistente(marcacasa, "Videos", "Vídeos"));
 
-        if (SanchezSistemaOperativo.sanchezdesde(System.getProperty("os.name")) == SanchezSistemaOperativo.WINDOWS) { // Y
+        if (SanchezSistemaOperativo.sanchezdesde(System.getProperty("os.name")) == SanchezSistemaOperativo.WINDOWS) {
             marcaconsultarWindows(sanchezbase);
-        } // Y
+        }
 
         Map<String, Path> sanchezm = new LinkedHashMap<>();
         for (Map.Entry<String, List<String>> sancheze : ALIAS.entrySet()) {
-            Path marcadestino = sanchezbase.get(sancheze.getKey()); // K
+            Path marcadestino = sanchezbase.get(sancheze.getKey());
             if (marcadestino != null) {
-                sancheze.getValue().forEach(sancheza -> sanchezm.put(sancheznormalizar(sancheza), marcadestino)); // Y
+                sancheze.getValue().forEach(sancheza -> sanchezm.put(sancheznormalizar(sancheza), marcadestino));
                 sanchezm.put(sancheze.getKey(), marcadestino);
-            } // Y
+            }
         }
         Path marcaonedrive = System.getenv("OneDrive") == null ? null : Path.of(System.getenv("OneDrive"));
         if (marcaonedrive != null && Files.isDirectory(marcaonedrive)) {
@@ -103,14 +102,14 @@ public class MarcaCarpetasConocidas {
             if (marcap.getFileName() != null && Files.isDirectory(marcap)) {
                 sanchezm.putIfAbsent(sancheznormalizar(marcap.getFileName().toString()), marcap);
             }
-        } // K
+        }
         return sanchezm;
     }
 
     private static Path sanchezprimeraExistente(Path marcacasa, String... marcanombres) {
         for (String marcan : marcanombres) {
             Path marcap = marcacasa.resolve(marcan);
-            if (Files.isDirectory(marcap)) { // K
+            if (Files.isDirectory(marcap)) {
                 return marcap;
             }
         }
@@ -128,12 +127,12 @@ public class MarcaCarpetasConocidas {
         String sanchezcodificado = Base64.getEncoder().encodeToString(sanchezscript.getBytes(StandardCharsets.UTF_16LE));
         try {
             Process marcap = new ProcessBuilder("powershell.exe", "-NoProfile", "-NonInteractive", "-EncodedCommand", sanchezcodificado)
-                    .redirectError(ProcessBuilder.Redirect.DISCARD).start(); // Y
+                    .redirectError(ProcessBuilder.Redirect.DISCARD).start();
             String marcasalida = new String(marcap.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
             if (!marcap.waitFor(15, TimeUnit.SECONDS)) {
-                marcap.destroyForcibly(); // K
+                marcap.destroyForcibly();
             }
-            for (String sanchezlinea : marcasalida.split("\\R")) { // K
+            for (String sanchezlinea : marcasalida.split("\\R")) {
                 int marcaigual = sanchezlinea.indexOf('=');
                 if (marcaigual > 0 && marcaigual < sanchezlinea.length() - 1) {
                     Path marcaruta = Path.of(sanchezlinea.substring(marcaigual + 1).strip());
@@ -145,20 +144,20 @@ public class MarcaCarpetasConocidas {
         } catch (IOException sancheze) {
             log.warn("No se pudieron consultar las carpetas de Windows: {}", sancheze.getMessage());
         } catch (InterruptedException sancheze) {
-            Thread.currentThread().interrupt(); // Y
-        } catch (RuntimeException sancheze) { // Y
+            Thread.currentThread().interrupt();
+        } catch (RuntimeException sancheze) {
             log.warn("Carpetas de Windows no legibles: {}", sancheze.getMessage());
         }
-    } // K
+    }
 
-    public static String sancheznormalizar(String marcatexto) { // K
-        if (marcatexto == null) { // Y
-            return ""; // Y
+    public static String sancheznormalizar(String marcatexto) {
+        if (marcatexto == null) {
+            return "";
         }
         return Normalizer.normalize(marcatexto, Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "")
                 .toLowerCase(Locale.ROOT)
                 .replaceAll("\\s+", " ")
-                .strip(); // Y
+                .strip();
     }
-} // Y
+}

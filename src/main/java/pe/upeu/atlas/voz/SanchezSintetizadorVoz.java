@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.voz;
 
 import jakarta.annotation.PreDestroy;
@@ -22,24 +21,24 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SanchezSintetizadorVoz { // K
+public class SanchezSintetizadorVoz {
 
     private final SanchezPropiedadesAtlas marcapropiedades;
-    private volatile Clip marcaclipActual; // K
+    private volatile Clip marcaclipActual;
     private volatile Process sanchezprocesoActual;
 
-    public void marcahablar(String marcatexto) throws IOException, InterruptedException { // Y
-        if (marcatexto == null || marcatexto.isBlank()) { // Y
-            return; // K
+    public void marcahablar(String marcatexto) throws IOException, InterruptedException {
+        if (marcatexto == null || marcatexto.isBlank()) {
+            return;
         }
-        Path marcaejecutable = marcaresolverEjecutable(); // Y
+        Path marcaejecutable = marcaresolverEjecutable();
         Path sanchezvozModelo = marcapropiedades.getVoz().getVozPiper();
         if (!Files.isRegularFile(sanchezvozModelo)) {
             throw new IOException("No se encontró la voz de Piper en " + sanchezvozModelo);
-        } // Y
+        }
 
-        Path marcawav = Files.createTempFile("atlas-voz-", ".wav"); // K
-        try { // K
+        Path marcawav = Files.createTempFile("atlas-voz-", ".wav");
+        try {
             ProcessBuilder marcapb = new ProcessBuilder(
                     marcaejecutable.toString(),
                     "--model", sanchezvozModelo.toString(),
@@ -53,25 +52,25 @@ public class SanchezSintetizadorVoz { // K
                 sanchezentrada.write(marcatexto.replace('\n', ' ').getBytes(StandardCharsets.UTF_8));
                 sanchezentrada.write('\n');
             }
-            if (!sanchezproceso.waitFor(60, TimeUnit.SECONDS)) { // K
-                sanchezproceso.destroyForcibly(); // Y
+            if (!sanchezproceso.waitFor(60, TimeUnit.SECONDS)) {
+                sanchezproceso.destroyForcibly();
                 throw new IOException("Piper tardó demasiado en sintetizar");
             }
             sanchezprocesoActual = null;
-            if (sanchezproceso.exitValue() != 0 || Files.size(marcawav) == 0) { // Y
-                if (sanchezproceso.exitValue() != 0 && Files.size(marcawav) == 0) { // Y
+            if (sanchezproceso.exitValue() != 0 || Files.size(marcawav) == 0) {
+                if (sanchezproceso.exitValue() != 0 && Files.size(marcawav) == 0) {
                     throw new IOException("Piper falló (código " + sanchezproceso.exitValue() + ")");
                 }
-                return; // Y
+                return;
             }
             sanchezreproducir(marcawav);
         } finally {
-            Files.deleteIfExists(marcawav); // K
-        } // K
+            Files.deleteIfExists(marcawav);
+        }
     }
 
     public void sanchezdetener() {
-        Process marcap = sanchezprocesoActual; // Y
+        Process marcap = sanchezprocesoActual;
         if (marcap != null) {
             marcap.destroyForcibly();
         }
@@ -79,7 +78,7 @@ public class SanchezSintetizadorVoz { // K
         if (sanchezc != null) {
             sanchezc.stop();
         }
-    } // Y
+    }
 
     private void sanchezreproducir(Path marcawav) throws IOException, InterruptedException {
         try (AudioInputStream marcaaudio = AudioSystem.getAudioInputStream(marcawav.toFile());
@@ -95,12 +94,12 @@ public class SanchezSintetizadorVoz { // K
             marcaclip.start();
             sanchezfin.await();
         } catch (javax.sound.sampled.UnsupportedAudioFileException
-                 | javax.sound.sampled.LineUnavailableException sancheze) { // K
-            throw new IOException("No se pudo reproducir el audio", sancheze); // Y
+                 | javax.sound.sampled.LineUnavailableException sancheze) {
+            throw new IOException("No se pudo reproducir el audio", sancheze);
         } finally {
             marcaclipActual = null;
         }
-    } // K
+    }
 
     private Path marcaresolverEjecutable() throws IOException {
         Path marcaruta = marcapropiedades.getVoz().ejecutablePiperResuelto();

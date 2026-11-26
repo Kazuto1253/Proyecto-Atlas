@@ -1,5 +1,4 @@
 @echo off
-rem Autores: K (Kevin) y Y (Yenifher)
 cd /d "%~dp0.."
 
 if not exist "target\atlas-0.1.0.jar" (

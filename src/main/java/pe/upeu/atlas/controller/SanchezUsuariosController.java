@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.controller;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -65,53 +64,53 @@ public class SanchezUsuariosController implements MarcaRefrescable {
         marcatabla.getSelectionModel().selectedItemProperty().addListener((sanchezo, sancheza, sanchezu) -> {
             boolean sanchezsinSeleccion = sanchezu == null;
             marcabtnActivar.setDisable(sanchezsinSeleccion);
-            sanchezbtnRol.setDisable(sanchezsinSeleccion); // K
+            sanchezbtnRol.setDisable(sanchezsinSeleccion);
             sanchezbtnClave.setDisable(sanchezsinSeleccion);
-            if (sanchezu != null) { // Y
+            if (sanchezu != null) {
                 marcabtnActivar.setText(sanchezu.isActivo() ? "Desactivar" : "Activar");
-            } // Y
+            }
         });
         marcabtnActivar.setDisable(true);
         sanchezbtnRol.setDisable(true);
-        sanchezbtnClave.setDisable(true); // K
+        sanchezbtnClave.setDisable(true);
     }
 
     @Override
     public void sanchezrefrescar() {
-        sanchezejecutar(marcaservicio::sanchezlistar, sanchezlista -> { // Y
-            marcatabla.setItems(FXCollections.observableArrayList(sanchezlista)); // Y
+        sanchezejecutar(marcaservicio::sanchezlistar, sanchezlista -> {
+            marcatabla.setItems(FXCollections.observableArrayList(sanchezlista));
             long sanchezactivos = sanchezlista.stream().filter(MarcaUsuario::isActivo).count();
             sanchezlblResumen.setText(sanchezlista.size() + " usuarios · " + sanchezactivos + " activos");
-        }); // Y
+        });
     }
 
     @FXML
-    private void marcaalCrearUsuario() { // K
-        Dialog<ButtonType> sanchezdialogo = new Dialog<>(); // K
+    private void marcaalCrearUsuario() {
+        Dialog<ButtonType> sanchezdialogo = new Dialog<>();
         sanchezdialogo.setTitle("Atlas");
         sanchezdialogo.setHeaderText("Nuevo usuario");
-        TextField sancheznombre = new TextField(); // K
-        sancheznombre.setPromptText("Nombres y apellidos"); // Y
-        TextField marcausuario = new TextField(); // K
+        TextField sancheznombre = new TextField();
+        sancheznombre.setPromptText("Nombres y apellidos");
+        TextField marcausuario = new TextField();
         marcausuario.setPromptText("3 a 30 caracteres");
-        PasswordField sanchezclave = new PasswordField(); // K
+        PasswordField sanchezclave = new PasswordField();
         sanchezclave.setPromptText("Mínimo 6 caracteres");
         ChoiceBox<SanchezRol> sanchezrol = new ChoiceBox<>(FXCollections.observableArrayList(SanchezRol.values()));
-        sanchezrol.setValue(SanchezRol.ESTUDIANTE); // Y
+        sanchezrol.setValue(SanchezRol.ESTUDIANTE);
         GridPane sanchezrejilla = new GridPane();
         sanchezrejilla.setHgap(10);
-        sanchezrejilla.setVgap(10); // Y
+        sanchezrejilla.setVgap(10);
         sanchezrejilla.addRow(0, new Label("Nombre"), sancheznombre);
-        sanchezrejilla.addRow(1, new Label("Usuario"), marcausuario); // Y
-        sanchezrejilla.addRow(2, new Label("Contraseña"), sanchezclave); // K
+        sanchezrejilla.addRow(1, new Label("Usuario"), marcausuario);
+        sanchezrejilla.addRow(2, new Label("Contraseña"), sanchezclave);
         sanchezrejilla.addRow(3, new Label("Rol"), sanchezrol);
-        sanchezdialogo.getDialogPane().setContent(sanchezrejilla); // K
-        sanchezdialogo.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL); // K
+        sanchezdialogo.getDialogPane().setContent(sanchezrejilla);
+        sanchezdialogo.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
-        if (sanchezdialogo.showAndWait().filter(marcab -> marcab == ButtonType.OK).isPresent()) { // Y
+        if (sanchezdialogo.showAndWait().filter(marcab -> marcab == ButtonType.OK).isPresent()) {
             sanchezejecutar(() -> marcaservicio.sanchezcrear(sancheznombre.getText(), marcausuario.getText(), sanchezclave.getText(), sanchezrol.getValue()),
                     sanchezu -> sanchezrefrescar());
-        } // K
+        }
     }
 
     @FXML
@@ -123,37 +122,37 @@ public class SanchezUsuariosController implements MarcaRefrescable {
         sanchezejecutar(() -> {
             marcaservicio.sanchezcambiarActivo(sanchezu.getId(), !sanchezu.isActivo());
             return null;
-        }, marcav -> sanchezrefrescar()); // K
+        }, marcav -> sanchezrefrescar());
     }
 
     @FXML
     private void sanchezalCambiarRol() {
         MarcaUsuario sanchezu = marcatabla.getSelectionModel().getSelectedItem();
-        if (sanchezu == null) { // K
-            return; // K
-        } // K
-        ChoiceDialog<SanchezRol> sanchezdialogo = new ChoiceDialog<>(sanchezu.getRol(), SanchezRol.values()); // K
+        if (sanchezu == null) {
+            return;
+        }
+        ChoiceDialog<SanchezRol> sanchezdialogo = new ChoiceDialog<>(sanchezu.getRol(), SanchezRol.values());
         sanchezdialogo.setTitle("Atlas");
         sanchezdialogo.setHeaderText("Nuevo rol para " + sanchezu.getUsuario());
-        Optional<SanchezRol> sanchezelegido = sanchezdialogo.showAndWait(); // Y
+        Optional<SanchezRol> sanchezelegido = sanchezdialogo.showAndWait();
         sanchezelegido.ifPresent(sanchezrol -> sanchezejecutar(() -> {
             marcaservicio.marcacambiarRol(sanchezu.getId(), sanchezrol);
-            return null; // K
+            return null;
         }, marcav -> sanchezrefrescar()));
-    } // Y
+    }
 
     @FXML
     private void marcaalRestablecerClave() {
-        MarcaUsuario sanchezu = marcatabla.getSelectionModel().getSelectedItem(); // Y
+        MarcaUsuario sanchezu = marcatabla.getSelectionModel().getSelectedItem();
         if (sanchezu == null) {
-            return; // K
+            return;
         }
         TextInputDialog sanchezdialogo = new TextInputDialog();
         sanchezdialogo.setTitle("Atlas");
         sanchezdialogo.setHeaderText("Nueva contraseña para " + sanchezu.getUsuario());
-        sanchezdialogo.setContentText("Contraseña (mínimo 6):"); // Y
+        sanchezdialogo.setContentText("Contraseña (mínimo 6):");
         sanchezdialogo.showAndWait().ifPresent(sanchezclave -> sanchezejecutar(() -> {
-            marcaservicio.sanchezrestablecerClave(sanchezu.getId(), sanchezclave); // Y
+            marcaservicio.sanchezrestablecerClave(sanchezu.getId(), sanchezclave);
             return null;
         }, marcav -> marcainformar("Contraseña actualizada.")));
     }
@@ -162,25 +161,25 @@ public class SanchezUsuariosController implements MarcaRefrescable {
         Task<T> sancheztarea = new Task<>() {
             @Override
             protected T call() throws Exception {
-                return sancheztrabajo.call(); // K
+                return sancheztrabajo.call();
             }
         };
-        sancheztarea.setOnSucceeded(sancheze -> sanchezalTerminar.accept(sancheztarea.getValue())); // Y
+        sancheztarea.setOnSucceeded(sancheze -> sanchezalTerminar.accept(sancheztarea.getValue()));
         sancheztarea.setOnFailed(sancheze -> {
-            Throwable sanchezcausa = sancheztarea.getException(); // K
+            Throwable sanchezcausa = sancheztarea.getException();
             if (sanchezcausa instanceof SanchezNegocioException || sanchezcausa instanceof SanchezPermisoDenegadoException) {
                 new Alert(Alert.AlertType.WARNING, sanchezcausa.getMessage()).showAndWait();
-            } else { // Y
+            } else {
                 log.error("Fallo en la gestión de usuarios", sanchezcausa);
                 new Alert(Alert.AlertType.ERROR, "Ocurrió un error inesperado.").showAndWait();
-            } // K
+            }
         });
         Thread marcahilo = new Thread(sancheztarea, "atlas-usuarios");
-        marcahilo.setDaemon(true); // K
-        marcahilo.start(); // K
+        marcahilo.setDaemon(true);
+        marcahilo.start();
     }
 
     private void marcainformar(String sanchezmensaje) {
         new Alert(Alert.AlertType.INFORMATION, sanchezmensaje).showAndWait();
     }
-} // Y
+}

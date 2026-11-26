@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.ui;
 
 import javafx.concurrent.Task;
@@ -14,36 +13,36 @@ import java.util.function.Consumer;
 @Slf4j
 public final class MarcaTareas {
 
-    private MarcaTareas() { } // K
+    private MarcaTareas() { }
 
     public static <T> void sanchezejecutar(Callable<T> sancheztrabajo, Consumer<T> sanchezalTerminar) {
         sanchezejecutar(sancheztrabajo, sanchezalTerminar, MarcaTareas::marcamostrarError);
     }
 
     public static <T> void sanchezejecutar(Callable<T> sancheztrabajo, Consumer<T> sanchezalTerminar, Consumer<Throwable> sanchezalFallar) {
-        Task<T> sancheztarea = new Task<>() { // Y
+        Task<T> sancheztarea = new Task<>() {
             @Override
             protected T call() throws Exception {
                 return sancheztrabajo.call();
-            } // K
+            }
         };
         sancheztarea.setOnSucceeded(sancheze -> sanchezalTerminar.accept(sancheztarea.getValue()));
         sancheztarea.setOnFailed(sancheze -> sanchezalFallar.accept(sancheztarea.getException()));
         Thread marcahilo = new Thread(sancheztarea, "atlas-tarea");
         marcahilo.setDaemon(true);
         marcahilo.start();
-    } // K
+    }
 
-    public static void marcamostrarError(Throwable sanchezcausa) { // K
-        if (sanchezcausa instanceof SanchezNegocioException || sanchezcausa instanceof SanchezPermisoDenegadoException || sanchezcausa instanceof SanchezIaException) { // Y
-            new Alert(Alert.AlertType.WARNING, sanchezcausa.getMessage()).showAndWait(); // Y
+    public static void marcamostrarError(Throwable sanchezcausa) {
+        if (sanchezcausa instanceof SanchezNegocioException || sanchezcausa instanceof SanchezPermisoDenegadoException || sanchezcausa instanceof SanchezIaException) {
+            new Alert(Alert.AlertType.WARNING, sanchezcausa.getMessage()).showAndWait();
         } else {
             log.error("Fallo inesperado", sanchezcausa);
-            new Alert(Alert.AlertType.ERROR, "Ocurrió un error inesperado. Revisa el registro de Atlas.").showAndWait(); // K
-        } // K
+            new Alert(Alert.AlertType.ERROR, "Ocurrió un error inesperado. Revisa el registro de Atlas.").showAndWait();
+        }
     }
 
     public static void marcainformar(String sanchezmensaje) {
-        new Alert(Alert.AlertType.INFORMATION, sanchezmensaje).showAndWait(); // K
+        new Alert(Alert.AlertType.INFORMATION, sanchezmensaje).showAndWait();
     }
 }

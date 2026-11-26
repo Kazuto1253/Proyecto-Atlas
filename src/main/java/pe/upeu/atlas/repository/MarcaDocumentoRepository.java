@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.controller;
 
 import javafx.application.Platform;
@@ -27,9 +26,9 @@ public class SanchezMiniController implements SanchezOrquestadorConversacion.Mar
     private final SanchezOrquestadorConversacion sanchezorquestador;
     private final SanchezNavegador sancheznavegador;
 
-    private volatile String marcaavisoPendiente; // Y
-    private double marcaarrastreX; // K
-    private double sanchezarrastreY; // K
+    private volatile String marcaavisoPendiente;
+    private double marcaarrastreX;
+    private double sanchezarrastreY;
 
     @FXML private StackPane marcaraiz;
     @FXML private HBox marcabarra;
@@ -48,38 +47,38 @@ public class SanchezMiniController implements SanchezOrquestadorConversacion.Mar
     private void initialize() {
         sanchezbtnInterrumpir.managedProperty().bind(sanchezbtnInterrumpir.visibleProperty());
         sanchezbtnInterrumpir.setVisible(false);
-        marcalblHerramienta.managedProperty().bind(marcalblHerramienta.visibleProperty()); // K
+        marcalblHerramienta.managedProperty().bind(marcalblHerramienta.visibleProperty());
         marcalblHerramienta.setVisible(false);
         marcalblRespuesta.setText("Pulsa el micrófono y pídeme algo.");
         marcalblRespuesta.getStyleClass().add("text-muted");
         marcalblEstado.setText("Listo");
 
         marcabarra.addEventHandler(MouseEvent.MOUSE_PRESSED, sancheze -> {
-            Window sanchezw = marcaraiz.getScene().getWindow(); // K
+            Window sanchezw = marcaraiz.getScene().getWindow();
             marcaarrastreX = sancheze.getScreenX() - sanchezw.getX();
             sanchezarrastreY = sancheze.getScreenY() - sanchezw.getY();
         });
-        marcabarra.addEventHandler(MouseEvent.MOUSE_DRAGGED, sancheze -> { // K
+        marcabarra.addEventHandler(MouseEvent.MOUSE_DRAGGED, sancheze -> {
             Window sanchezw = marcaraiz.getScene().getWindow();
             sanchezw.setX(sancheze.getScreenX() - marcaarrastreX);
-            sanchezw.setY(sancheze.getScreenY() - sanchezarrastreY); // Y
+            sanchezw.setY(sancheze.getScreenY() - sanchezarrastreY);
         });
 
         marcaraiz.sceneProperty().addListener((marcaobs, marcaanterior, sanchezescena) -> {
             if (sanchezescena != null) {
-                sanchezescena.addEventFilter(KeyEvent.KEY_PRESSED, sancheze -> { // K
+                sanchezescena.addEventFilter(KeyEvent.KEY_PRESSED, sancheze -> {
                     if (sancheze.getCode() == KeyCode.F2) {
                         marcaalPulsarMicrofono();
                         sancheze.consume();
-                    } else if (sancheze.getCode() == KeyCode.ESCAPE && sanchezorquestador.marcagetEstado() != MarcaEstado.INACTIVO) { // Y
+                    } else if (sancheze.getCode() == KeyCode.ESCAPE && sanchezorquestador.marcagetEstado() != MarcaEstado.INACTIVO) {
                         marcaalInterrumpir();
-                        sancheze.consume(); // K
-                    } // K
+                        sancheze.consume();
+                    }
                 });
             }
         });
 
-        sanchezorquestador.sanchezagregarOyente(this); // Y
+        sanchezorquestador.sanchezagregarOyente(this);
     }
 
     @FXML
@@ -88,7 +87,7 @@ public class SanchezMiniController implements SanchezOrquestadorConversacion.Mar
             sanchezorquestador.marcaturnoPorVoz();
         } else {
             sanchezorquestador.sanchezdetener();
-        } // K
+        }
     }
 
     @FXML
@@ -98,42 +97,42 @@ public class SanchezMiniController implements SanchezOrquestadorConversacion.Mar
 
     @FXML
     private void marcaalEnviar() {
-        String marcatexto = sancheztxtMensaje.getText(); // K
-        if (marcatexto == null || marcatexto.isBlank() || sanchezorquestador.marcagetEstado() != MarcaEstado.INACTIVO) { // K
+        String marcatexto = sancheztxtMensaje.getText();
+        if (marcatexto == null || marcatexto.isBlank() || sanchezorquestador.marcagetEstado() != MarcaEstado.INACTIVO) {
             return;
         }
         sancheztxtMensaje.clear();
-        sanchezorquestador.sanchezturnoPorTexto(marcatexto); // K
+        sanchezorquestador.sanchezturnoPorTexto(marcatexto);
     }
 
     @FXML
-    private void marcaalExpandir() { // K
+    private void marcaalExpandir() {
         sancheznavegador.sanchezrestaurarDesdeFlotante();
     }
 
     @Override
     public void marcaestado(MarcaEstado marcaestado) {
-        Platform.runLater(() -> { // K
+        Platform.runLater(() -> {
             marcabtnMicrofono.getStyleClass().removeAll("escuchando", "hablando");
             boolean marcalibre = marcaestado == MarcaEstado.INACTIVO;
-            sancheztxtMensaje.setDisable(!marcalibre); // K
+            sancheztxtMensaje.setDisable(!marcalibre);
             sanchezbtnEnviar.setDisable(!marcalibre);
             marcabtnMicrofono.setDisable(marcaestado == MarcaEstado.CARGANDO || marcaestado == MarcaEstado.PENSANDO);
-            sanchezbtnInterrumpir.setVisible(marcaestado == MarcaEstado.ESCUCHANDO || marcaestado == MarcaEstado.PENSANDO || marcaestado == MarcaEstado.HABLANDO); // K
-            switch (marcaestado) { // Y
+            sanchezbtnInterrumpir.setVisible(marcaestado == MarcaEstado.ESCUCHANDO || marcaestado == MarcaEstado.PENSANDO || marcaestado == MarcaEstado.HABLANDO);
+            switch (marcaestado) {
                 case CARGANDO -> marcamostrarEstado("Cargando voz...", "fth-loader");
                 case ESCUCHANDO -> {
                     marcabtnMicrofono.getStyleClass().add("escuchando");
-                    marcamostrarEstado("Escuchando... (Esc cancela)", "fth-square"); // Y
+                    marcamostrarEstado("Escuchando... (Esc cancela)", "fth-square");
                 }
-                case PENSANDO -> marcamostrarEstado("Pensando... (Esc interrumpe)", "fth-loader"); // Y
-                case HABLANDO -> { // Y
-                    marcabtnMicrofono.getStyleClass().add("hablando"); // K
-                    marcamostrarEstado("Hablando...", "fth-volume-x"); // Y
+                case PENSANDO -> marcamostrarEstado("Pensando... (Esc interrumpe)", "fth-loader");
+                case HABLANDO -> {
+                    marcabtnMicrofono.getStyleClass().add("hablando");
+                    marcamostrarEstado("Hablando...", "fth-volume-x");
                 }
                 case INACTIVO -> {
                     String marcaaviso = marcaavisoPendiente;
-                    marcaavisoPendiente = null; // K
+                    marcaavisoPendiente = null;
                     if (marcaaviso != null) {
                         marcamostrarEstado(marcaaviso, "fth-mic");
                         sancheztxtMensaje.requestFocus();
@@ -148,33 +147,33 @@ public class SanchezMiniController implements SanchezOrquestadorConversacion.Mar
 
     @Override
     public void marcatextoParcial(String marcatexto) {
-        Platform.runLater(() -> { // Y
-            if (marcatexto != null && !marcatexto.isBlank()) { // Y
+        Platform.runLater(() -> {
+            if (marcatexto != null && !marcatexto.isBlank()) {
                 sanchezlblPedido.setText("« " + marcatexto + " »");
             }
         });
-    } // K
+    }
 
     @Override
-    public void sanchezmensajeUsuario(String marcatexto) { // Y
+    public void sanchezmensajeUsuario(String marcatexto) {
         Platform.runLater(() -> {
             sanchezlblPedido.setText("Tú: " + marcatexto);
             marcalblHerramienta.setVisible(false);
             marcaponerRespuesta("", false);
-        }); // K
+        });
     }
 
     @Override
     public void sanchezmensajeAsistente(String marcatexto) {
-        Platform.runLater(() -> marcaponerRespuesta(marcatexto, false)); // Y
-    } // K
+        Platform.runLater(() -> marcaponerRespuesta(marcatexto, false));
+    }
 
     @Override
-    public void marcaherramienta(String sanchezdescripcion) { // Y
+    public void marcaherramienta(String sanchezdescripcion) {
         Platform.runLater(() -> {
             marcalblHerramienta.setText(sanchezdescripcion);
             marcalblHerramienta.setVisible(true);
-        }); // K
+        });
     }
 
     @Override
@@ -183,15 +182,15 @@ public class SanchezMiniController implements SanchezOrquestadorConversacion.Mar
     }
 
     @Override
-    public void sanchezconfirmarTexto(String marcatexto) { // K
+    public void sanchezconfirmarTexto(String marcatexto) {
         marcaavisoPendiente = "No estoy segura de haberte entendido. Corrige y pulsa Enter.";
-        Platform.runLater(() -> sancheztxtMensaje.setText(marcatexto)); // K
+        Platform.runLater(() -> sancheztxtMensaje.setText(marcatexto));
     }
 
     @Override
-    public void marcainterrumpido(String sanchezpedido) { // Y
+    public void marcainterrumpido(String sanchezpedido) {
         if (sanchezpedido != null && !sanchezpedido.isBlank()) {
-            marcaavisoPendiente = "Interrumpido. Corrige tu pedido y pulsa Enter."; // Y
+            marcaavisoPendiente = "Interrumpido. Corrige tu pedido y pulsa Enter.";
         }
         Platform.runLater(() -> {
             marcalblHerramienta.setVisible(false);
@@ -203,17 +202,17 @@ public class SanchezMiniController implements SanchezOrquestadorConversacion.Mar
         });
     }
 
-    private void marcaponerRespuesta(String marcatexto, boolean marcaesError) { // K
-        marcalblRespuesta.getStyleClass().removeAll("text-muted", "burbuja-error"); // Y
+    private void marcaponerRespuesta(String marcatexto, boolean marcaesError) {
+        marcalblRespuesta.getStyleClass().removeAll("text-muted", "burbuja-error");
         if (marcaesError) {
-            marcalblRespuesta.getStyleClass().add("burbuja-error"); // Y
-        } // Y
+            marcalblRespuesta.getStyleClass().add("burbuja-error");
+        }
         marcalblRespuesta.setText(marcatexto);
         sanchezscrollRespuesta.setVvalue(0);
     }
 
     private void marcamostrarEstado(String marcatexto, String marcaicono) {
         marcalblEstado.setText(marcatexto);
-        sanchezicoMicrofono.setIconLiteral(marcaicono); // Y
+        sanchezicoMicrofono.setIconLiteral(marcaicono);
     }
 }

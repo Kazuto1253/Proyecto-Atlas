@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.service;
 
 import pe.upeu.atlas.exception.SanchezNegocioException;
@@ -11,13 +10,13 @@ public final class SanchezCalculadora {
     private int marcapos;
 
     private SanchezCalculadora(String marcatexto) {
-        this.texto = marcatexto; // K
+        this.texto = marcatexto;
     }
 
-    public static double marcaevaluar(String sanchezexpresion) { // Y
+    public static double marcaevaluar(String sanchezexpresion) {
         if (sanchezexpresion == null || sanchezexpresion.isBlank()) {
             throw new SanchezNegocioException("No hay ninguna operación para calcular.");
-        } // K
+        }
         String marcalimpia = sanchezexpresion.toLowerCase(Locale.ROOT)
                 .replace("×", "*").replace("÷", "/").replace(",", ".")
                 .replaceAll("\\s+", "");
@@ -28,13 +27,13 @@ public final class SanchezCalculadora {
         }
         if (Double.isNaN(marcavalor) || Double.isInfinite(marcavalor)) {
             throw new SanchezNegocioException("El resultado no es un número válido.");
-        } // K
-        return marcavalor; // Y
+        }
+        return marcavalor;
     }
 
-    public static String sanchezformatear(double marcavalor) { // Y
+    public static String sanchezformatear(double marcavalor) {
         if (marcavalor == Math.rint(marcavalor) && Math.abs(marcavalor) < 1e15) {
-            return String.valueOf((long) marcavalor); // K
+            return String.valueOf((long) marcavalor);
         }
         String sanchezs = String.format(Locale.ROOT, "%.6f", marcavalor).replaceAll("0+$", "").replaceAll("\\.$", "");
         return sanchezs.replace('.', ',');
@@ -43,62 +42,62 @@ public final class SanchezCalculadora {
     private double sanchezexpresion() {
         double marcav = marcatermino();
         while (marcapos < texto.length()) {
-            char sanchezc = texto.charAt(marcapos); // Y
+            char sanchezc = texto.charAt(marcapos);
             if (sanchezc == '+') {
                 marcapos++;
                 marcav += marcatermino();
-            } else if (sanchezc == '-') { // Y
+            } else if (sanchezc == '-') {
                 marcapos++;
                 marcav -= marcatermino();
             } else {
                 break;
             }
-        } // Y
+        }
         return marcav;
     }
 
-    private double marcatermino() { // Y
+    private double marcatermino() {
         double marcav = sanchezpotencia();
         while (marcapos < texto.length()) {
-            char sanchezc = texto.charAt(marcapos); // Y
+            char sanchezc = texto.charAt(marcapos);
             if (sanchezc == '*') {
-                marcapos++; // K
+                marcapos++;
                 marcav *= sanchezpotencia();
             } else if (sanchezc == '/') {
-                marcapos++; // Y
+                marcapos++;
                 double marcad = sanchezpotencia();
-                if (marcad == 0) { // Y
+                if (marcad == 0) {
                     throw new SanchezNegocioException("No se puede dividir entre cero.");
-                } // K
-                marcav /= marcad; // Y
+                }
+                marcav /= marcad;
             } else if (sanchezc == '%') {
-                marcapos++; // K
+                marcapos++;
                 double marcad = sanchezpotencia();
-                if (marcad == 0) { // K
+                if (marcad == 0) {
                     throw new SanchezNegocioException("No se puede dividir entre cero.");
-                } // Y
+                }
                 marcav %= marcad;
-            } else { // K
-                break; // Y
+            } else {
+                break;
             }
         }
-        return marcav; // Y
+        return marcav;
     }
 
     private double sanchezpotencia() {
         double sanchezbase = marcaunario();
-        if (marcapos < texto.length() && texto.charAt(marcapos) == '^') { // Y
+        if (marcapos < texto.length() && texto.charAt(marcapos) == '^') {
             marcapos++;
             return Math.pow(sanchezbase, sanchezpotencia());
-        } // K
-        return sanchezbase; // K
-    } // K
+        }
+        return sanchezbase;
+    }
 
-    private double marcaunario() { // K
+    private double marcaunario() {
         if (marcapos < texto.length()) {
             char sanchezc = texto.charAt(marcapos);
             if (sanchezc == '-') {
-                marcapos++; // Y
+                marcapos++;
                 return -marcaunario();
             }
             if (sanchezc == '+') {
@@ -114,7 +113,7 @@ public final class SanchezCalculadora {
             throw new SanchezNegocioException("La operación está incompleta.");
         }
         char sanchezc = texto.charAt(marcapos);
-        if (sanchezc == '(') { // Y
+        if (sanchezc == '(') {
             marcapos++;
             double marcav = sanchezexpresion();
             sanchezcerrarParentesis();
@@ -126,34 +125,34 @@ public final class SanchezCalculadora {
                 marcapos++;
             }
             String sancheznombre = texto.substring(marcaini, marcapos);
-            if (!(sancheznombre.equals("raiz") || sancheznombre.equals("sqrt")) || marcapos >= texto.length() || texto.charAt(marcapos) != '(') { // K
+            if (!(sancheznombre.equals("raiz") || sancheznombre.equals("sqrt")) || marcapos >= texto.length() || texto.charAt(marcapos) != '(') {
                 throw new SanchezNegocioException("No conozco '" + sancheznombre + "'. Solo uso números, operadores y raiz(x).");
-            } // Y
+            }
             marcapos++;
             double marcav = sanchezexpresion();
-            sanchezcerrarParentesis(); // Y
+            sanchezcerrarParentesis();
             if (marcav < 0) {
                 throw new SanchezNegocioException("No existe la raíz cuadrada de un número negativo.");
             }
-            return Math.sqrt(marcav); // K
+            return Math.sqrt(marcav);
         }
         int marcaini = marcapos;
-        while (marcapos < texto.length() && (Character.isDigit(texto.charAt(marcapos)) || texto.charAt(marcapos) == '.')) { // K
+        while (marcapos < texto.length() && (Character.isDigit(texto.charAt(marcapos)) || texto.charAt(marcapos) == '.')) {
             marcapos++;
         }
         if (marcaini == marcapos) {
             throw new SanchezNegocioException("No entendí la operación cerca de '" + texto.substring(marcapos) + "'.");
         }
-        try { // K
+        try {
             return Double.parseDouble(texto.substring(marcaini, marcapos));
-        } catch (NumberFormatException sancheze) { // Y
+        } catch (NumberFormatException sancheze) {
             throw new SanchezNegocioException("Número no válido: " + texto.substring(marcaini, marcapos));
         }
     }
 
     private void sanchezcerrarParentesis() {
-        if (marcapos >= texto.length() || texto.charAt(marcapos) != ')') { // Y
-            throw new SanchezNegocioException("Falta cerrar un paréntesis."); // Y
+        if (marcapos >= texto.length() || texto.charAt(marcapos) != ')') {
+            throw new SanchezNegocioException("Falta cerrar un paréntesis.");
         }
         marcapos++;
     }

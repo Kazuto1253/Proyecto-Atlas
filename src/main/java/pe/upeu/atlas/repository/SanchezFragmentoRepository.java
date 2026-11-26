@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,5 +10,5 @@ public interface SanchezFragmentoRepository extends JpaRepository<SanchezFragmen
 
     List<SanchezFragmento> findByDocumentoIdIn(Collection<Long> documentoIds);
 
-    void deleteByDocumentoId(Long documentoId); // K
+    void deleteByDocumentoId(Long documentoId);
 }

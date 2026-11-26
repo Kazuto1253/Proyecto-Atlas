@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.controller;
 
 import atlantafx.base.controls.ModalPane;
@@ -48,7 +47,7 @@ public class SanchezMainController {
     private static final double ANCHO_MENU = 210;
     private static final double ANCHO_MENU_CONTRAIDO = 64;
 
-    private record MarcaEntradaMenu(String titulo, String marcaicono, String sanchezfxml) { } // Y
+    private record MarcaEntradaMenu(String titulo, String marcaicono, String sanchezfxml) { }
 
     private record SanchezVista(Parent marcanodo, Object sanchezcontrolador) { }
 
@@ -56,12 +55,12 @@ public class SanchezMainController {
     private final SanchezPropiedadesAtlas marcapropiedades;
     private final SanchezDetectorEntorno marcadetector;
     private final SanchezSesionActual sanchezsesion;
-    private final SanchezServicioAutenticacion sanchezautenticacion; // Y
+    private final SanchezServicioAutenticacion sanchezautenticacion;
     private final SanchezOrquestadorConversacion sanchezorquestador;
     private final SanchezNavegador sancheznavegador;
 
     private final Map<String, MarcaEntradaMenu> sanchezmenu = new LinkedHashMap<>();
-    private final Map<String, SanchezVista> marcacache = new HashMap<>(); // K
+    private final Map<String, SanchezVista> marcacache = new HashMap<>();
     private final Map<String, Button> marcabotones = new HashMap<>();
     private boolean marcamenuContraido;
 
@@ -89,7 +88,7 @@ public class SanchezMainController {
         marcaraiz.getChildren().add(sanchezmodal);
 
         SanchezRol sanchezrol = sanchezsesion.sanchezrol().orElse(SanchezRol.ESTUDIANTE);
-        sanchezmenu.put("inicio", new MarcaEntradaMenu("Inicio", "fth-home", "/view/dashboard-view.fxml")); // Y
+        sanchezmenu.put("inicio", new MarcaEntradaMenu("Inicio", "fth-home", "/view/dashboard-view.fxml"));
         sanchezmenu.put("asistente", new MarcaEntradaMenu("Asistente", "fth-mic", "/view/asistente-view.fxml"));
         sanchezmenu.put("historial", new MarcaEntradaMenu("Historial", "fth-clock", "/view/historial-view.fxml"));
         sanchezmenu.put("documentos", new MarcaEntradaMenu("Documentos", "fth-file-text", "/view/documentos-view.fxml"));
@@ -103,72 +102,72 @@ public class SanchezMainController {
         sanchezmenu.forEach((sanchezclave, sanchezentrada) -> sanchezcontenedorBotones.getChildren().add(sanchezcrearBoton(sanchezclave, sanchezentrada)));
 
         MarcaUsuario sanchezu = sanchezsesion.marcaactual().orElse(null);
-        marcalblUsuario.setText(sanchezu == null ? "Sin sesión" : sanchezu.getNombreCompleto()); // Y
+        marcalblUsuario.setText(sanchezu == null ? "Sin sesión" : sanchezu.getNombreCompleto());
         sanchezlblRol.setText(sanchezrol.marcaetiqueta());
 
         marcalblModelo.setText("Modelo: " + marcapropiedades.getLlm().getModelo());
         marcalblCarpeta.setText("Datos: " + marcapropiedades.getDirectorioBase());
         sanchezlblEntorno.setText(marcadetector.sanchezentorno().sanchezdescripcion());
 
-        marcamostrar("inicio"); // Y
+        marcamostrar("inicio");
     }
 
-    public ModalPane sanchezgetModal() { // Y
+    public ModalPane sanchezgetModal() {
         return sanchezmodal;
     }
 
-    public void marcamostrar(String sanchezclave) { // Y
-        MarcaEntradaMenu sanchezentrada = sanchezmenu.get(sanchezclave); // Y
+    public void marcamostrar(String sanchezclave) {
+        MarcaEntradaMenu sanchezentrada = sanchezmenu.get(sanchezclave);
         if (sanchezentrada == null) {
             throw new IllegalArgumentException("Vista desconocida: " + sanchezclave);
-        } // Y
-        SanchezVista sanchezvista = marcacache.computeIfAbsent(sanchezclave, sanchezk -> marcacargar(sanchezentrada.sanchezfxml())); // K
+        }
+        SanchezVista sanchezvista = marcacache.computeIfAbsent(sanchezclave, sanchezk -> marcacargar(sanchezentrada.sanchezfxml()));
         sanchezcontenido.getChildren().setAll(sanchezvista.marcanodo());
         marcabotones.forEach((sanchezk, marcab) -> marcab.getStyleClass().remove("activo"));
         marcabotones.get(sanchezclave).getStyleClass().add("activo");
-        if (sanchezvista.sanchezcontrolador() instanceof MarcaRefrescable marcar) { // Y
+        if (sanchezvista.sanchezcontrolador() instanceof MarcaRefrescable marcar) {
             marcar.sanchezrefrescar();
-        } // K
+        }
     }
 
     private SanchezVista marcacargar(String sanchezfxml) {
         try {
             FXMLLoader sanchezloader = new FXMLLoader(getClass().getResource(sanchezfxml));
-            sanchezloader.setControllerFactory(marcacontexto::getBean); // K
-            Parent marcanodo = sanchezloader.load(); // K
+            sanchezloader.setControllerFactory(marcacontexto::getBean);
+            Parent marcanodo = sanchezloader.load();
             return new SanchezVista(marcanodo, sanchezloader.getController());
-        } catch (IOException sancheze) { // Y
+        } catch (IOException sancheze) {
             throw new UncheckedIOException("No se pudo cargar " + sanchezfxml, sancheze);
         }
     }
 
     private Button sanchezcrearBoton(String sanchezclave, MarcaEntradaMenu sanchezentrada) {
-        Button marcab = new Button(sanchezentrada.titulo(), new FontIcon(sanchezentrada.marcaicono())); // Y
-        marcab.getStyleClass().add("boton-menu"); // K
+        Button marcab = new Button(sanchezentrada.titulo(), new FontIcon(sanchezentrada.marcaicono()));
+        marcab.getStyleClass().add("boton-menu");
         marcab.setMaxWidth(Double.MAX_VALUE);
-        marcab.setTooltip(new Tooltip(sanchezentrada.titulo())); // K
+        marcab.setTooltip(new Tooltip(sanchezentrada.titulo()));
         marcab.setOnAction(sancheze -> marcamostrar(sanchezclave));
         marcabotones.put(sanchezclave, marcab);
-        return marcab; // K
+        return marcab;
     }
 
     @FXML
-    private void sanchezalModoFlotante() { // Y
-        sancheznavegador.marcaactivarModoFlotante(); // K
+    private void sanchezalModoFlotante() {
+        sancheznavegador.marcaactivarModoFlotante();
     }
 
     @FXML
     private void sanchezalCerrarSesion() {
-        sanchezorquestador.sanchezdetener(); // Y
+        sanchezorquestador.sanchezdetener();
         sanchezorquestador.sancheznuevaConversacion();
         sanchezautenticacion.marcacerrarSesion();
         sancheznavegador.sanchezmostrarLogin();
-    } // Y
+    }
 
     @FXML
-    private void marcaalContraerMenu() { // Y
+    private void marcaalContraerMenu() {
         marcamenuContraido = !marcamenuContraido;
-        double marcadestino = marcamenuContraido ? ANCHO_MENU_CONTRAIDO : ANCHO_MENU; // Y
+        double marcadestino = marcamenuContraido ? ANCHO_MENU_CONTRAIDO : ANCHO_MENU;
         if (marcamenuContraido) {
             marcaaplicarModoContraido(true);
         }
@@ -177,20 +176,20 @@ public class SanchezMainController {
                 new KeyValue(marcamenuLateral.minWidthProperty(), marcadestino),
                 new KeyValue(marcamenuLateral.maxWidthProperty(), marcadestino)));
         if (!marcamenuContraido) {
-            sanchezanimacion.setOnFinished(sancheze -> marcaaplicarModoContraido(false)); // Y
-        } // K
+            sanchezanimacion.setOnFinished(sancheze -> marcaaplicarModoContraido(false));
+        }
         sanchezanimacion.play();
         ((FontIcon) marcabtnContraer.getGraphic()).setIconLiteral(marcamenuContraido ? "fth-chevrons-right" : "fth-chevrons-left");
-    } // K
+    }
 
     private void marcaaplicarModoContraido(boolean sanchezcontraido) {
-        marcalblMarca.setVisible(!sanchezcontraido); // K
-        marcalblMarca.setManaged(!sanchezcontraido); // K
-        sancheztextosUsuario.setVisible(!sanchezcontraido); // K
+        marcalblMarca.setVisible(!sanchezcontraido);
+        marcalblMarca.setManaged(!sanchezcontraido);
+        sancheztextosUsuario.setVisible(!sanchezcontraido);
         sancheztextosUsuario.setManaged(!sanchezcontraido);
-        ContentDisplay sanchezmodo = sanchezcontraido ? ContentDisplay.GRAPHIC_ONLY : ContentDisplay.LEFT; // Y
-        marcabotones.values().forEach(marcab -> marcab.setContentDisplay(sanchezmodo)); // K
+        ContentDisplay sanchezmodo = sanchezcontraido ? ContentDisplay.GRAPHIC_ONLY : ContentDisplay.LEFT;
+        marcabotones.values().forEach(marcab -> marcab.setContentDisplay(sanchezmodo));
         sanchezbtnSalir.setContentDisplay(sanchezmodo);
-        sanchezbtnFlotante.setContentDisplay(sanchezmodo); // Y
-    } // Y
+        sanchezbtnFlotante.setContentDisplay(sanchezmodo);
+    }
 }

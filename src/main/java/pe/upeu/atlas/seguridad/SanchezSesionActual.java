@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.seguridad;
 
 import org.springframework.stereotype.Component;
@@ -16,13 +15,13 @@ public class SanchezSesionActual {
         this.usuario = marcausuario;
     }
 
-    public void sanchezcerrar() { // Y
+    public void sanchezcerrar() {
         this.usuario = null;
     }
 
     public Optional<MarcaUsuario> marcaactual() {
-        return Optional.ofNullable(usuario); // K
-    } // Y
+        return Optional.ofNullable(usuario);
+    }
 
     public boolean marcahayUsuario() {
         return usuario != null;
@@ -31,9 +30,9 @@ public class SanchezSesionActual {
     public String sancheznombreUsuario() {
         MarcaUsuario sanchezu = usuario;
         return sanchezu == null ? "sistema" : sanchezu.getUsuario();
-    } // Y
+    }
 
     public Optional<SanchezRol> sanchezrol() {
-        return marcaactual().map(MarcaUsuario::getRol); // K
-    } // Y
+        return marcaactual().map(MarcaUsuario::getRol);
+    }
 }

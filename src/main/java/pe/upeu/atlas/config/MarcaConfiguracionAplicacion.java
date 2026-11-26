@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.config;
 
 import lombok.RequiredArgsConstructor;
@@ -25,16 +24,16 @@ public class MarcaConfiguracionAplicacion {
     @EventListener(ApplicationStartedEvent.class)
     public void marcaprepararDirectorios() {
         try {
-            Files.createDirectories(marcapropiedades.getDirectorioBase()); // K
+            Files.createDirectories(marcapropiedades.getDirectorioBase());
             Files.createDirectories(marcapropiedades.getDirectorioModelos());
-            Files.createDirectories(marcapropiedades.getDirectorioBase().resolve("logs")); // Y
-            Files.createDirectories(marcapropiedades.getDirectorioBase().resolve("documentos")); // Y
+            Files.createDirectories(marcapropiedades.getDirectorioBase().resolve("logs"));
+            Files.createDirectories(marcapropiedades.getDirectorioBase().resolve("documentos"));
             Files.createDirectories(marcapropiedades.getCarpetaCapturas());
-        } catch (IOException sancheze) { // K
-            throw new UncheckedIOException("No se pudieron crear las carpetas de Atlas", sancheze); // Y
+        } catch (IOException sancheze) {
+            throw new UncheckedIOException("No se pudieron crear las carpetas de Atlas", sancheze);
         }
         log.info("Carpeta de datos: {}", marcapropiedades.getDirectorioBase());
         log.info("Modelo LLM: {} en {}", marcapropiedades.getLlm().getModelo(), marcapropiedades.getLlm().getUrl());
         log.info("Capturas: {} | Solo lectura: {}", marcapropiedades.getCarpetaCapturas(), marcapropiedades.isModoSoloLectura());
-    } // K
+    }
 }

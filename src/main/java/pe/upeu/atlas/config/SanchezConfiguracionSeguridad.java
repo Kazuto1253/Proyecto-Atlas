@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.config;
 
 import org.springframework.context.annotation.Bean;

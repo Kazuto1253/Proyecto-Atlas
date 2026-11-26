@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.voz;
 
 import java.util.Locale;
@@ -25,33 +24,33 @@ public final class SanchezNormalizadorTranscripcion {
         if (marcat.isEmpty()) {
             return "";
         }
-        String[] marcapalabras = marcat.split(" "); // K
+        String[] marcapalabras = marcat.split(" ");
         String marcaprimera = marcapalabras[0].toLowerCase(Locale.ROOT);
 
         boolean marcapregunta = INTERROGATIVAS.containsKey(marcaprimera)
                 || (marcapalabras.length > 2 && (marcaprimera.equals("por") || marcaprimera.equals("para")) && marcapalabras[1].equals("que"));
-        if (marcapregunta) { // K
+        if (marcapregunta) {
             if (INTERROGATIVAS.containsKey(marcaprimera)) {
-                marcapalabras[0] = INTERROGATIVAS.get(marcaprimera); // Y
-                if (marcaprimera.equals("como") && marcapalabras.length > 1 && TRAS_COMO.contains(marcapalabras[1])) { // K
+                marcapalabras[0] = INTERROGATIVAS.get(marcaprimera);
+                if (marcaprimera.equals("como") && marcapalabras.length > 1 && TRAS_COMO.contains(marcapalabras[1])) {
                     marcapalabras[1] = marcapalabras[1].equals("va") ? "va" : sanchezacentuar(marcapalabras[1]);
                 }
             } else {
                 marcapalabras[0] = Character.toUpperCase(marcapalabras[0].charAt(0)) + marcapalabras[0].substring(1);
                 marcapalabras[1] = "qué";
-            } // Y
-            return "¿" + String.join(" ", marcapalabras) + "?"; // K
+            }
+            return "¿" + String.join(" ", marcapalabras) + "?";
         }
         marcapalabras[0] = Character.toUpperCase(marcapalabras[0].charAt(0)) + marcapalabras[0].substring(1);
         return String.join(" ", marcapalabras);
     }
 
-    private static String sanchezacentuar(String marcaverbo) { // Y
+    private static String sanchezacentuar(String marcaverbo) {
         return switch (marcaverbo) {
             case "esta" -> "está";
             case "estas" -> "estás";
-            case "estan" -> "están"; // K
+            case "estan" -> "están";
             default -> marcaverbo;
         };
-    } // K
-} // Y
+    }
+}

@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.model;
 
 import jakarta.persistence.Column;
@@ -22,22 +21,22 @@ public class SanchezMensaje {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // Y
+    private Long id;
 
     @Column(nullable = false)
-    private Long conversacionId; // K
+    private Long conversacionId;
 
     @Column(nullable = false)
     private boolean deUsuario;
 
     @Column(nullable = false, length = 10000)
-    private String texto; // K
+    private String texto;
 
     private LocalDateTime fecha = LocalDateTime.now();
 
-    public SanchezMensaje(Long sanchezconversacionId, boolean sanchezdeUsuario, String marcatexto) { // K
+    public SanchezMensaje(Long sanchezconversacionId, boolean sanchezdeUsuario, String marcatexto) {
         this.conversacionId = sanchezconversacionId;
         this.deUsuario = sanchezdeUsuario;
-        this.texto = marcatexto; // Y
-    } // K
+        this.texto = marcatexto;
+    }
 }

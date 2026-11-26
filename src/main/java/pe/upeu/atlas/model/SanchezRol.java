@@ -1,7 +1,6 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.model;
 
-public enum SanchezRol { // K
+public enum SanchezRol {
     ESTUDIANTE("Estudiante"),
     DOCENTE("Docente"),
     ADMINISTRADOR("Administrador");
@@ -10,9 +9,9 @@ public enum SanchezRol { // K
 
     SanchezRol(String marcaetiqueta) {
         this.etiqueta = marcaetiqueta;
-    } // K
+    }
 
-    public String marcaetiqueta() { // K
+    public String marcaetiqueta() {
         return etiqueta;
     }
 
@@ -20,12 +19,12 @@ public enum SanchezRol { // K
         return this != ESTUDIANTE;
     }
 
-    public boolean marcapuedeAdministrarUsuarios() { // Y
+    public boolean marcapuedeAdministrarUsuarios() {
         return this == ADMINISTRADOR;
     }
 
     @Override
-    public String toString() { // Y
+    public String toString() {
         return etiqueta;
     }
 }

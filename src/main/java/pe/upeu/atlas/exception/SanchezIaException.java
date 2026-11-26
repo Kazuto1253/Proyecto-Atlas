@@ -1,13 +1,12 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.exception;
 
 public class SanchezIaException extends RuntimeException {
 
-    public SanchezIaException(String sanchezmensaje) { // Y
+    public SanchezIaException(String sanchezmensaje) {
         super(sanchezmensaje);
     }
 
-    public SanchezIaException(String sanchezmensaje, Throwable sanchezcausa) { // K
+    public SanchezIaException(String sanchezmensaje, Throwable sanchezcausa) {
         super(sanchezmensaje, sanchezcausa);
     }
 }

@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.controller;
 
 import javafx.fxml.FXML;
@@ -25,26 +24,26 @@ import java.util.function.Function;
 public class MarcaReportesController implements MarcaRefrescable {
 
     private final MarcaServicioReportes marcareportes;
-    private final SanchezSesionActual sanchezsesion; // K
+    private final SanchezSesionActual sanchezsesion;
     private final SanchezLanzador sanchezlanzador;
 
     @FXML private VBox marcatarjetaUsuarios;
     @FXML private Button sanchezbtnActividad;
 
     @FXML
-    private void initialize() { // Y
+    private void initialize() {
         marcatarjetaUsuarios.managedProperty().bind(marcatarjetaUsuarios.visibleProperty());
     }
 
     @Override
     public void sanchezrefrescar() {
         boolean sanchezadmin = sanchezsesion.sanchezrol().map(SanchezRol::marcapuedeAdministrarUsuarios).orElse(false);
-        marcatarjetaUsuarios.setVisible(sanchezadmin); // Y
-        sanchezbtnActividad.setText(sanchezadmin ? "Exportar actividad de todos (Excel)" : "Exportar mi actividad (Excel)"); // Y
+        marcatarjetaUsuarios.setVisible(sanchezadmin);
+        sanchezbtnActividad.setText(sanchezadmin ? "Exportar actividad de todos (Excel)" : "Exportar mi actividad (Excel)");
     }
 
     @FXML
-    private void marcaalActividad() { // K
+    private void marcaalActividad() {
         marcagenerar("actividad", "xlsx", "Excel", marcareportes::marcaactividadExcel);
     }
 
@@ -64,16 +63,16 @@ public class MarcaReportesController implements MarcaRefrescable {
         sanchezselector.setInitialFileName(sanchezbase + "-" + LocalDate.now() + "." + sanchezextension);
         sanchezselector.getExtensionFilters().add(new FileChooser.ExtensionFilter(marcatipo, "*." + sanchezextension));
         File marcadestino = sanchezselector.showSaveDialog(sanchezbtnActividad.getScene().getWindow());
-        if (marcadestino == null) { // Y
-            return; // Y
+        if (marcadestino == null) {
+            return;
         }
         Callable<Path> sancheztrabajo = () -> sanchezaccion.apply(marcadestino.toPath());
-        MarcaTareas.sanchezejecutar(sancheztrabajo, marcaruta -> { // K
+        MarcaTareas.sanchezejecutar(sancheztrabajo, marcaruta -> {
             MarcaTareas.marcainformar("Reporte guardado en:\n" + marcaruta);
-            try { // K
+            try {
                 sanchezlanzador.marcaabrir(marcaruta);
-            } catch (RuntimeException sancheze) { // K
-            } // Y
-        }); // Y
+            } catch (RuntimeException sancheze) {
+            }
+        });
     }
-} // K
+}

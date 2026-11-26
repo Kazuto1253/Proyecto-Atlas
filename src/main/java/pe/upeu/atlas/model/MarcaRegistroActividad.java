@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.model;
 
 import jakarta.persistence.Column;
@@ -22,7 +21,7 @@ public class MarcaRegistroActividad {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // Y
+    private Long id;
 
     @Column(nullable = false)
     private LocalDateTime fecha = LocalDateTime.now();
@@ -31,14 +30,14 @@ public class MarcaRegistroActividad {
     private String usuario;
 
     @Column(nullable = false)
-    private String accion; // Y
+    private String accion;
 
     @Column(length = 500)
-    private String detalle; // Y
+    private String detalle;
 
     public MarcaRegistroActividad(String marcausuario, String sanchezaccion, String sanchezdetalle) {
         this.usuario = marcausuario;
         this.accion = sanchezaccion;
         this.detalle = sanchezdetalle;
-    } // K
+    }
 }

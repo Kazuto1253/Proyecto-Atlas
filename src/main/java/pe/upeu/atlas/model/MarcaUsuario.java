@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.model;
 
 import jakarta.persistence.Column;
@@ -37,11 +36,11 @@ public class MarcaUsuario {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private SanchezRol rol = SanchezRol.ESTUDIANTE; // K
+    private SanchezRol rol = SanchezRol.ESTUDIANTE;
 
     private boolean activo = true;
 
-    private LocalDateTime fechaCreacion = LocalDateTime.now(); // Y
+    private LocalDateTime fechaCreacion = LocalDateTime.now();
 
     private LocalDateTime ultimoAcceso;
-} // K
+}

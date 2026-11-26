@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.plataforma;
 
 import java.util.Map;
@@ -10,13 +9,13 @@ public record MarcaEntornoPlataforma(
         String sanchezescritorio,
         Map<String, Boolean> marcacomandos) {
 
-    public boolean marcatieneComando(String sanchezcomando) { // K
+    public boolean marcatieneComando(String sanchezcomando) {
         return marcacomandos.getOrDefault(sanchezcomando, false);
     }
 
     public String sanchezdescripcion() {
         String sanchezbase = sanchezsistemaOperativo + " " + marcaversionSistema;
-        if (sanchezsistemaOperativo == SanchezSistemaOperativo.LINUX) { // Y
+        if (sanchezsistemaOperativo == SanchezSistemaOperativo.LINUX) {
             sanchezbase += " · " + sancheztipoSesion + (sanchezescritorio.isBlank() ? "" : " · " + sanchezescritorio);
         }
         return sanchezbase;

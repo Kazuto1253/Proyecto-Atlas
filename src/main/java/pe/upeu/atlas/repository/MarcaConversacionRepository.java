@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,9 +7,9 @@ import pe.upeu.atlas.model.MarcaConversacion;
 
 import java.util.List;
 
-public interface MarcaConversacionRepository extends JpaRepository<MarcaConversacion, Long> { // Y
+public interface MarcaConversacionRepository extends JpaRepository<MarcaConversacion, Long> {
 
-    List<MarcaConversacion> findByUsuarioOrderByActualizadaDesc(String usuario); // K
+    List<MarcaConversacion> findByUsuarioOrderByActualizadaDesc(String usuario);
 
     @Query("""
             select c from Conversacion c
@@ -20,5 +19,5 @@ public interface MarcaConversacionRepository extends JpaRepository<MarcaConversa
                                where lower(m.texto) like lower(concat('%', :texto, '%'))))
             order by c.actualizada desc
             """)
-    List<MarcaConversacion> buscar(@Param("usuario") String usuario, @Param("texto") String texto); // K
+    List<MarcaConversacion> buscar(@Param("usuario") String usuario, @Param("texto") String texto);
 }

@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.model;
 
 import jakarta.persistence.Column;
@@ -22,7 +21,7 @@ public class MarcaDocumento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // K
+    private Long id;
 
     @Column(nullable = false)
     private String usuario;
@@ -38,4 +37,4 @@ public class MarcaDocumento {
     private int fragmentos;
 
     private LocalDateTime fecha = LocalDateTime.now();
-} // Y
+}

@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.voz;
 
 import lombok.RequiredArgsConstructor;
@@ -32,15 +31,15 @@ public class SanchezReconocedorWhisper {
                     + "dale like|hasta la pr[oó]xima|nos vemos en el pr[oó]ximo|el canal)");
     private static final Pattern ETIQUETAS = Pattern.compile("\\[[^\\]]*\\]|\\([^)]*\\)|\\*[^*]*\\*|♪");
 
-    private final SanchezPropiedadesAtlas marcapropiedades; // Y
+    private final SanchezPropiedadesAtlas marcapropiedades;
     private volatile Boolean sanchezavisado;
-    private volatile Process sanchezprocesoActual; // K
+    private volatile Process sanchezprocesoActual;
 
     public void sanchezcancelar() {
         Process marcap = sanchezprocesoActual;
         if (marcap != null) {
-            marcap.destroyForcibly(); // K
-        } // Y
+            marcap.destroyForcibly();
+        }
     }
 
     public boolean sanchezdisponible() {
@@ -49,21 +48,21 @@ public class SanchezReconocedorWhisper {
                 && sanchezvoz.getWhisperEjecutable() != null && Files.isRegularFile(sanchezvoz.getWhisperEjecutable())
                 && sanchezvoz.getWhisperModelo() != null && Files.isRegularFile(sanchezvoz.getWhisperModelo());
         if (!sanchezlisto && sanchezvoz.isUsarWhisper() && sanchezavisado == null) {
-            sanchezavisado = Boolean.TRUE; // K
+            sanchezavisado = Boolean.TRUE;
             log.info("Whisper no está instalado ({}): se usa solo Vosk. Ver la Guía de Ejecución.", sanchezvoz.getWhisperEjecutable());
         }
-        return sanchezlisto; // Y
+        return sanchezlisto;
     }
 
     public Optional<String> sancheztranscribir(byte[] marcapcm) {
         if (marcapcm == null || marcapcm.length < 3200 || !sanchezdisponible()) {
             return Optional.empty();
         }
-        var sanchezvoz = marcapropiedades.getVoz(); // K
+        var sanchezvoz = marcapropiedades.getVoz();
         Path marcawav = null;
-        try { // Y
+        try {
             marcawav = Files.createTempFile("atlas-voz-", ".wav");
-            AudioFormat marcaformato = new AudioFormat(sanchezvoz.getFrecuenciaMuestreo(), 16, 1, true, false); // Y
+            AudioFormat marcaformato = new AudioFormat(sanchezvoz.getFrecuenciaMuestreo(), 16, 1, true, false);
             try (AudioInputStream marcaaudio = new AudioInputStream(new ByteArrayInputStream(marcapcm), marcaformato, marcapcm.length / 2)) {
                 AudioSystem.write(marcaaudio, AudioFileFormat.Type.WAVE, marcawav.toFile());
             }
@@ -78,41 +77,41 @@ public class SanchezReconocedorWhisper {
                     .directory(marcawav.getParent().toFile())
                     .redirectError(ProcessBuilder.Redirect.DISCARD)
                     .start();
-            sanchezprocesoActual = sanchezproceso; // K
+            sanchezprocesoActual = sanchezproceso;
             byte[] marcasalida = sanchezproceso.getInputStream().readAllBytes();
             if (!sanchezproceso.waitFor(90, TimeUnit.SECONDS)) {
                 sanchezproceso.destroyForcibly();
                 log.warn("Whisper tardó más de 90 s: se descarta");
                 return Optional.empty();
-            } // K
+            }
             String marcatexto = marcalimpiar(new String(marcasalida, StandardCharsets.UTF_8));
             log.info("Whisper: «{}» ({} ms)", marcatexto, System.currentTimeMillis() - sanchezinicio);
-            return marcatexto.isEmpty() ? Optional.empty() : Optional.of(marcatexto); // Y
+            return marcatexto.isEmpty() ? Optional.empty() : Optional.of(marcatexto);
         } catch (IOException sancheze) {
             log.warn("Whisper falló: {}", sancheze.getMessage());
             return Optional.empty();
         } catch (InterruptedException sancheze) {
             Thread.currentThread().interrupt();
-            return Optional.empty(); // Y
+            return Optional.empty();
         } finally {
             sanchezprocesoActual = null;
             if (marcawav != null) {
                 try {
                     Files.deleteIfExists(marcawav);
-                } catch (IOException sanchezignorada) { // Y
-                } // Y
+                } catch (IOException sanchezignorada) {
+                }
             }
-        } // K
-    } // Y
+        }
+    }
 
     static String marcalimpiar(String marcatexto) {
         if (marcatexto == null) {
-            return ""; // Y
+            return "";
         }
-        String marcat = ETIQUETAS.matcher(marcatexto).replaceAll(" ").replaceAll("\\s+", " ").strip(); // Y
+        String marcat = ETIQUETAS.matcher(marcatexto).replaceAll(" ").replaceAll("\\s+", " ").strip();
         if (marcat.length() < 2 || ALUCINACION.matcher(marcat).find()) {
             return "";
         }
         return marcat;
     }
-} // Y
+}

@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.voz;
 
 import jakarta.annotation.PreDestroy;
@@ -33,19 +32,19 @@ import java.util.function.Consumer;
 public class MarcaReconocedorVoz {
 
     private final SanchezPropiedadesAtlas marcapropiedades;
-    private final SanchezReconocedorWhisper marcawhisper; // K
-    private final AtomicBoolean marcadetenerSolicitado = new AtomicBoolean(false); // Y
+    private final SanchezReconocedorWhisper marcawhisper;
+    private final AtomicBoolean marcadetenerSolicitado = new AtomicBoolean(false);
     private final AtomicBoolean marcacancelado = new AtomicBoolean(false);
     private volatile Model modelo;
 
     public synchronized void marcacargarModelo() throws IOException {
-        if (modelo != null) { // K
+        if (modelo != null) {
             return;
         }
         var marcaruta = marcapropiedades.getVoz().getModeloVosk();
-        if (!Files.isDirectory(marcaruta)) { // Y
+        if (!Files.isDirectory(marcaruta)) {
             throw new IOException("No se encontró el modelo de Vosk en " + marcaruta
-                    + ". Ejecuta scripts/instalar-dependencias (.ps1 o .sh)"); // Y
+                    + ". Ejecuta scripts/instalar-dependencias (.ps1 o .sh)");
         }
         LibVosk.setLogLevel(LogLevel.WARNINGS);
         long sanchezinicio = System.currentTimeMillis();
@@ -55,30 +54,30 @@ public class MarcaReconocedorVoz {
 
     public SanchezProcesadorFrase sancheznuevoProcesador() throws IOException {
         marcacargarModelo();
-        var sanchezvoz = marcapropiedades.getVoz(); // Y
-        return new SanchezProcesadorFrase(modelo, sanchezvoz, sanchezvoz.isUsarComandos() ? SanchezGramaticaComandos.marcajson() : null); // K
+        var sanchezvoz = marcapropiedades.getVoz();
+        return new SanchezProcesadorFrase(modelo, sanchezvoz, sanchezvoz.isUsarComandos() ? SanchezGramaticaComandos.marcajson() : null);
     }
 
-    public void sanchezdetener() { // Y
+    public void sanchezdetener() {
         marcadetenerSolicitado.set(true);
-    } // K
+    }
 
     public void sanchezcancelar() {
-        marcacancelado.set(true); // Y
+        marcacancelado.set(true);
         marcadetenerSolicitado.set(true);
         marcawhisper.sanchezcancelar();
     }
 
     public SanchezTranscripcion sanchezescucharFrase(Consumer<String> marcaparcial, Runnable marcaalProcesar) throws IOException, LineUnavailableException {
-        marcadetenerSolicitado.set(false); // K
-        marcacancelado.set(false); // Y
+        marcadetenerSolicitado.set(false);
+        marcacancelado.set(false);
         var sanchezvoz = marcapropiedades.getVoz();
         float sanchezfrecuencia = sanchezvoz.getFrecuenciaMuestreo();
         AudioFormat marcaformato = new AudioFormat(sanchezfrecuencia, 16, 1, true, false);
         DataLine.Info marcainfo = new DataLine.Info(TargetDataLine.class, marcaformato);
         if (!AudioSystem.isLineSupported(marcainfo)) {
-            throw new LineUnavailableException("No hay un micrófono compatible (16 kHz, mono)"); // Y
-        } // Y
+            throw new LineUnavailableException("No hay un micrófono compatible (16 kHz, mono)");
+        }
 
         byte[] marcabloque = new byte[(int) (sanchezfrecuencia / 10) * 2];
         ByteArrayOutputStream marcagrabacion = sanchezvoz.isGuardarAudioDepuracion() ? new ByteArrayOutputStream() : null;
@@ -86,30 +85,30 @@ public class MarcaReconocedorVoz {
 
         try (TargetDataLine sanchezlinea = sanchezabrirLinea(marcainfo, marcaformato);
              SanchezProcesadorFrase marcaprocesador = sancheznuevoProcesador()) {
-            sanchezlinea.open(marcaformato, marcabloque.length * 4); // Y
-            sanchezlinea.start(); // K
+            sanchezlinea.open(marcaformato, marcabloque.length * 4);
+            sanchezlinea.start();
 
             boolean sanchezterminada = false;
-            while (!sanchezterminada && !marcadetenerSolicitado.get()) { // K
+            while (!sanchezterminada && !marcadetenerSolicitado.get()) {
                 int marcaleidos = sanchezlinea.read(marcabloque, 0, marcabloque.length);
                 if (marcaleidos <= 0) {
-                    continue; // K
+                    continue;
                 }
-                if (marcagrabacion != null) { // Y
+                if (marcagrabacion != null) {
                     marcagrabacion.write(marcabloque, 0, marcaleidos);
                 }
                 sanchezterminada = marcaprocesador.sanchezalimentar(marcabloque, marcaleidos);
                 String marcap = marcaprocesador.marcaparcial();
                 if (!marcap.isEmpty() && !marcap.equals(marcaultimoParcial)) {
-                    marcaultimoParcial = marcap; // Y
+                    marcaultimoParcial = marcap;
                     marcaparcial.accept(marcap);
-                } // Y
-            } // Y
-            sanchezlinea.stop(); // K
+                }
+            }
+            sanchezlinea.stop();
             if (marcacancelado.get()) {
                 log.info("Escucha cancelada por el usuario");
                 return SanchezTranscripcion.VACIA;
-            } // K
+            }
             marcaalProcesar.run();
             SanchezTranscripcion sanchezresultado = marcaprocesador.marcafinalizar();
             String sancheztextoVosk = sanchezresultado.texto();
@@ -125,45 +124,45 @@ public class MarcaReconocedorVoz {
                     sanchezresultado.texto(), Math.round(sanchezresultado.sanchezconfianza() * 100),
                     sanchezresultado.sanchezcomando() ? "comando" : (sanchezresultado.sanchezconfianza() >= 0.95 ? "Whisper" : "Vosk"), sancheztextoVosk);
             if (marcagrabacion != null) {
-                marcaguardarDepuracion(marcagrabacion.toByteArray(), marcaformato); // K
-            } // K
+                marcaguardarDepuracion(marcagrabacion.toByteArray(), marcaformato);
+            }
             return marcacancelado.get() ? SanchezTranscripcion.VACIA : sanchezresultado;
         }
-    } // K
+    }
 
     private TargetDataLine sanchezabrirLinea(DataLine.Info marcainfo, AudioFormat marcaformato) throws LineUnavailableException {
         String sanchezbuscado = marcapropiedades.getVoz().getMicrofono();
-        if (sanchezbuscado != null && !sanchezbuscado.isBlank()) { // Y
+        if (sanchezbuscado != null && !sanchezbuscado.isBlank()) {
             for (Mixer.Info marcami : AudioSystem.getMixerInfo()) {
                 Mixer sanchezmixer = AudioSystem.getMixer(marcami);
                 if (marcami.getName().toLowerCase(Locale.ROOT).contains(sanchezbuscado.toLowerCase(Locale.ROOT).strip())
                         && sanchezmixer.isLineSupported(marcainfo)) {
                     log.info("Micrófono: {}", marcami.getName());
-                    return (TargetDataLine) sanchezmixer.getLine(marcainfo); // K
+                    return (TargetDataLine) sanchezmixer.getLine(marcainfo);
                 }
-            } // Y
-            log.warn("No encontré un micrófono que contenga «{}»; uso el predeterminado", sanchezbuscado); // Y
+            }
+            log.warn("No encontré un micrófono que contenga «{}»; uso el predeterminado", sanchezbuscado);
         }
         return (TargetDataLine) AudioSystem.getLine(marcainfo);
-    } // K
+    }
 
-    private void marcaguardarDepuracion(byte[] marcapcm, AudioFormat marcaformato) { // K
+    private void marcaguardarDepuracion(byte[] marcapcm, AudioFormat marcaformato) {
         try {
             Path marcacarpeta = marcapropiedades.getDirectorioBase().resolve("voz-debug");
             Files.createDirectories(marcacarpeta);
             try (AudioInputStream marcaaudio = new AudioInputStream(new ByteArrayInputStream(marcapcm), marcaformato, marcapcm.length / 2)) {
-                AudioSystem.write(marcaaudio, AudioFileFormat.Type.WAVE, marcacarpeta.resolve("ultima.wav").toFile()); // K
+                AudioSystem.write(marcaaudio, AudioFileFormat.Type.WAVE, marcacarpeta.resolve("ultima.wav").toFile());
             }
         } catch (IOException sancheze) {
-            log.warn("No se pudo guardar el audio de depuración", sancheze); // Y
+            log.warn("No se pudo guardar el audio de depuración", sancheze);
         }
-    } // Y
+    }
 
     @PreDestroy
     void sanchezliberar() {
-        sanchezdetener(); // K
+        sanchezdetener();
         if (modelo != null) {
-            modelo.close(); // K
+            modelo.close();
         }
     }
-} // Y
+}

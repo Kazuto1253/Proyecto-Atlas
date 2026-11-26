@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.asistente;
 
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;

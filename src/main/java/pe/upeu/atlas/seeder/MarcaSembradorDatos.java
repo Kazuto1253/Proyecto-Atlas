@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.seeder;
 
 import lombok.RequiredArgsConstructor;
@@ -16,28 +15,28 @@ import pe.upeu.atlas.repository.MarcaUsuarioRepository;
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "app.seeder.enabled", havingValue = "true")
-public class MarcaSembradorDatos implements ApplicationRunner { // Y
+public class MarcaSembradorDatos implements ApplicationRunner {
 
     private final MarcaUsuarioRepository sanchezusuarios;
     private final PasswordEncoder sanchezcodificador;
 
     @Override
-    public void run(ApplicationArguments sanchezargs) { // Y
+    public void run(ApplicationArguments sanchezargs) {
         if (sanchezusuarios.count() > 0) {
             return;
         }
-        sanchezcrear("Administrador de Atlas", "admin", "Admin123", SanchezRol.ADMINISTRADOR); // K
+        sanchezcrear("Administrador de Atlas", "admin", "Admin123", SanchezRol.ADMINISTRADOR);
         sanchezcrear("Docente de prueba", "docente", "Docente123", SanchezRol.DOCENTE);
         sanchezcrear("Estudiante de prueba", "estudiante", "Estudiante123", SanchezRol.ESTUDIANTE);
-        log.info("Se crearon 3 cuentas de demostración (admin, docente, estudiante). Cambia sus contraseñas."); // Y
-    } // K
+        log.info("Se crearon 3 cuentas de demostración (admin, docente, estudiante). Cambia sus contraseñas.");
+    }
 
-    private void sanchezcrear(String sancheznombre, String marcausuario, String sanchezclave, SanchezRol sanchezrol) { // Y
+    private void sanchezcrear(String sancheznombre, String marcausuario, String sanchezclave, SanchezRol sanchezrol) {
         MarcaUsuario sanchezu = new MarcaUsuario();
         sanchezu.setNombreCompleto(sancheznombre);
-        sanchezu.setUsuario(marcausuario); // K
+        sanchezu.setUsuario(marcausuario);
         sanchezu.setContrasenaHash(sanchezcodificador.encode(sanchezclave));
-        sanchezu.setRol(sanchezrol); // Y
+        sanchezu.setRol(sanchezrol);
         sanchezusuarios.save(sanchezu);
     }
-} // Y
+}

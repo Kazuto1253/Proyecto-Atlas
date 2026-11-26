@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.plataforma;
 
 import org.springframework.stereotype.Component;
@@ -12,17 +11,17 @@ public class SanchezLanzador {
 
     private final SanchezSistemaOperativo marcaso = SanchezSistemaOperativo.sanchezdesde(System.getProperty("os.name"));
 
-    public SanchezSistemaOperativo marcasistema() { // K
+    public SanchezSistemaOperativo marcasistema() {
         return marcaso;
-    } // K
+    }
 
-    public void marcaabrir(Path marcaruta) { // K
+    public void marcaabrir(Path marcaruta) {
         switch (marcaso) {
             case WINDOWS -> sanchezejecutar("explorer.exe", marcaruta.toString());
             case MAC -> sanchezejecutar("open", marcaruta.toString());
-            default -> sanchezejecutar("xdg-open", marcaruta.toString()); // Y
+            default -> sanchezejecutar("xdg-open", marcaruta.toString());
         }
-    } // Y
+    }
 
     public void sanchezejecutar(String... sanchezcomando) {
         try {
@@ -33,7 +32,7 @@ public class SanchezLanzador {
         } catch (IOException sancheze) {
             throw new MarcaPlataformaException("No se pudo ejecutar " + sanchezcomando[0] + ": " + sancheze.getMessage(), sancheze);
         }
-    } // K
+    }
 
     public void marcaejecutarYEsperar(int marcasegundos, String... sanchezcomando) {
         try {
@@ -41,14 +40,14 @@ public class SanchezLanzador {
                     .redirectErrorStream(true)
                     .redirectOutput(ProcessBuilder.Redirect.DISCARD)
                     .start();
-            if (!marcap.waitFor(marcasegundos, java.util.concurrent.TimeUnit.SECONDS)) { // K
+            if (!marcap.waitFor(marcasegundos, java.util.concurrent.TimeUnit.SECONDS)) {
                 marcap.destroyForcibly();
                 throw new MarcaPlataformaException("El comando " + sanchezcomando[0] + " tardó demasiado.");
-            } // K
-        } catch (IOException sancheze) { // Y
+            }
+        } catch (IOException sancheze) {
             throw new MarcaPlataformaException("No se pudo ejecutar " + sanchezcomando[0] + ": " + sancheze.getMessage(), sancheze);
         } catch (InterruptedException sancheze) {
-            Thread.currentThread().interrupt(); // K
+            Thread.currentThread().interrupt();
             throw new MarcaPlataformaException("Se interrumpió " + sanchezcomando[0], sancheze);
         }
     }

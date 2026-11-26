@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.service;
 
 import dev.langchain4j.data.embedding.Embedding;
@@ -33,10 +32,10 @@ import java.util.stream.Collectors;
 public class SanchezServicioDocumentos {
 
     static final long MAX_BYTES = 25L * 1024 * 1024;
-    static final int TAM_FRAGMENTO = 900; // K
+    static final int TAM_FRAGMENTO = 900;
     static final int SOLAPE = 120;
     static final int MAX_FRAGMENTOS = 400;
-    private static final int LOTE = 16; // K
+    private static final int LOTE = 16;
 
     public record SanchezResultado(String marcadocumento, String texto, double marcasimilitud) { }
 
@@ -48,37 +47,37 @@ public class SanchezServicioDocumentos {
     private final SanchezServicioActividad sanchezactividad;
 
     public MarcaDocumento marcaimportar(Path marcaarchivo) {
-        String marcausuario = marcaexigirUsuario(); // Y
-        String marcatipo = MarcaExtractorTexto.sancheztipoDe(marcaarchivo); // K
+        String marcausuario = marcaexigirUsuario();
+        String marcatipo = MarcaExtractorTexto.sancheztipoDe(marcaarchivo);
         if (!MarcaExtractorTexto.TIPOS.contains(marcatipo)) {
             throw new SanchezNegocioException("Tipo no admitido. Usa: " + String.join(", ", MarcaExtractorTexto.TIPOS.stream().sorted().toList()) + ".");
         }
         try {
             if (!Files.isRegularFile(marcaarchivo)) {
-                throw new SanchezNegocioException("No encontré el archivo."); // K
+                throw new SanchezNegocioException("No encontré el archivo.");
             }
             if (Files.size(marcaarchivo) > MAX_BYTES) {
-                throw new SanchezNegocioException("El archivo pesa más de 25 MB."); // K
+                throw new SanchezNegocioException("El archivo pesa más de 25 MB.");
             }
-        } catch (IOException sancheze) { // K
-            throw new SanchezNegocioException("No pude leer el archivo: " + sancheze.getMessage(), sancheze); // Y
+        } catch (IOException sancheze) {
+            throw new SanchezNegocioException("No pude leer el archivo: " + sancheze.getMessage(), sancheze);
         }
 
         String marcatexto = marcaextractor.sanchezextraer(marcaarchivo);
         List<String> sancheztrozos = marcatrocear(marcatexto, TAM_FRAGMENTO, SOLAPE);
         if (sancheztrozos.isEmpty()) {
-            throw new SanchezNegocioException("No encontré texto en el documento."); // Y
+            throw new SanchezNegocioException("No encontré texto en el documento.");
         }
         if (sancheztrozos.size() > MAX_FRAGMENTOS) {
             throw new SanchezNegocioException("El documento es demasiado largo (más de " + MAX_FRAGMENTOS + " fragmentos).");
         }
         List<float[]> sanchezvectores = sanchezcalcularEmbeddings(sancheztrozos.stream().map(marcat -> "search_document: " + marcat).toList());
 
-        MarcaDocumento marcad = new MarcaDocumento(); // Y
+        MarcaDocumento marcad = new MarcaDocumento();
         marcad.setUsuario(marcausuario);
         marcad.setNombre(marcaarchivo.getFileName().toString());
         marcad.setTipo(marcatipo);
-        marcad.setCaracteres(marcatexto.length()); // K
+        marcad.setCaracteres(marcatexto.length());
         marcad.setFragmentos(sancheztrozos.size());
         marcad = sanchezdocumentos.save(marcad);
 
@@ -90,10 +89,10 @@ public class SanchezServicioDocumentos {
             marcaf.setTexto(sancheztrozos.get(sanchezi));
             marcaf.setEmbedding(marcaserializar(sanchezvectores.get(sanchezi)));
             sanchezfilas.add(marcaf);
-        } // K
-        fragmentos.saveAll(sanchezfilas); // Y
+        }
+        fragmentos.saveAll(sanchezfilas);
         sanchezactividad.sanchezregistrar("Documento importado", marcad.getNombre() + " (" + marcad.getFragmentos() + " fragmentos)");
-        return marcad; // Y
+        return marcad;
     }
 
     public List<MarcaDocumento> sanchezlistar() {
@@ -105,15 +104,15 @@ public class SanchezServicioDocumentos {
         MarcaDocumento marcad = sanchezpropio(sanchezid);
         fragmentos.deleteByDocumentoId(sanchezid);
         sanchezdocumentos.deleteById(sanchezid);
-        sanchezactividad.sanchezregistrar("Documento eliminado", marcad.getNombre()); // Y
-    } // K
+        sanchezactividad.sanchezregistrar("Documento eliminado", marcad.getNombre());
+    }
 
-    public List<SanchezResultado> buscar(String sanchezconsulta, int sanchezk) { // K
+    public List<SanchezResultado> buscar(String sanchezconsulta, int sanchezk) {
         String marcausuario = marcaexigirUsuario();
         if (sanchezconsulta == null || sanchezconsulta.isBlank()) {
             throw new SanchezNegocioException("Escribe qué quieres buscar.");
         }
-        List<MarcaDocumento> marcamios = sanchezdocumentos.findByUsuarioOrderByFechaDesc(marcausuario); // Y
+        List<MarcaDocumento> marcamios = sanchezdocumentos.findByUsuarioOrderByFechaDesc(marcausuario);
         if (marcamios.isEmpty()) {
             return List.of();
         }
@@ -124,8 +123,8 @@ public class SanchezServicioDocumentos {
                 .map(marcaf -> new SanchezResultado(marcanombres.get(marcaf.getDocumentoId()), marcaf.getTexto(), sanchezcoseno(sanchezq, marcaleer(marcaf.getEmbedding()))))
                 .sorted(Comparator.comparingDouble(SanchezResultado::marcasimilitud).reversed())
                 .limit(Math.max(1, sanchezk))
-                .toList(); // K
-    } // K
+                .toList();
+    }
 
     private List<float[]> sanchezcalcularEmbeddings(List<String> sancheztextos) {
         try {
@@ -134,27 +133,27 @@ public class SanchezServicioDocumentos {
                 List<TextSegment> marcalote = sancheztextos.subList(sanchezi, Math.min(sancheztextos.size(), sanchezi + LOTE)).stream()
                         .map(TextSegment::from).toList();
                 for (Embedding sancheze : marcaembeddings.embedAll(marcalote).content()) {
-                    marcasalida.add(sancheze.vector()); // Y
-                } // K
-            } // Y
+                    marcasalida.add(sancheze.vector());
+                }
+            }
             return marcasalida;
         } catch (RuntimeException sancheze) {
-            throw new SanchezIaException("No pude calcular los embeddings. ¿Está abierto Ollama con nomic-embed-text? " + sancheze.getMessage(), sancheze); // Y
+            throw new SanchezIaException("No pude calcular los embeddings. ¿Está abierto Ollama con nomic-embed-text? " + sancheze.getMessage(), sancheze);
         }
-    } // K
+    }
 
     private MarcaDocumento sanchezpropio(Long sanchezid) {
-        String marcausuario = marcaexigirUsuario(); // K
-        MarcaDocumento marcad = sanchezdocumentos.findById(sanchezid).orElseThrow(() -> new SanchezNegocioException("El documento ya no existe.")); // K
+        String marcausuario = marcaexigirUsuario();
+        MarcaDocumento marcad = sanchezdocumentos.findById(sanchezid).orElseThrow(() -> new SanchezNegocioException("El documento ya no existe."));
         if (!marcad.getUsuario().equals(marcausuario)) {
             throw new SanchezPermisoDenegadoException("Ese documento pertenece a otro usuario.");
         }
         return marcad;
-    } // Y
+    }
 
     private String marcaexigirUsuario() {
         return sanchezsesion.marcaactual().map(sanchezu -> sanchezu.getUsuario())
-                .orElseThrow(() -> new SanchezPermisoDenegadoException("Inicia sesión para usar tus documentos.")); // Y
+                .orElseThrow(() -> new SanchezPermisoDenegadoException("Inicia sesión para usar tus documentos."));
     }
 
     static List<String> marcatrocear(String marcatexto, int marcatam, int marcasolape) {
@@ -166,9 +165,9 @@ public class SanchezServicioDocumentos {
             if (sanchezfin < marcalimpio.length()) {
                 int sanchezcorte = marcalimpio.lastIndexOf(' ', sanchezfin);
                 if (sanchezcorte > sanchezinicio + marcatam / 2) {
-                    sanchezfin = sanchezcorte; // Y
+                    sanchezfin = sanchezcorte;
                 }
-            } // Y
+            }
             String marcatrozo = marcalimpio.substring(sanchezinicio, sanchezfin).strip();
             if (!marcatrozo.isEmpty()) {
                 sancheztrozos.add(marcatrozo);
@@ -177,11 +176,11 @@ public class SanchezServicioDocumentos {
                 break;
             }
             sanchezinicio = Math.max(sanchezfin - marcasolape, sanchezinicio + 1);
-        } // K
+        }
         return sancheztrozos;
-    } // K
+    }
 
-    static double sanchezcoseno(float[] sancheza, float[] marcab) { // Y
+    static double sanchezcoseno(float[] sancheza, float[] marcab) {
         int marcan = Math.min(sancheza.length, marcab.length);
         double marcapunto = 0, sanchezna = 0, marcanb = 0;
         for (int sanchezi = 0; sanchezi < marcan; sanchezi++) {
@@ -192,13 +191,13 @@ public class SanchezServicioDocumentos {
         return sanchezna == 0 || marcanb == 0 ? 0 : marcapunto / (Math.sqrt(sanchezna) * Math.sqrt(marcanb));
     }
 
-    static String marcaserializar(float[] marcav) { // Y
+    static String marcaserializar(float[] marcav) {
         StringBuilder sanchezsb = new StringBuilder(marcav.length * 9);
         for (int sanchezi = 0; sanchezi < marcav.length; sanchezi++) {
             if (sanchezi > 0) {
                 sanchezsb.append(',');
-            } // K
-            sanchezsb.append(marcav[sanchezi]); // K
+            }
+            sanchezsb.append(marcav[sanchezi]);
         }
         return sanchezsb.toString();
     }
@@ -211,4 +210,4 @@ public class SanchezServicioDocumentos {
         }
         return marcav;
     }
-} // K
+}

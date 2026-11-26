@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.model;
 
 import jakarta.persistence.Column;
@@ -20,16 +19,16 @@ public class SanchezFragmento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // Y
+    private Long id;
 
     @Column(nullable = false)
     private Long documentoId;
 
-    private int orden; // K
+    private int orden;
 
     @Column(nullable = false, length = 6000)
-    private String texto; // K
+    private String texto;
 
     @Column(nullable = false, length = 60000)
-    private String embedding; // Y
+    private String embedding;
 }

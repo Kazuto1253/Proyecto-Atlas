@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.ia;
 
 import dev.langchain4j.model.chat.ChatLanguageModel;
@@ -12,7 +11,7 @@ import pe.upeu.atlas.config.SanchezPropiedadesAtlas;
 import java.time.Duration;
 
 @Configuration
-public class SanchezConfiguracionIa { // K
+public class SanchezConfiguracionIa {
 
     @Bean
     public ChatLanguageModel marcamodeloChat(SanchezPropiedadesAtlas marcapropiedades) {
@@ -23,15 +22,15 @@ public class SanchezConfiguracionIa { // K
                 .temperature(sanchezllm.getTemperatura())
                 .timeout(Duration.ofSeconds(sanchezllm.getTiempoEsperaSegundos()))
                 .build();
-    } // Y
+    }
 
     @Bean
     public EmbeddingModel marcamodeloEmbeddings(SanchezPropiedadesAtlas marcapropiedades) {
-        var sanchezllm = marcapropiedades.getLlm(); // K
+        var sanchezllm = marcapropiedades.getLlm();
         return OllamaEmbeddingModel.builder()
                 .baseUrl(sanchezllm.getUrl())
                 .modelName(sanchezllm.getModeloEmbeddings())
                 .timeout(Duration.ofSeconds(sanchezllm.getTiempoEsperaSegundos()))
-                .build(); // K
+                .build();
     }
 }

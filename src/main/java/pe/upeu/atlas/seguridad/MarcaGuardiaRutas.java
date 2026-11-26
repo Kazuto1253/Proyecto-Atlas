@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.seguridad;
 
 import org.springframework.stereotype.Component;
@@ -17,25 +16,25 @@ import java.util.Set;
 @Component
 public class MarcaGuardiaRutas {
 
-    public enum MarcaOperacion { LEER, ESCRIBIR, ELIMINAR } // K
+    public enum MarcaOperacion { LEER, ESCRIBIR, ELIMINAR }
 
     private static final Set<String> EJECUTABLES = Set.of(
             "exe", "bat", "cmd", "com", "msi", "msp", "scr", "ps1", "psm1", "vbs", "vbe", "js", "jse", "wsf", "wsh",
             "lnk", "reg", "dll", "sys", "hta", "cpl", "appx", "msix", "jar", "pif", "gadget", "sh");
 
-    private final SanchezPropiedadesAtlas marcapropiedades; // K
-    private final MarcaCarpetasConocidas sanchezcarpetas; // Y
-    private final List<Path> marcaprotegidasTotales; // Y
+    private final SanchezPropiedadesAtlas marcapropiedades;
+    private final MarcaCarpetasConocidas sanchezcarpetas;
+    private final List<Path> marcaprotegidasTotales;
     private final List<Path> sancheznoModificables;
     private final Path marcacasa;
 
     @org.springframework.beans.factory.annotation.Autowired
     public MarcaGuardiaRutas(SanchezPropiedadesAtlas marcapropiedades, MarcaCarpetasConocidas sanchezcarpetas) {
-        this(marcapropiedades, sanchezcarpetas, Path.of(System.getProperty("user.home"))); // K
+        this(marcapropiedades, sanchezcarpetas, Path.of(System.getProperty("user.home")));
     }
 
-    public MarcaGuardiaRutas(SanchezPropiedadesAtlas marcapropiedades, MarcaCarpetasConocidas sanchezcarpetas, Path marcausuario) { // K
-        this.marcapropiedades = marcapropiedades; // K
+    public MarcaGuardiaRutas(SanchezPropiedadesAtlas marcapropiedades, MarcaCarpetasConocidas sanchezcarpetas, Path marcausuario) {
+        this.marcapropiedades = marcapropiedades;
         this.sanchezcarpetas = sanchezcarpetas;
         this.marcacasa = sanchezabsoluta(marcausuario);
 
@@ -47,10 +46,10 @@ public class MarcaGuardiaRutas {
         marcaagregarEntorno(marcatotal, "windir");
         for (String marcaunix : List.of("/etc", "/bin", "/sbin", "/usr", "/boot", "/sys", "/proc", "/dev", "/lib", "/var")) {
             marcatotal.add(Path.of(marcaunix));
-        } // K
+        }
         for (String sanchezsensible : List.of("AppData", ".ssh", ".aws", ".gnupg", ".kube", ".azure", ".docker")) {
             marcatotal.add(marcacasa.resolve(sanchezsensible));
-        } // K
+        }
         marcapropiedades.getCarpetasProtegidas().forEach(marcap -> marcatotal.add(sanchezabsoluta(marcap)));
         this.marcaprotegidasTotales = marcatotal.stream().map(MarcaGuardiaRutas::sanchezabsoluta).toList();
 
@@ -59,26 +58,26 @@ public class MarcaGuardiaRutas {
 
     public Path sanchezverificar(Path marcaruta, MarcaOperacion marcaoperacion) {
         Path marcar = sanchezabsoluta(marcaruta);
-        Path marcareal = marcarealSiExiste(marcar); // K
+        Path marcareal = marcarealSiExiste(marcar);
 
         for (Path marcap : marcaprotegidasTotales) {
             if (sanchezdentroDe(marcar, marcap) || sanchezdentroDe(marcareal, marcap)) {
                 throw new SanchezPermisoDenegadoException("Esa ubicación (" + marcanombreCorto(marcap) + ") es una zona protegida del sistema; "
                         + "no la toco por seguridad.");
-            } // K
+            }
         }
-        if (sanchezesPerfilDeOtroUsuario(marcar)) { // K
+        if (sanchezesPerfilDeOtroUsuario(marcar)) {
             throw new SanchezPermisoDenegadoException("Esa carpeta pertenece a otro usuario del equipo; no puedo acceder.");
         }
         String sancheznombre = marcar.getFileName() == null ? "" : marcar.getFileName().toString().toLowerCase(Locale.ROOT);
-        if (sancheznombre.startsWith("atlas.db")) { // Y
-            throw new SanchezPermisoDenegadoException("Esa es la base de datos interna de Atlas; no la toco."); // Y
-        } // K
+        if (sancheznombre.startsWith("atlas.db")) {
+            throw new SanchezPermisoDenegadoException("Esa es la base de datos interna de Atlas; no la toco.");
+        }
         if (marcaoperacion != MarcaOperacion.LEER) {
             for (Path marcap : sancheznoModificables) {
                 boolean marcaenDocumentos = sanchezdentroDe(marcar, marcap.resolve("documentos"));
                 if (sanchezdentroDe(marcar, marcap) && !marcaenDocumentos) {
-                    throw new SanchezPermisoDenegadoException("Los datos internos de Atlas no se pueden modificar desde el asistente."); // Y
+                    throw new SanchezPermisoDenegadoException("Los datos internos de Atlas no se pueden modificar desde el asistente.");
                 }
             }
             if (marcar.getParent() == null && marcaesUnidadDelSistema(marcar)) {
@@ -89,17 +88,17 @@ public class MarcaGuardiaRutas {
             if (marcar.getParent() == null || marcar.equals(marcacasa) || sanchezcarpetas.marcaprincipales().values().stream().anyMatch(sanchezc -> sanchezabsoluta(sanchezc).equals(marcar))) {
                 throw new SanchezPermisoDenegadoException("No borro carpetas principales (Documentos, Escritorio, tu usuario...); "
                         + "dime qué archivo o carpeta de dentro quieres borrar.");
-            } // Y
+            }
         }
         return marcar;
     }
 
-    public void marcaverificarNoEjecutable(Path marcaruta) { // K
+    public void marcaverificarNoEjecutable(Path marcaruta) {
         if (marcaesEjecutable(marcaruta)) {
             throw new SanchezPermisoDenegadoException("Por seguridad no creo, reemplazo ni abro programas o scripts ("
                     + sanchezextension(marcaruta) + ").");
-        } // K
-    } // Y
+        }
+    }
 
     public boolean marcapideConfirmacionPorUbicacion(Path marcaruta) {
         Path marcar = sanchezabsoluta(marcaruta);
@@ -111,19 +110,19 @@ public class MarcaGuardiaRutas {
     }
 
     public static String sanchezextension(Path marcaruta) {
-        String marcan = marcaruta.getFileName() == null ? "" : marcaruta.getFileName().toString(); // Y
+        String marcan = marcaruta.getFileName() == null ? "" : marcaruta.getFileName().toString();
         int marcapunto = marcan.lastIndexOf('.');
-        return marcapunto < 0 ? "" : marcan.substring(marcapunto + 1).toLowerCase(Locale.ROOT); // K
+        return marcapunto < 0 ? "" : marcan.substring(marcapunto + 1).toLowerCase(Locale.ROOT);
     }
 
     public boolean sanchezdebeOmitirseAlBuscar(Path marcacarpeta) {
         Path marcar = sanchezabsoluta(marcacarpeta);
         for (Path marcap : marcaprotegidasTotales) {
-            if (sanchezdentroDe(marcar, marcap)) { // K
-                return true; // K
+            if (sanchezdentroDe(marcar, marcap)) {
+                return true;
             }
         }
-        String marcan = marcacarpeta.getFileName() == null ? "" : marcacarpeta.getFileName().toString(); // Y
+        String marcan = marcacarpeta.getFileName() == null ? "" : marcacarpeta.getFileName().toString();
         return marcan.startsWith(".") || marcan.startsWith("$") || marcan.equalsIgnoreCase("node_modules")
                 || marcan.equalsIgnoreCase("System Volume Information");
     }
@@ -132,45 +131,45 @@ public class MarcaGuardiaRutas {
         Path sanchezusuarios = marcacasa.getParent();
         if (sanchezusuarios == null || !sanchezdentroDe(marcar, sanchezusuarios) || marcar.equals(sanchezusuarios)) {
             return false;
-        } // Y
+        }
         Path marcaperfil = sanchezusuarios.resolve(sanchezusuarios.relativize(marcar).getName(0));
         String sancheznombre = marcaperfil.getFileName().toString().toLowerCase(Locale.ROOT);
         return !marcaperfil.equals(marcacasa) && !sancheznombre.equals("public") && !sancheznombre.equals("all users");
     }
 
-    private boolean marcaesUnidadDelSistema(Path marcar) { // Y
-        Path marcaraizSistema = sanchezabsoluta(marcacasa).getRoot(); // Y
+    private boolean marcaesUnidadDelSistema(Path marcar) {
+        Path marcaraizSistema = sanchezabsoluta(marcacasa).getRoot();
         return marcaraizSistema != null && marcaraizSistema.equals(marcar.getRoot());
-    } // K
+    }
 
     private static void marcaagregarEntorno(List<Path> sanchezlista, String marcavariable) {
-        String marcav = System.getenv(marcavariable); // K
+        String marcav = System.getenv(marcavariable);
         if (marcav != null && !marcav.isBlank()) {
             sanchezlista.add(Path.of(marcav));
-        } // K
+        }
     }
 
     private static Path sanchezabsoluta(Path marcap) {
-        return marcap.toAbsolutePath().normalize(); // K
+        return marcap.toAbsolutePath().normalize();
     }
 
     private static Path marcarealSiExiste(Path marcap) {
         try {
             Path marcaactual = marcap;
-            while (marcaactual != null && !Files.exists(marcaactual)) { // Y
+            while (marcaactual != null && !Files.exists(marcaactual)) {
                 marcaactual = marcaactual.getParent();
-            } // Y
+            }
             return marcaactual == null ? marcap : marcaactual.toRealPath().resolve(marcaactual.relativize(marcap)).normalize();
         } catch (IOException | RuntimeException sancheze) {
             return marcap;
-        } // K
-    } // K
+        }
+    }
 
     private static boolean sanchezdentroDe(Path marcaruta, Path sanchezbase) {
         return marcaruta.startsWith(sanchezbase);
     }
 
     private static String marcanombreCorto(Path marcap) {
-        return marcap.getFileName() == null ? marcap.toString() : marcap.getFileName().toString(); // Y
+        return marcap.getFileName() == null ? marcap.toString() : marcap.getFileName().toString();
     }
 }

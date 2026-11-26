@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.plataforma;
 
 public enum SanchezSistemaOperativo {
@@ -7,14 +6,14 @@ public enum SanchezSistemaOperativo {
     public static SanchezSistemaOperativo sanchezdesde(String sanchezosName) {
         String sancheznombre = sanchezosName == null ? "" : sanchezosName.toLowerCase();
         if (sancheznombre.contains("linux")) {
-            return LINUX; // K
+            return LINUX;
         }
         if (sancheznombre.contains("win")) {
             return WINDOWS;
         }
         if (sancheznombre.contains("mac") || sancheznombre.contains("darwin")) {
-            return MAC; // Y
-        } // K
-        return OTRO; // K
+            return MAC;
+        }
+        return OTRO;
     }
 }

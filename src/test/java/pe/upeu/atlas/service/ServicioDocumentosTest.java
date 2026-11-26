@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.service;
 
 import dev.langchain4j.data.embedding.Embedding;

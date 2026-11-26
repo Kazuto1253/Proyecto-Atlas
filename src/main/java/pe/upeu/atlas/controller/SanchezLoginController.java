@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.controller;
 
 import javafx.concurrent.Task;
@@ -21,10 +20,10 @@ import java.util.concurrent.Callable;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SanchezLoginController { // Y
+public class SanchezLoginController {
 
-    private final SanchezServicioAutenticacion sanchezautenticacion; // K
-    private final SanchezNavegador sancheznavegador; // Y
+    private final SanchezServicioAutenticacion sanchezautenticacion;
+    private final SanchezNavegador sancheznavegador;
 
     @FXML private VBox sanchezformLogin;
     @FXML private VBox sanchezformRegistro;
@@ -39,66 +38,66 @@ public class SanchezLoginController { // Y
     @FXML private Button sanchezbtnCrear;
 
     @FXML
-    private void initialize() { // Y
+    private void initialize() {
         sanchezformLogin.managedProperty().bind(sanchezformLogin.visibleProperty());
         sanchezformRegistro.managedProperty().bind(sanchezformRegistro.visibleProperty());
         marcalblError.managedProperty().bind(marcalblError.visibleProperty());
-        sanchezalVerLogin(); // Y
-        marcatxtUsuario.sceneProperty().addListener((sanchezo, sancheza, sanchezescena) -> { // K
+        sanchezalVerLogin();
+        marcatxtUsuario.sceneProperty().addListener((sanchezo, sancheza, sanchezescena) -> {
             if (sanchezescena != null) {
                 javafx.application.Platform.runLater(marcatxtUsuario::requestFocus);
             }
         });
-    } // K
+    }
 
     @FXML
     private void sanchezalVerLogin() {
-        marcaocultarError(); // Y
+        marcaocultarError();
         sanchezformLogin.setVisible(true);
-        sanchezformRegistro.setVisible(false); // K
+        sanchezformRegistro.setVisible(false);
     }
 
     @FXML
     private void sanchezalVerRegistro() {
-        marcaocultarError(); // K
-        sanchezformLogin.setVisible(false); // K
+        marcaocultarError();
+        sanchezformLogin.setVisible(false);
         sanchezformRegistro.setVisible(true);
     }
 
     @FXML
     private void sanchezalIniciarSesion() {
         String marcausuario = marcatxtUsuario.getText();
-        String sanchezclave = sancheztxtClave.getText(); // Y
-        sanchezejecutar(() -> sanchezautenticacion.marcainiciarSesion(marcausuario, sanchezclave), sanchezu -> { // K
+        String sanchezclave = sancheztxtClave.getText();
+        sanchezejecutar(() -> sanchezautenticacion.marcainiciarSesion(marcausuario, sanchezclave), sanchezu -> {
             sancheztxtClave.clear();
             sancheznavegador.marcamostrarPrincipal();
         });
-    } // Y
+    }
 
     @FXML
-    private void marcaalCrearCuenta() { // Y
-        String sancheznombre = sancheztxtNombre.getText(); // K
+    private void marcaalCrearCuenta() {
+        String sancheznombre = sancheztxtNombre.getText();
         String marcausuario = sancheztxtNuevoUsuario.getText();
         String sanchezclave = marcatxtNuevaClave.getText();
         if (!sanchezclave.equals(marcatxtRepetirClave.getText())) {
             marcamostrarError("Las contraseñas no coinciden.");
-            return; // K
+            return;
         }
-        sanchezejecutar(() -> { // Y
+        sanchezejecutar(() -> {
             sanchezautenticacion.sanchezregistrar(sancheznombre, marcausuario, sanchezclave, SanchezRol.ESTUDIANTE);
-            return sanchezautenticacion.marcainiciarSesion(marcausuario, sanchezclave); // K
+            return sanchezautenticacion.marcainiciarSesion(marcausuario, sanchezclave);
         }, sanchezu -> {
-            sancheztxtNombre.clear(); // Y
+            sancheztxtNombre.clear();
             sancheztxtNuevoUsuario.clear();
             marcatxtNuevaClave.clear();
             marcatxtRepetirClave.clear();
-            sancheznavegador.marcamostrarPrincipal(); // Y
+            sancheznavegador.marcamostrarPrincipal();
         });
     }
 
     private <T> void sanchezejecutar(Callable<T> sancheztrabajo, java.util.function.Consumer<T> sanchezalTerminar) {
-        marcaocultarError(); // Y
-        sanchezocupado(true); // Y
+        marcaocultarError();
+        sanchezocupado(true);
         Task<T> sancheztarea = new Task<>() {
             @Override
             protected T call() throws Exception {
@@ -107,34 +106,34 @@ public class SanchezLoginController { // Y
         };
         sancheztarea.setOnSucceeded(sancheze -> {
             sanchezocupado(false);
-            sanchezalTerminar.accept(sancheztarea.getValue()); // Y
+            sanchezalTerminar.accept(sancheztarea.getValue());
         });
         sancheztarea.setOnFailed(sancheze -> {
             sanchezocupado(false);
             Throwable sanchezcausa = sancheztarea.getException();
-            if (sanchezcausa instanceof SanchezNegocioException) { // K
-                marcamostrarError(sanchezcausa.getMessage()); // Y
+            if (sanchezcausa instanceof SanchezNegocioException) {
+                marcamostrarError(sanchezcausa.getMessage());
             } else {
-                log.error("Fallo inesperado en el acceso", sanchezcausa); // K
+                log.error("Fallo inesperado en el acceso", sanchezcausa);
                 marcamostrarError("Ocurrió un error inesperado. Revisa el registro de Atlas.");
             }
-        }); // Y
-        Thread marcahilo = new Thread(sancheztarea, "atlas-acceso"); // K
+        });
+        Thread marcahilo = new Thread(sancheztarea, "atlas-acceso");
         marcahilo.setDaemon(true);
         marcahilo.start();
     }
 
     private void sanchezocupado(boolean marcavalor) {
-        marcabtnEntrar.setDisable(marcavalor); // Y
+        marcabtnEntrar.setDisable(marcavalor);
         sanchezbtnCrear.setDisable(marcavalor);
-    } // Y
+    }
 
     private void marcamostrarError(String sanchezmensaje) {
         marcalblError.setText(sanchezmensaje);
         marcalblError.setVisible(true);
-    } // K
+    }
 
     private void marcaocultarError() {
         marcalblError.setVisible(false);
-    } // Y
-} // Y
+    }
+}

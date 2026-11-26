@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.ia;
 
 import lombok.RequiredArgsConstructor;
@@ -39,9 +38,9 @@ public class SanchezVerificadorDependencias {
     static final String IA = "Inteligencia artificial";
     static final String VOZ = "Voz";
     static final String OCR = "OCR";
-    static final String COMANDOS = "Comandos del sistema"; // Y
+    static final String COMANDOS = "Comandos del sistema";
 
-    private static final Pattern NOMBRE_MODELO = Pattern.compile("\"name\"\\s*:\\s*\"([^\"]+)\""); // K
+    private static final Pattern NOMBRE_MODELO = Pattern.compile("\"name\"\\s*:\\s*\"([^\"]+)\"");
 
     private final SanchezPropiedadesAtlas marcapropiedades;
     private final SanchezDetectorEntorno marcadetector;
@@ -55,31 +54,31 @@ public class SanchezVerificadorDependencias {
         sanchezverificarOcr(marcar);
         sanchezverificarComandos(sanchezentorno, marcar);
         long marcafaltan = marcar.stream().filter(marcax -> marcax.marcaestado() == MarcaEstado.FALTA).count();
-        log.info("Diagnóstico: {} comprobaciones, {} con falta", marcar.size(), marcafaltan); // Y
-        return marcar; // Y
+        log.info("Diagnóstico: {} comprobaciones, {} con falta", marcar.size(), marcafaltan);
+        return marcar;
     }
 
     private void sanchezverificarSistema(MarcaEntornoPlataforma sanchezentorno, List<SanchezResultadoVerificacion> marcar) {
         int marcaversion = Runtime.version().feature();
         marcar.add(marcaversion >= 17
                 ? SanchezResultadoVerificacion.marcaok(SISTEMA, "Java", "Java " + Runtime.version())
-                : SanchezResultadoVerificacion.marcafalta(SISTEMA, "Java", "Java " + marcaversion, "Instala Java 17 o superior")); // Y
+                : SanchezResultadoVerificacion.marcafalta(SISTEMA, "Java", "Java " + marcaversion, "Instala Java 17 o superior"));
 
         String sanchezdetalleSo = sanchezentorno.sanchezdescripcion();
         if (sanchezentorno.sanchezsistemaOperativo() == SanchezSistemaOperativo.LINUX && sanchezentorno.sancheztipoSesion() == SanchezTipoSesion.WAYLAND) {
             marcar.add(SanchezResultadoVerificacion.marcaok(SISTEMA, "Sesión gráfica",
-                    sanchezdetalleSo + " (capturas y dictado usan herramientas de Wayland)")); // Y
+                    sanchezdetalleSo + " (capturas y dictado usan herramientas de Wayland)"));
         } else if (sanchezentorno.sanchezsistemaOperativo() == SanchezSistemaOperativo.LINUX && sanchezentorno.sancheztipoSesion() == SanchezTipoSesion.DESCONOCIDA) {
             marcar.add(SanchezResultadoVerificacion.marcaadvertencia(SISTEMA, "Sesión gráfica", sanchezdetalleSo,
                     "No se detectó X11 ni Wayland (XDG_SESSION_TYPE vacío)"));
-        } else if (sanchezentorno.sanchezsistemaOperativo() == SanchezSistemaOperativo.OTRO || sanchezentorno.sanchezsistemaOperativo() == SanchezSistemaOperativo.MAC) { // K
+        } else if (sanchezentorno.sanchezsistemaOperativo() == SanchezSistemaOperativo.OTRO || sanchezentorno.sanchezsistemaOperativo() == SanchezSistemaOperativo.MAC) {
             marcar.add(SanchezResultadoVerificacion.marcaadvertencia(SISTEMA, "Sistema operativo", sanchezdetalleSo,
                     "Atlas solo tiene adaptador para Linux y Windows"));
         } else {
             marcar.add(SanchezResultadoVerificacion.marcaok(SISTEMA, "Sistema operativo", sanchezdetalleSo));
         }
 
-        Path sanchezbase = marcapropiedades.getDirectorioBase(); // Y
+        Path sanchezbase = marcapropiedades.getDirectorioBase();
         marcar.add(Files.isDirectory(sanchezbase) && Files.isWritable(sanchezbase)
                 ? SanchezResultadoVerificacion.marcaok(SISTEMA, "Carpeta de datos", sanchezbase.toString())
                 : SanchezResultadoVerificacion.marcafalta(SISTEMA, "Carpeta de datos", sanchezbase + " no existe o no se puede escribir",
@@ -89,21 +88,21 @@ public class SanchezVerificadorDependencias {
     private void sanchezverificarIa(List<SanchezResultadoVerificacion> marcar) {
         var sanchezllm = marcapropiedades.getLlm();
         List<String> sanchezmodelos;
-        try { // Y
-            sanchezmodelos = sanchezmodelosOllama(sanchezllm.getUrl()); // Y
+        try {
+            sanchezmodelos = sanchezmodelosOllama(sanchezllm.getUrl());
             marcar.add(SanchezResultadoVerificacion.marcaok(IA, "Ollama", "Respondiendo en " + sanchezllm.getUrl()));
         } catch (Exception sancheze) {
             log.debug("Ollama no responde", sancheze);
             marcar.add(SanchezResultadoVerificacion.marcafalta(IA, "Ollama", "No responde en " + sanchezllm.getUrl(),
                     "Instala Ollama (https://ollama.com) y ábrelo; en Linux: systemctl start ollama"));
             return;
-        } // K
+        }
         marcar.add(sanchezverificarModelo(sanchezmodelos, sanchezllm.getModelo(), "Modelo de lenguaje", true));
-        marcar.add(sanchezverificarModelo(sanchezmodelos, sanchezllm.getModeloEmbeddings(), "Modelo de embeddings", true)); // K
+        marcar.add(sanchezverificarModelo(sanchezmodelos, sanchezllm.getModeloEmbeddings(), "Modelo de embeddings", true));
         if (sanchezllm.getModeloVision() == null || sanchezllm.getModeloVision().isBlank()) {
             marcar.add(SanchezResultadoVerificacion.marcaadvertencia(IA, "Modelo de visión", "Desactivado en la configuración",
                     "Opcional: define app.atlas.llm.modelo-vision para \"describir la pantalla\""));
-        } else { // K
+        } else {
             marcar.add(sanchezverificarModelo(sanchezmodelos, sanchezllm.getModeloVision(), "Modelo de visión", false));
         }
     }
@@ -111,19 +110,19 @@ public class SanchezVerificadorDependencias {
     private SanchezResultadoVerificacion sanchezverificarModelo(List<String> marcainstalados, String marcamodelo, String sancheznombre, boolean sancheznecesario) {
         if (sanchezcontieneModelo(marcainstalados, marcamodelo)) {
             return SanchezResultadoVerificacion.marcaok(IA, sancheznombre, marcamodelo);
-        } // Y
+        }
         String marcasolucion = "ollama pull " + marcamodelo;
         return sancheznecesario
                 ? SanchezResultadoVerificacion.marcafalta(IA, sancheznombre, marcamodelo + " no está descargado", marcasolucion)
                 : SanchezResultadoVerificacion.marcaadvertencia(IA, sancheznombre, marcamodelo + " no está descargado (opcional)", marcasolucion);
-    } // K
+    }
 
-    static boolean sanchezcontieneModelo(List<String> marcainstalados, String marcamodelo) { // Y
+    static boolean sanchezcontieneModelo(List<String> marcainstalados, String marcamodelo) {
         String sanchezbuscado = marcamodelo.contains(":") ? marcamodelo : marcamodelo + ":latest";
         return marcainstalados.stream().anyMatch(sanchezm -> sanchezm.equals(marcamodelo) || sanchezm.equals(sanchezbuscado));
     }
 
-    List<String> sanchezmodelosOllama(String sanchezurl) throws Exception { // Y
+    List<String> sanchezmodelosOllama(String sanchezurl) throws Exception {
         HttpClient marcacliente = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
         HttpRequest sanchezpeticion = HttpRequest.newBuilder(URI.create(sanchezurl.replaceAll("/+$", "") + "/api/tags"))
                 .timeout(Duration.ofSeconds(5)).GET().build();
@@ -133,22 +132,22 @@ public class SanchezVerificadorDependencias {
         }
         List<String> marcanombres = new ArrayList<>();
         Matcher sanchezm = NOMBRE_MODELO.matcher(marcarespuesta.body());
-        while (sanchezm.find()) { // K
+        while (sanchezm.find()) {
             marcanombres.add(sanchezm.group(1));
         }
         return marcanombres;
     }
 
     private void marcaverificarVoz(List<SanchezResultadoVerificacion> marcar) {
-        var sanchezvoz = marcapropiedades.getVoz(); // Y
+        var sanchezvoz = marcapropiedades.getVoz();
         String sanchezscript = sanchezinstalador();
 
-        Path sanchezvosk = sanchezvoz.getModeloVosk(); // Y
+        Path sanchezvosk = sanchezvoz.getModeloVosk();
         marcar.add(Files.isDirectory(sanchezvosk.resolve("am")) || Files.isDirectory(sanchezvosk.resolve("graph"))
                 ? SanchezResultadoVerificacion.marcaok(VOZ, "Modelo Vosk", sanchezvosk.getFileName().toString())
-                : SanchezResultadoVerificacion.marcafalta(VOZ, "Modelo Vosk", "No está en " + sanchezvosk, "Ejecuta " + sanchezscript)); // Y
+                : SanchezResultadoVerificacion.marcafalta(VOZ, "Modelo Vosk", "No está en " + sanchezvosk, "Ejecuta " + sanchezscript));
 
-        Path marcapiper = sanchezvoz.ejecutablePiperResuelto(); // Y
+        Path marcapiper = sanchezvoz.ejecutablePiperResuelto();
         marcar.add(Files.isRegularFile(marcapiper)
                 ? SanchezResultadoVerificacion.marcaok(VOZ, "Piper", marcapiper.toString())
                 : SanchezResultadoVerificacion.marcafalta(VOZ, "Piper", "No está en " + marcapiper, "Ejecuta " + sanchezscript));
@@ -160,27 +159,27 @@ public class SanchezVerificadorDependencias {
                 ? SanchezResultadoVerificacion.marcaok(VOZ, "Voz de Piper", sanchezvozPiper.getFileName().toString())
                 : SanchezResultadoVerificacion.marcafalta(VOZ, "Voz de Piper", "Falta " + sanchezvozPiper + " o su .json", "Ejecuta " + sanchezscript));
 
-        AudioFormat marcaformato = new AudioFormat(sanchezvoz.getFrecuenciaMuestreo(), 16, 1, true, false); // K
+        AudioFormat marcaformato = new AudioFormat(sanchezvoz.getFrecuenciaMuestreo(), 16, 1, true, false);
         marcar.add(marcalineaDisponible(new DataLine.Info(TargetDataLine.class, marcaformato))
                 ? SanchezResultadoVerificacion.marcaok(VOZ, "Micrófono", "Compatible con " + sanchezvoz.getFrecuenciaMuestreo() + " Hz mono")
                 : SanchezResultadoVerificacion.marcafalta(VOZ, "Micrófono", "No hay micrófono compatible",
-                    "Conecta un micrófono y revisa los permisos de audio del sistema")); // K
+                    "Conecta un micrófono y revisa los permisos de audio del sistema"));
         AudioFormat marcasalida = new AudioFormat(22050, 16, 1, true, false);
         marcar.add(marcalineaDisponible(new DataLine.Info(SourceDataLine.class, marcasalida))
                 ? SanchezResultadoVerificacion.marcaok(VOZ, "Salida de audio", "Disponible")
                 : SanchezResultadoVerificacion.marcafalta(VOZ, "Salida de audio", "No hay altavoz/auriculares",
-                    "Conecta una salida de audio")); // Y
+                    "Conecta una salida de audio"));
     }
 
     private static boolean marcalineaDisponible(DataLine.Info marcainfo) {
         try {
             return AudioSystem.isLineSupported(marcainfo);
-        } catch (RuntimeException sancheze) { // K
+        } catch (RuntimeException sancheze) {
             return false;
         }
     }
 
-    private void sanchezverificarOcr(List<SanchezResultadoVerificacion> marcar) { // K
+    private void sanchezverificarOcr(List<SanchezResultadoVerificacion> marcar) {
         var marcaocr = marcapropiedades.getOcr();
         Path sanchezdatos = marcaocr.getDirectorioTessdata().resolve(marcaocr.getIdioma() + ".traineddata");
         marcar.add(Files.isRegularFile(sanchezdatos)
@@ -190,7 +189,7 @@ public class SanchezVerificadorDependencias {
     }
 
     private void sanchezverificarComandos(MarcaEntornoPlataforma sanchezentorno, List<SanchezResultadoVerificacion> marcar) {
-        List<SanchezComandoSistema> marcaaplicables = marcadetector.marcacomandosAplicables(); // K
+        List<SanchezComandoSistema> marcaaplicables = marcadetector.marcacomandosAplicables();
         for (SanchezComandoSistema sanchezc : marcaaplicables) {
             if (sanchezentorno.marcatieneComando(sanchezc.nombre())) {
                 marcar.add(SanchezResultadoVerificacion.marcaok(COMANDOS, sanchezc.nombre(), sanchezc.marcafuncion()));
@@ -199,26 +198,26 @@ public class SanchezVerificadorDependencias {
             } else {
                 marcar.add(SanchezResultadoVerificacion.marcaadvertencia(COMANDOS, sanchezc.nombre(), sanchezc.marcafuncion() + " (opcional)",
                         sanchezc.sanchezsugerenciaInstalacion()));
-            } // K
+            }
         }
-        if (sanchezentorno.sanchezsistemaOperativo() == SanchezSistemaOperativo.LINUX) { // Y
+        if (sanchezentorno.sanchezsistemaOperativo() == SanchezSistemaOperativo.LINUX) {
             marcarequiereAlguno(sanchezentorno, marcar, "Control de volumen", Set.of("pactl", "wpctl"));
             if (sanchezentorno.sancheztipoSesion() == SanchezTipoSesion.WAYLAND) {
-                marcarequiereAlguno(sanchezentorno, marcar, "Captura en Wayland", Set.of("grim", "gnome-screenshot", "spectacle")); // K
+                marcarequiereAlguno(sanchezentorno, marcar, "Captura en Wayland", Set.of("grim", "gnome-screenshot", "spectacle"));
                 marcarequiereAlguno(sanchezentorno, marcar, "Dictado en Wayland", Set.of("ydotool", "wtype"));
             }
         }
-    } // Y
+    }
 
     private void marcarequiereAlguno(MarcaEntornoPlataforma sanchezentorno, List<SanchezResultadoVerificacion> marcar, String marcafuncion, Set<String> marcaopciones) {
         boolean marcaalguno = marcaopciones.stream().anyMatch(sanchezentorno::marcatieneComando);
         if (!marcaalguno) {
             marcar.add(SanchezResultadoVerificacion.marcafalta(COMANDOS, marcafuncion, "Ninguno instalado: " + String.join(", ", marcaopciones),
                     "Instala al menos uno; ejecuta scripts/instalar-dependencias.sh"));
-        } // Y
+        }
     }
 
-    private String sanchezinstalador() { // K
+    private String sanchezinstalador() {
         return marcadetector.sanchezentorno().sanchezsistemaOperativo() == SanchezSistemaOperativo.WINDOWS
                 ? "scripts\\instalar-dependencias.ps1"
                 : "scripts/instalar-dependencias.sh";

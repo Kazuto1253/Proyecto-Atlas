@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas;
 
 import atlantafx.base.theme.PrimerDark;
@@ -12,12 +11,12 @@ import org.springframework.context.ConfigurableApplicationContext;
 import pe.upeu.atlas.config.SanchezPropiedadesAtlas;
 import pe.upeu.atlas.ui.SanchezNavegador;
 
-public class MarcaJavaFxApplication extends Application { // Y
+public class MarcaJavaFxApplication extends Application {
 
     private ConfigurableApplicationContext sanchezcontext;
 
     @Override
-    public void init() { // K
+    public void init() {
         this.sanchezcontext = new SpringApplicationBuilder(SanchezAtlasApplication.class)
                 .web(WebApplicationType.NONE)
                 .headless(false)
@@ -28,16 +27,16 @@ public class MarcaJavaFxApplication extends Application { // Y
     public void start(Stage marcastage) {
         var sancheztema = sanchezcontext.getBean(SanchezPropiedadesAtlas.class).getTema() == SanchezPropiedadesAtlas.SanchezTema.OSCURO
                 ? new PrimerDark() : new PrimerLight();
-        Application.setUserAgentStylesheet(sancheztema.getUserAgentStylesheet()); // K
+        Application.setUserAgentStylesheet(sancheztema.getUserAgentStylesheet());
 
         sanchezcontext.getBean(SanchezNavegador.class).sancheziniciar(marcastage);
-    } // Y
+    }
 
     @Override
-    public void stop() { // Y
-        if (sanchezcontext != null) { // Y
+    public void stop() {
+        if (sanchezcontext != null) {
             sanchezcontext.close();
         }
-        Platform.exit(); // Y
+        Platform.exit();
     }
 }

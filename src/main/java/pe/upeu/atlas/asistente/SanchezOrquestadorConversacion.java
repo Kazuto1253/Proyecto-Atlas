@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.asistente;
 
 import dev.langchain4j.data.message.ChatMessage;
@@ -32,12 +31,12 @@ public class SanchezOrquestadorConversacion {
 
     public enum MarcaEstado { INACTIVO, CARGANDO, ESCUCHANDO, PENSANDO, HABLANDO }
 
-    public interface MarcaOyente { // Y
+    public interface MarcaOyente {
         void marcaestado(MarcaEstado marcaestado);
         void marcatextoParcial(String marcatexto);
         void sanchezmensajeUsuario(String marcatexto);
-        void sanchezmensajeAsistente(String marcatexto); // K
-        void error(String sanchezmensaje); // K
+        void sanchezmensajeAsistente(String marcatexto);
+        void error(String sanchezmensaje);
 
         default void marcaherramienta(String sanchezdescripcion) { }
 
@@ -47,7 +46,7 @@ public class SanchezOrquestadorConversacion {
     }
 
     private static final class MarcaTurno {
-        final AtomicBoolean marcacancelado = new AtomicBoolean(false); // K
+        final AtomicBoolean marcacancelado = new AtomicBoolean(false);
         volatile Future<?> modelo;
     }
 
@@ -58,12 +57,12 @@ public class SanchezOrquestadorConversacion {
     private final MarcaHerramientasArchivos sanchezarchivos;
     private final SanchezServicioHistorial sanchezhistorial;
     private final SanchezPropiedadesAtlas marcapropiedades;
-    private final int mensajesMemoria; // K
-    private volatile MessageWindowChatMemory marcamemoria; // K
+    private final int mensajesMemoria;
+    private volatile MessageWindowChatMemory marcamemoria;
 
-    private final ExecutorService marcahilo = Executors.newSingleThreadExecutor(marcar -> { // K
+    private final ExecutorService marcahilo = Executors.newSingleThreadExecutor(marcar -> {
         Thread marcat = new Thread(marcar, "atlas-conversacion");
-        marcat.setDaemon(true); // Y
+        marcat.setDaemon(true);
         return marcat;
     });
     private final ExecutorService marcahiloModelo = Executors.newCachedThreadPool(marcar -> {
@@ -73,29 +72,29 @@ public class SanchezOrquestadorConversacion {
     });
     private final AtomicBoolean sanchezocupado = new AtomicBoolean(false);
     private final List<MarcaOyente> sanchezoyentes = new CopyOnWriteArrayList<>();
-    private final MarcaOyente marcaoyente = new MarcaDifusor(); // K
-    private volatile MarcaEstado marcaestado = MarcaEstado.INACTIVO; // Y
+    private final MarcaOyente marcaoyente = new MarcaDifusor();
+    private volatile MarcaEstado marcaestado = MarcaEstado.INACTIVO;
     private volatile MarcaTurno marcaturno;
     private volatile boolean marcavozActivada = true;
 
     public SanchezOrquestadorConversacion(MarcaReconocedorVoz sanchezreconocedor, SanchezSintetizadorVoz marcasintetizador,
                                    ChatLanguageModel marcamodelo, SanchezPropiedadesAtlas marcapropiedades,
                                    SanchezHerramientasSistema sanchezherramientas, MarcaHerramientasArchivos sanchezarchivos,
-                                   SanchezServicioHistorial sanchezhistorial) { // Y
-        this.sanchezhistorial = sanchezhistorial; // K
+                                   SanchezServicioHistorial sanchezhistorial) {
+        this.sanchezhistorial = sanchezhistorial;
         this.marcapropiedades = marcapropiedades;
-        this.sanchezreconocedor = sanchezreconocedor; // K
+        this.sanchezreconocedor = sanchezreconocedor;
         this.marcasintetizador = marcasintetizador;
-        this.modelo = marcamodelo; // K
+        this.modelo = marcamodelo;
         this.sanchezherramientas = sanchezherramientas;
-        this.sanchezarchivos = sanchezarchivos; // K
+        this.sanchezarchivos = sanchezarchivos;
         this.mensajesMemoria = marcapropiedades.getLlm().getMensajesMemoria();
         this.marcamemoria = sancheznuevaMemoria();
         this.sanchezherramientas.marcasetNotificador(marcad -> marcaoyente.marcaherramienta(marcad));
         this.sanchezarchivos.marcasetNotificador(marcad -> marcaoyente.marcaherramienta(marcad));
     }
 
-    private MessageWindowChatMemory sancheznuevaMemoria() { // K
+    private MessageWindowChatMemory sancheznuevaMemoria() {
         return MessageWindowChatMemory.withMaxMessages(mensajesMemoria);
     }
 
@@ -108,8 +107,8 @@ public class SanchezOrquestadorConversacion {
     }
 
     private MessageWindowChatMemory marcacopiarMemoria() {
-        MessageWindowChatMemory marcacopia = sancheznuevaMemoria(); // Y
-        for (ChatMessage sanchezm : marcamemoria.messages()) { // Y
+        MessageWindowChatMemory marcacopia = sancheznuevaMemoria();
+        for (ChatMessage sanchezm : marcamemoria.messages()) {
             marcacopia.add(sanchezm);
         }
         return marcacopia;
@@ -118,21 +117,21 @@ public class SanchezOrquestadorConversacion {
     public void sancheznuevaConversacion() {
         this.marcamemoria = sancheznuevaMemoria();
         sanchezhistorial.marcaterminarConversacion();
-    } // Y
-
-    public void sanchezagregarOyente(MarcaOyente sanchezo) {
-        if (sanchezo != null && !sanchezoyentes.contains(sanchezo)) { // K
-            sanchezoyentes.add(sanchezo);
-        }
-    } // Y
-
-    public void marcaquitarOyente(MarcaOyente sanchezo) {
-        sanchezoyentes.remove(sanchezo); // K
     }
 
-    public void marcasetOyente(MarcaOyente sanchezo) { // K
+    public void sanchezagregarOyente(MarcaOyente sanchezo) {
+        if (sanchezo != null && !sanchezoyentes.contains(sanchezo)) {
+            sanchezoyentes.add(sanchezo);
+        }
+    }
+
+    public void marcaquitarOyente(MarcaOyente sanchezo) {
+        sanchezoyentes.remove(sanchezo);
+    }
+
+    public void marcasetOyente(MarcaOyente sanchezo) {
         sanchezoyentes.clear();
-        sanchezagregarOyente(sanchezo); // Y
+        sanchezagregarOyente(sanchezo);
     }
 
     public void marcasetVozActivada(boolean marcavozActivada) {
@@ -150,14 +149,14 @@ public class SanchezOrquestadorConversacion {
         marcahilo.submit(() -> {
             try {
                 sanchezcambiarEstado(MarcaEstado.CARGANDO);
-                sanchezreconocedor.marcacargarModelo(); // Y
+                sanchezreconocedor.marcacargarModelo();
             } catch (Exception sancheze) {
                 log.error("No se pudo cargar el reconocedor de voz", sancheze);
-                marcaoyente.error(sancheze.getMessage()); // K
+                marcaoyente.error(sancheze.getMessage());
             } finally {
                 marcaterminarTurno();
             }
-        }); // Y
+        });
     }
 
     public void marcaturnoPorVoz() {
@@ -166,11 +165,11 @@ public class SanchezOrquestadorConversacion {
         }
         MarcaTurno marcat = new MarcaTurno();
         marcaturno = marcat;
-        marcahilo.submit(() -> { // Y
+        marcahilo.submit(() -> {
             try {
                 sanchezcambiarEstado(MarcaEstado.ESCUCHANDO);
                 SanchezTranscripcion marcatr = sanchezreconocedor.sanchezescucharFrase(marcap -> marcaoyente.marcatextoParcial(marcap), () -> {
-                    marcaoyente.marcatextoParcial(""); // Y
+                    marcaoyente.marcatextoParcial("");
                     sanchezcambiarEstado(MarcaEstado.PENSANDO);
                 });
                 marcaoyente.marcatextoParcial("");
@@ -182,52 +181,52 @@ public class SanchezOrquestadorConversacion {
                     marcaoyente.error("No te escuché. Habla cerca del micrófono y pulsa de nuevo; "
                             + "si el problema sigue, revisa el volumen del micrófono en Windows.");
                     return;
-                } // K
+                }
                 String marcatexto = SanchezNormalizadorTranscripcion.sanchezformatear(marcatr.texto());
                 if (!marcatr.sanchezcomando() && marcatr.sanchezconfianza() < marcapropiedades.getVoz().getConfianzaMinima()) {
-                    log.info("Confianza baja ({}%): se pide confirmar «{}»", Math.round(marcatr.sanchezconfianza() * 100), marcatexto); // Y
+                    log.info("Confianza baja ({}%): se pide confirmar «{}»", Math.round(marcatr.sanchezconfianza() * 100), marcatexto);
                     marcaoyente.sanchezconfirmarTexto(marcatexto);
-                    return; // Y
+                    return;
                 }
-                sanchezprocesar(marcatexto, marcat); // K
-            } catch (Exception sancheze) { // K
+                sanchezprocesar(marcatexto, marcat);
+            } catch (Exception sancheze) {
                 if (marcat.marcacancelado.get()) {
                     marcaoyente.marcainterrumpido(null);
                 } else {
-                    log.error("Fallo el turno por voz", sancheze); // K
+                    log.error("Fallo el turno por voz", sancheze);
                     marcaoyente.error(marcamensajeDe(sancheze));
                 }
             } finally {
                 marcaterminarTurno();
             }
         });
-    } // Y
+    }
 
     public void sanchezturnoPorTexto(String marcatexto) {
         if (marcatexto == null || marcatexto.isBlank() || !sanchezocupado.compareAndSet(false, true)) {
             return;
         }
         MarcaTurno marcat = new MarcaTurno();
-        marcaturno = marcat; // Y
+        marcaturno = marcat;
         marcahilo.submit(() -> {
-            try { // K
+            try {
                 sanchezprocesar(marcatexto.strip(), marcat);
             } catch (Exception sancheze) {
                 if (marcat.marcacancelado.get()) {
                     marcaoyente.marcainterrumpido(marcatexto.strip());
-                } else { // K
+                } else {
                     log.error("Fallo el turno escrito", sancheze);
                     marcaoyente.error(marcamensajeDe(sancheze));
                 }
             } finally {
-                marcaterminarTurno(); // K
+                marcaterminarTurno();
             }
         });
     }
 
-    public void sanchezdetener() { // K
-        sanchezreconocedor.sanchezdetener(); // K
-        marcasintetizador.sanchezdetener(); // K
+    public void sanchezdetener() {
+        sanchezreconocedor.sanchezdetener();
+        marcasintetizador.sanchezdetener();
     }
 
     public void sanchezinterrumpir() {
@@ -237,7 +236,7 @@ public class SanchezOrquestadorConversacion {
         }
         log.info("El usuario interrumpió a Atlas (estado: {})", marcaestado);
         marcat.marcacancelado.set(true);
-        sanchezreconocedor.sanchezcancelar(); // K
+        sanchezreconocedor.sanchezcancelar();
         marcasintetizador.sanchezdetener();
         Future<?> marcaf = marcat.modelo;
         if (marcaf != null) {
@@ -246,18 +245,18 @@ public class SanchezOrquestadorConversacion {
     }
 
     private void sanchezprocesar(String marcatexto, MarcaTurno marcat) throws Exception {
-        marcaoyente.sanchezmensajeUsuario(marcatexto); // K
-        sanchezcambiarEstado(MarcaEstado.PENSANDO); // K
+        marcaoyente.sanchezmensajeUsuario(marcatexto);
+        sanchezcambiarEstado(MarcaEstado.PENSANDO);
 
-        MessageWindowChatMemory marcacopia = marcacopiarMemoria(); // Y
-        MarcaAsistente marcaasistente = sanchezconstruirAsistente(marcacopia); // K
-        Future<String> marcallamada = marcahiloModelo.submit(() -> { // K
-            SanchezHerramientasSistema.TURNO.set(marcat.marcacancelado); // K
+        MessageWindowChatMemory marcacopia = marcacopiarMemoria();
+        MarcaAsistente marcaasistente = sanchezconstruirAsistente(marcacopia);
+        Future<String> marcallamada = marcahiloModelo.submit(() -> {
+            SanchezHerramientasSistema.TURNO.set(marcat.marcacancelado);
             try {
                 return marcaasistente.marcaresponder(marcatexto);
             } finally {
-                SanchezHerramientasSistema.TURNO.remove(); // K
-            } // Y
+                SanchezHerramientasSistema.TURNO.remove();
+            }
         });
         marcat.modelo = marcallamada;
         if (marcat.marcacancelado.get()) {
@@ -270,16 +269,16 @@ public class SanchezOrquestadorConversacion {
         } catch (CancellationException sancheze) {
             marcaoyente.marcainterrumpido(marcatexto);
             return;
-        } catch (ExecutionException sancheze) { // Y
+        } catch (ExecutionException sancheze) {
             if (marcat.marcacancelado.get()) {
                 marcaoyente.marcainterrumpido(marcatexto);
                 return;
-            } // K
+            }
             Throwable sanchezcausa = sancheze.getCause();
-            throw sanchezcausa instanceof Exception sanchezex ? sanchezex : sancheze; // Y
+            throw sanchezcausa instanceof Exception sanchezex ? sanchezex : sancheze;
         }
         if (marcat.marcacancelado.get()) {
-            marcaoyente.marcainterrumpido(marcatexto); // Y
+            marcaoyente.marcainterrumpido(marcatexto);
             return;
         }
 
@@ -287,12 +286,12 @@ public class SanchezOrquestadorConversacion {
         String marcalimpia = sanchezlimpiarParaVoz(marcarespuesta);
         marcaoyente.sanchezmensajeAsistente(marcalimpia);
         sanchezhistorial.sanchezregistrar(true, marcatexto);
-        sanchezhistorial.sanchezregistrar(false, marcalimpia); // Y
+        sanchezhistorial.sanchezregistrar(false, marcalimpia);
         if (marcavozActivada && !marcat.marcacancelado.get()) {
             sanchezcambiarEstado(MarcaEstado.HABLANDO);
             marcasintetizador.marcahablar(marcalimpia);
         }
-    } // K
+    }
 
     static String sanchezlimpiarParaVoz(String marcatexto) {
         return marcatexto
@@ -303,16 +302,16 @@ public class SanchezOrquestadorConversacion {
                 .strip();
     }
 
-    private String marcamensajeDe(Exception sancheze) { // Y
+    private String marcamensajeDe(Exception sancheze) {
         String sanchezm = sancheze.getMessage() == null ? sancheze.getClass().getSimpleName() : sancheze.getMessage();
-        if (sanchezm.contains("Connection refused") || sanchezm.contains("ConnectException") || sanchezm.contains("Failed to connect")) { // K
+        if (sanchezm.contains("Connection refused") || sanchezm.contains("ConnectException") || sanchezm.contains("Failed to connect")) {
             return "No pude conectar con Ollama. Verifica que esté abierto.";
         }
         return sanchezm;
-    } // Y
+    }
 
-    private void sanchezcambiarEstado(MarcaEstado sancheznuevo) { // Y
-        marcaestado = sancheznuevo; // K
+    private void sanchezcambiarEstado(MarcaEstado sancheznuevo) {
+        marcaestado = sancheznuevo;
         marcaoyente.marcaestado(sancheznuevo);
     }
 
@@ -323,16 +322,16 @@ public class SanchezOrquestadorConversacion {
     }
 
     @PreDestroy
-    void sanchezliberar() { // K
-        sanchezdetener(); // K
+    void sanchezliberar() {
+        sanchezdetener();
         marcahilo.shutdownNow();
-        marcahiloModelo.shutdownNow(); // K
+        marcahiloModelo.shutdownNow();
     }
 
     private final class MarcaDifusor implements MarcaOyente {
         private void sanchezparaTodos(java.util.function.Consumer<MarcaOyente> sanchezaccion) {
             for (MarcaOyente sanchezo : sanchezoyentes) {
-                try { // K
+                try {
                     sanchezaccion.accept(sanchezo);
                 } catch (RuntimeException sancheze) {
                     log.warn("Un oyente falló", sancheze);

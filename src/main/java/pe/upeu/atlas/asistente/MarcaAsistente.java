@@ -1,9 +1,8 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.asistente;
 
 import dev.langchain4j.service.SystemMessage;
 
-public interface MarcaAsistente { // K
+public interface MarcaAsistente {
 
     @SystemMessage("""
             Eres Atlas, un asistente de voz para estudiantes y docentes universitarios.

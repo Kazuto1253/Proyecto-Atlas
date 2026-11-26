@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.controller;
 
 import javafx.concurrent.Task;
@@ -38,7 +37,7 @@ public class MarcaDiagnosticoController implements MarcaRefrescable {
     @FXML private Button sanchezbtnVerificar;
     @FXML private ProgressIndicator sanchezindicador;
 
-    private boolean marcaverificando; // K
+    private boolean marcaverificando;
 
     @Override
     public void sanchezrefrescar() {
@@ -52,7 +51,7 @@ public class MarcaDiagnosticoController implements MarcaRefrescable {
         }
         marcaverificando = true;
         sanchezbtnVerificar.setDisable(true);
-        sanchezindicador.setVisible(true); // Y
+        sanchezindicador.setVisible(true);
         sanchezlblResumen.setText("Verificando...");
 
         Task<List<SanchezResultadoVerificacion>> sancheztarea = new Task<>() {
@@ -60,36 +59,36 @@ public class MarcaDiagnosticoController implements MarcaRefrescable {
             protected List<SanchezResultadoVerificacion> call() {
                 return marcaverificador.sanchezverificarTodo();
             }
-        }; // Y
+        };
         sancheztarea.setOnSucceeded(sancheze -> {
             marcamostrar(sancheztarea.getValue());
             marcaterminar();
-        }); // Y
-        sancheztarea.setOnFailed(sancheze -> { // Y
-            log.error("Fallo el diagnostico", sancheztarea.getException()); // K
-            sanchezlblResumen.setText("No se pudo completar el diagnóstico: " + sancheztarea.getException().getMessage()); // K
-            marcaterminar(); // Y
         });
-        Thread marcahilo = new Thread(sancheztarea, "atlas-diagnostico"); // Y
+        sancheztarea.setOnFailed(sancheze -> {
+            log.error("Fallo el diagnostico", sancheztarea.getException());
+            sanchezlblResumen.setText("No se pudo completar el diagnóstico: " + sancheztarea.getException().getMessage());
+            marcaterminar();
+        });
+        Thread marcahilo = new Thread(sancheztarea, "atlas-diagnostico");
         marcahilo.setDaemon(true);
         marcahilo.start();
     }
 
-    private void marcaterminar() { // K
-        marcaverificando = false; // Y
+    private void marcaterminar() {
+        marcaverificando = false;
         sanchezbtnVerificar.setDisable(false);
         sanchezindicador.setVisible(false);
     }
 
-    private void marcamostrar(List<SanchezResultadoVerificacion> marcaresultados) { // Y
+    private void marcamostrar(List<SanchezResultadoVerificacion> marcaresultados) {
         long marcaok = marcaresultados.stream().filter(marcar -> marcar.marcaestado() == MarcaEstado.OK).count();
         long sanchezadvertencias = marcaresultados.stream().filter(marcar -> marcar.marcaestado() == MarcaEstado.ADVERTENCIA).count();
-        long marcafaltan = marcaresultados.stream().filter(marcar -> marcar.marcaestado() == MarcaEstado.FALTA).count(); // Y
+        long marcafaltan = marcaresultados.stream().filter(marcar -> marcar.marcaestado() == MarcaEstado.FALTA).count();
         sanchezlblResumen.setText(String.format("%d listos · %d advertencias · %d por resolver", marcaok, sanchezadvertencias, marcafaltan));
 
-        Map<String, VBox> marcagrupos = new LinkedHashMap<>(); // K
+        Map<String, VBox> marcagrupos = new LinkedHashMap<>();
         for (SanchezResultadoVerificacion marcar : marcaresultados) {
-            marcagrupos.computeIfAbsent(marcar.sanchezcategoria(), this::marcacrearGrupo).getChildren().add(sanchezcrearFila(marcar)); // K
+            marcagrupos.computeIfAbsent(marcar.sanchezcategoria(), this::marcacrearGrupo).getChildren().add(sanchezcrearFila(marcar));
         }
         sanchezcontenedorResultados.getChildren().setAll(marcagrupos.values());
     }
@@ -98,8 +97,8 @@ public class MarcaDiagnosticoController implements MarcaRefrescable {
         Label sancheztitulo = new Label(sanchezcategoria);
         sancheztitulo.getStyleClass().add("titulo-grupo");
         VBox sanchezgrupo = new VBox(6, sancheztitulo);
-        sanchezgrupo.getStyleClass().add("tarjeta-diagnostico"); // Y
-        sanchezgrupo.setPadding(new Insets(14)); // Y
+        sanchezgrupo.getStyleClass().add("tarjeta-diagnostico");
+        sanchezgrupo.setPadding(new Insets(14));
         return sanchezgrupo;
     }
 
@@ -108,8 +107,8 @@ public class MarcaDiagnosticoController implements MarcaRefrescable {
             case OK -> "fth-check-circle";
             case ADVERTENCIA -> "fth-alert-triangle";
             case FALTA -> "fth-x-circle";
-        }); // Y
-        marcaicono.setIconSize(18); // K
+        });
+        marcaicono.setIconSize(18);
         marcaicono.getStyleClass().add("estado-" + marcar.marcaestado().name().toLowerCase());
 
         Label sancheznombre = new Label(marcar.nombre());
@@ -118,10 +117,10 @@ public class MarcaDiagnosticoController implements MarcaRefrescable {
         Label sanchezdetalle = new Label(marcar.detalle());
         sanchezdetalle.getStyleClass().add("text-muted");
         sanchezdetalle.setWrapText(true);
-        VBox sancheztextos = new VBox(2, sanchezdetalle); // K
+        VBox sancheztextos = new VBox(2, sanchezdetalle);
         if (!marcar.marcasolucion().isBlank()) {
             Label marcasolucion = new Label(marcar.marcasolucion());
-            marcasolucion.getStyleClass().add("solucion"); // Y
+            marcasolucion.getStyleClass().add("solucion");
             marcasolucion.setWrapText(true);
             sancheztextos.getChildren().add(marcasolucion);
         }
@@ -134,11 +133,11 @@ public class MarcaDiagnosticoController implements MarcaRefrescable {
             marcacopiar.getStyleClass().addAll("flat", "button-icon");
             marcacopiar.setOnAction(sancheze -> {
                 ClipboardContent sanchezc = new ClipboardContent();
-                sanchezc.putString(marcar.marcasolucion()); // Y
-                Clipboard.getSystemClipboard().setContent(sanchezc); // Y
-            }); // K
+                sanchezc.putString(marcar.marcasolucion());
+                Clipboard.getSystemClipboard().setContent(sanchezc);
+            });
             marcafila.getChildren().add(marcacopiar);
         }
         return marcafila;
     }
-} // K
+}

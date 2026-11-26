@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,5 +15,5 @@ public interface MarcaUsuarioRepository extends JpaRepository<MarcaUsuario, Long
 
     long countByRolAndActivoTrue(SanchezRol rol);
 
-    List<MarcaUsuario> findAllByOrderByNombreCompletoAsc(); // Y
+    List<MarcaUsuario> findAllByOrderByNombreCompletoAsc();
 }

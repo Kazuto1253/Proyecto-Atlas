@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.config;
 
 import jakarta.validation.Valid;
@@ -32,14 +31,14 @@ public class SanchezPropiedadesAtlas {
     private String idioma = "es";
 
     @NotNull
-    private SanchezTema tema = SanchezTema.CLARO; // K
+    private SanchezTema tema = SanchezTema.CLARO;
 
     @NotNull
     private Path carpetaCapturas;
 
-    private List<Path> carpetasPermitidas = new ArrayList<>(); // Y
+    private List<Path> carpetasPermitidas = new ArrayList<>();
 
-    private List<Path> carpetasProtegidas = new ArrayList<>(); // Y
+    private List<Path> carpetasProtegidas = new ArrayList<>();
 
     private boolean modoSoloLectura = false;
 
@@ -55,11 +54,11 @@ public class SanchezPropiedadesAtlas {
     private final SanchezLlm llm = new SanchezLlm();
 
     @Valid
-    private final SanchezVoz voz = new SanchezVoz(); // Y
+    private final SanchezVoz voz = new SanchezVoz();
 
     @Getter
     @Setter
-    public static class SanchezLlm { // K
+    public static class SanchezLlm {
         @NotBlank
         private String url = "http://localhost:11434";
 
@@ -69,7 +68,7 @@ public class SanchezPropiedadesAtlas {
         @NotBlank
         private String modeloEmbeddings = "nomic-embed-text";
 
-        private String modeloVision = "qwen2.5vl:3b"; // Y
+        private String modeloVision = "qwen2.5vl:3b";
 
         @DecimalMin("0.0")
         @DecimalMax("2.0")
@@ -86,10 +85,10 @@ public class SanchezPropiedadesAtlas {
     @Setter
     public static class SanchezVoz {
         @NotNull
-        private Path modeloVosk; // K
+        private Path modeloVosk;
 
         @NotNull
-        private Path ejecutablePiper; // Y
+        private Path ejecutablePiper;
 
         @NotNull
         private Path vozPiper;
@@ -100,7 +99,7 @@ public class SanchezPropiedadesAtlas {
         @Min(0)
         private int umbralSilencio = 0;
 
-        private String microfono = ""; // Y
+        private String microfono = "";
 
         @DecimalMin("1.0")
         @DecimalMax("20.0")
@@ -121,10 +120,10 @@ public class SanchezPropiedadesAtlas {
         @Min(1)
         private int whisperHilos = 4;
 
-        private boolean guardarAudioDepuracion = false; // Y
+        private boolean guardarAudioDepuracion = false;
 
         @Min(200)
-        private int milisegundosSilencio = 1200; // Y
+        private int milisegundosSilencio = 1200;
 
         @Min(2)
         private int segundosMaximosFrase = 15;
@@ -133,16 +132,16 @@ public class SanchezPropiedadesAtlas {
         private String palabraActivacion = "oye atlas";
 
         public Path ejecutablePiperResuelto() {
-            if (ejecutablePiper == null) { // K
+            if (ejecutablePiper == null) {
                 return null;
-            } // Y
-            boolean sanchezwindows = System.getProperty("os.name", "").toLowerCase().contains("win"); // Y
+            }
+            boolean sanchezwindows = System.getProperty("os.name", "").toLowerCase().contains("win");
             if (sanchezwindows && !java.nio.file.Files.isRegularFile(ejecutablePiper)
                     && !ejecutablePiper.getFileName().toString().endsWith(".exe")) {
                 return ejecutablePiper.resolveSibling(ejecutablePiper.getFileName() + ".exe");
             }
             return ejecutablePiper;
-        } // K
+        }
     }
 
     @Getter
@@ -154,4 +153,4 @@ public class SanchezPropiedadesAtlas {
         @NotBlank
         private String idioma = "spa";
     }
-} // Y
+}

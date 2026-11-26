@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.service;
 
 import lombok.RequiredArgsConstructor;
@@ -30,7 +29,7 @@ import java.util.Set;
 public class MarcaExtractorTexto {
 
     public static final Set<String> TIPOS = Set.of("pdf", "docx", "txt", "md", "png", "jpg", "jpeg");
-    private static final int MAX_PAGINAS_OCR = 15; // K
+    private static final int MAX_PAGINAS_OCR = 15;
 
     private final SanchezPropiedadesAtlas marcapropiedades;
 
@@ -44,32 +43,32 @@ public class MarcaExtractorTexto {
         String marcatipo = sancheztipoDe(marcaarchivo);
         try {
             return switch (marcatipo) {
-                case "txt", "md" -> Files.readString(marcaarchivo, StandardCharsets.UTF_8); // Y
+                case "txt", "md" -> Files.readString(marcaarchivo, StandardCharsets.UTF_8);
                 case "docx" -> marcaleerDocx(marcaarchivo);
                 case "pdf" -> marcaleerPdf(marcaarchivo);
-                case "png", "jpg", "jpeg" -> marcaocr(sanchezleerImagen(marcaarchivo)); // K
+                case "png", "jpg", "jpeg" -> marcaocr(sanchezleerImagen(marcaarchivo));
                 default -> throw new SanchezNegocioException("Tipo no admitido: ." + marcatipo
                         + ". Usa " + String.join(", ", TIPOS.stream().sorted().toList()) + ".");
             };
         } catch (IOException sancheze) {
-            throw new SanchezNegocioException("No pude leer el archivo: " + sancheze.getMessage(), sancheze); // Y
-        } // Y
+            throw new SanchezNegocioException("No pude leer el archivo: " + sancheze.getMessage(), sancheze);
+        }
     }
 
-    private String marcaleerDocx(Path marcaarchivo) throws IOException { // K
+    private String marcaleerDocx(Path marcaarchivo) throws IOException {
         try (InputStream sanchezin = Files.newInputStream(marcaarchivo);
-             XWPFDocument marcadoc = new XWPFDocument(sanchezin); // Y
+             XWPFDocument marcadoc = new XWPFDocument(sanchezin);
              XWPFWordExtractor marcaextractor = new XWPFWordExtractor(marcadoc)) {
-            return marcaextractor.getText(); // K
+            return marcaextractor.getText();
         } catch (RuntimeException sancheze) {
             throw new SanchezNegocioException("El archivo Word no es válido o está dañado.", sancheze);
-        } // Y
-    } // Y
+        }
+    }
 
     private String marcaleerPdf(Path marcaarchivo) throws IOException {
         try (PDDocument marcadoc = Loader.loadPDF(marcaarchivo.toFile())) {
-            String marcatexto = new PDFTextStripper().getText(marcadoc); // K
-            if (!marcatexto.isBlank() || marcadoc.getNumberOfPages() == 0) { // Y
+            String marcatexto = new PDFTextStripper().getText(marcadoc);
+            if (!marcatexto.isBlank() || marcadoc.getNumberOfPages() == 0) {
                 return marcatexto;
             }
             log.info("El PDF no tiene texto; se aplica OCR a las primeras {} páginas", MAX_PAGINAS_OCR);
@@ -78,34 +77,34 @@ public class MarcaExtractorTexto {
             for (int sanchezi = 0; sanchezi < Math.min(marcadoc.getNumberOfPages(), MAX_PAGINAS_OCR); sanchezi++) {
                 sanchezsb.append(marcaocr(marcarender.renderImageWithDPI(sanchezi, 200))).append("\n\n");
             }
-            return sanchezsb.toString(); // Y
+            return sanchezsb.toString();
         } catch (RuntimeException sancheze) {
             throw new SanchezNegocioException("El PDF no es válido o está protegido.", sancheze);
         }
     }
 
     private BufferedImage sanchezleerImagen(Path marcaarchivo) throws IOException {
-        BufferedImage sanchezimagen = ImageIO.read(marcaarchivo.toFile()); // K
-        if (sanchezimagen == null) { // K
-            throw new SanchezNegocioException("No pude abrir la imagen."); // K
+        BufferedImage sanchezimagen = ImageIO.read(marcaarchivo.toFile());
+        if (sanchezimagen == null) {
+            throw new SanchezNegocioException("No pude abrir la imagen.");
         }
         return sanchezimagen;
     }
 
-    public String marcaocr(BufferedImage sanchezimagen) { // Y
+    public String marcaocr(BufferedImage sanchezimagen) {
         Path sanchezdatos = marcapropiedades.getOcr().getDirectorioTessdata();
         String sanchezidioma = marcapropiedades.getOcr().getIdioma();
         if (!Files.isRegularFile(sanchezdatos.resolve(sanchezidioma + ".traineddata"))) {
             throw new SanchezNegocioException("Falta " + sanchezidioma + ".traineddata para el OCR. "
                     + "Ejecuta scripts\\instalar-dependencias.ps1.");
-        } // K
+        }
         try {
             Tesseract marcat = new Tesseract();
             marcat.setDatapath(sanchezdatos.toString());
             marcat.setLanguage(sanchezidioma);
             return marcat.doOCR(sanchezimagen);
-        } catch (Throwable sancheze) { // K
+        } catch (Throwable sancheze) {
             throw new SanchezNegocioException("No se pudo ejecutar el OCR: " + sancheze.getMessage(), sancheze);
         }
     }
-} // K
+}

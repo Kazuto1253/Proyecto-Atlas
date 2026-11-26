@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.ia;
 
 import com.sun.net.httpserver.HttpServer;

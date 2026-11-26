@@ -1,5 +1,4 @@
-﻿# Autores: K (Kevin) y Y (Yenifher)
-param([switch]$SinWhisper, [switch]$SinCompilar)
+﻿param([switch]$SinWhisper, [switch]$SinCompilar)
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12

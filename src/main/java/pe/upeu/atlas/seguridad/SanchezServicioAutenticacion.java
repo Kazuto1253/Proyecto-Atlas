@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.seguridad;
 
 import lombok.RequiredArgsConstructor;
@@ -21,23 +20,23 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class SanchezServicioAutenticacion {
 
-    static final int MAX_INTENTOS = 5; // K
+    static final int MAX_INTENTOS = 5;
     static final Duration BLOQUEO = Duration.ofSeconds(60);
     static final int CLAVE_MINIMA = 6;
     private static final Pattern PATRON_USUARIO = Pattern.compile("[A-Za-z0-9._-]{3,30}");
-    private static final String MENSAJE_CREDENCIALES = "Usuario o contraseña incorrectos."; // K
+    private static final String MENSAJE_CREDENCIALES = "Usuario o contraseña incorrectos.";
 
     private record MarcaIntentos(int marcafallidos, Instant sanchezbloqueadoHasta) { }
 
     private final MarcaUsuarioRepository sanchezusuarios;
     private final PasswordEncoder sanchezcodificador;
     private final SanchezSesionActual sanchezsesion;
-    private final SanchezServicioActividad sanchezactividad; // K
+    private final SanchezServicioActividad sanchezactividad;
     private final Map<String, MarcaIntentos> marcaintentos = new ConcurrentHashMap<>();
 
     public MarcaUsuario marcainiciarSesion(String sancheznombreUsuario, String sanchezclave) {
         String sanchezclavePlano = sanchezclave == null ? "" : sanchezclave;
-        String sanchezid = sancheznormalizar(sancheznombreUsuario); // K
+        String sanchezid = sancheznormalizar(sancheznombreUsuario);
         if (sanchezid.isEmpty() || sanchezclavePlano.isEmpty()) {
             throw new SanchezNegocioException("Escribe tu usuario y tu contraseña.");
         }
@@ -46,37 +45,37 @@ public class SanchezServicioAutenticacion {
         MarcaUsuario sanchezu = sanchezusuarios.findByUsuarioIgnoreCase(sanchezid).orElse(null);
         boolean marcacoincide = sanchezcodificador.matches(sanchezclavePlano, sanchezu == null ? "$2a$10$invalidinvalidinvalidinvalidinvalidinvalidinvalidinva" : sanchezu.getContrasenaHash());
         if (sanchezu == null || !marcacoincide) {
-            sanchezregistrarFallo(sanchezid); // K
+            sanchezregistrarFallo(sanchezid);
             throw new SanchezNegocioException(MENSAJE_CREDENCIALES);
         }
         if (!sanchezu.isActivo()) {
             throw new SanchezNegocioException("Tu cuenta está desactivada. Habla con un administrador.");
-        } // Y
-        marcaintentos.remove(sanchezid); // Y
-        sanchezu.setUltimoAcceso(LocalDateTime.now()); // Y
-        sanchezu = sanchezusuarios.save(sanchezu); // K
+        }
+        marcaintentos.remove(sanchezid);
+        sanchezu.setUltimoAcceso(LocalDateTime.now());
+        sanchezu = sanchezusuarios.save(sanchezu);
         sanchezsesion.sancheziniciar(sanchezu);
         sanchezactividad.sanchezregistrarComo(sanchezu.getUsuario(), "Inicio de sesión", "Rol: " + sanchezu.getRol().marcaetiqueta());
         return sanchezu;
-    } // K
+    }
 
     public MarcaUsuario sanchezregistrar(String marcanombreCompleto, String sancheznombreUsuario, String sanchezclave, SanchezRol sanchezrol) {
         String sancheznombre = marcanombreCompleto == null ? "" : marcanombreCompleto.strip();
-        String sanchezid = sancheznormalizar(sancheznombreUsuario); // Y
+        String sanchezid = sancheznormalizar(sancheznombreUsuario);
         if (sancheznombre.length() < 3) {
             throw new SanchezNegocioException("Escribe tu nombre completo (mínimo 3 letras).");
         }
-        if (!PATRON_USUARIO.matcher(sanchezid).matches()) { // K
+        if (!PATRON_USUARIO.matcher(sanchezid).matches()) {
             throw new SanchezNegocioException("El usuario debe tener de 3 a 30 caracteres: letras, números, punto, guion o guion bajo.");
         }
         marcavalidarClave(sanchezclave);
         if (sanchezusuarios.existsByUsuarioIgnoreCase(sanchezid)) {
-            throw new SanchezNegocioException("Ese usuario ya existe. Elige otro."); // K
-        } // Y
+            throw new SanchezNegocioException("Ese usuario ya existe. Elige otro.");
+        }
         MarcaUsuario sanchezu = new MarcaUsuario();
-        sanchezu.setNombreCompleto(sancheznombre); // K
-        sanchezu.setUsuario(sanchezid); // Y
-        sanchezu.setContrasenaHash(sanchezcodificador.encode(sanchezclave)); // Y
+        sanchezu.setNombreCompleto(sancheznombre);
+        sanchezu.setUsuario(sanchezid);
+        sanchezu.setContrasenaHash(sanchezcodificador.encode(sanchezclave));
         sanchezu.setRol(sanchezrol == null ? SanchezRol.ESTUDIANTE : sanchezrol);
         sanchezu = sanchezusuarios.save(sanchezu);
         sanchezactividad.sanchezregistrarComo(sanchezid, "Cuenta creada", "Rol: " + sanchezu.getRol().marcaetiqueta());
@@ -86,15 +85,15 @@ public class SanchezServicioAutenticacion {
     public void marcacerrarSesion() {
         sanchezsesion.marcaactual().ifPresent(sanchezu -> sanchezactividad.sanchezregistrarComo(sanchezu.getUsuario(), "Cierre de sesión", null));
         sanchezsesion.sanchezcerrar();
-    } // K
+    }
 
     static void marcavalidarClave(String sanchezclave) {
-        if (sanchezclave == null || sanchezclave.length() < CLAVE_MINIMA) { // Y
+        if (sanchezclave == null || sanchezclave.length() < CLAVE_MINIMA) {
             throw new SanchezNegocioException("La contraseña debe tener al menos " + CLAVE_MINIMA + " caracteres.");
         }
     }
 
-    private void marcaverificarBloqueo(String sanchezid) { // Y
+    private void marcaverificarBloqueo(String sanchezid) {
         MarcaIntentos sanchezi = marcaintentos.get(sanchezid);
         if (sanchezi != null && sanchezi.sanchezbloqueadoHasta() != null) {
             if (Instant.now().isBefore(sanchezi.sanchezbloqueadoHasta())) {
@@ -103,16 +102,16 @@ public class SanchezServicioAutenticacion {
             }
             marcaintentos.remove(sanchezid);
         }
-    } // Y
+    }
 
     private void sanchezregistrarFallo(String sanchezid) {
         marcaintentos.merge(sanchezid, new MarcaIntentos(1, null), (sancheza, marcab) -> {
             int marcan = sancheza.marcafallidos() + 1;
             return new MarcaIntentos(marcan, marcan >= MAX_INTENTOS ? Instant.now().plus(BLOQUEO) : null);
         });
-    } // Y
+    }
 
     private static String sancheznormalizar(String sanchezs) {
         return sanchezs == null ? "" : sanchezs.strip().toLowerCase();
-    } // Y
-} // Y
+    }
+}

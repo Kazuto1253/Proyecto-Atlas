@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.plataforma;
 
 import java.util.List;
@@ -11,16 +10,16 @@ public record SanchezComandoSistema(
         String sanchezpaqueteDnf,
         SanchezSistemaOperativo marcasistema,
         Set<SanchezTipoSesion> sanchezsesiones,
-        boolean sanchezobligatorio) { // Y
+        boolean sanchezobligatorio) {
 
     public boolean sanchezaplicaA(SanchezSistemaOperativo marcaso, SanchezTipoSesion sanchezsesion) {
         return marcasistema == marcaso && (sanchezsesiones.isEmpty() || sanchezsesiones.contains(sanchezsesion));
     }
 
-    public String sanchezsugerenciaInstalacion() { // Y
+    public String sanchezsugerenciaInstalacion() {
         if (marcasistema != SanchezSistemaOperativo.LINUX) {
-            return "Viene con Windows; revisa que esté en el PATH"; // Y
-        } // Y
+            return "Viene con Windows; revisa que esté en el PATH";
+        }
         return "sudo apt install " + marcapaqueteApt + "   (Fedora: sudo dnf install " + sanchezpaqueteDnf + ")";
     }
 

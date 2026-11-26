@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.ui;
 
 import javafx.fxml.FXMLLoader;
@@ -19,7 +18,7 @@ import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
-public class MarcaModoFlotante { // K
+public class MarcaModoFlotante {
 
     private final ApplicationContext marcacontexto;
 
@@ -36,10 +35,10 @@ public class MarcaModoFlotante { // K
         });
         sanchezventana.show();
         if (!marcaposicionada) {
-            sanchezventana.sizeToScene(); // Y
+            sanchezventana.sizeToScene();
             Rectangle2D sanchezpantalla = Screen.getPrimary().getVisualBounds();
             sanchezventana.setX(sanchezpantalla.getMaxX() - sanchezventana.getWidth() - 24);
-            sanchezventana.setY(sanchezpantalla.getMaxY() - sanchezventana.getHeight() - 24); // Y
+            sanchezventana.setY(sanchezpantalla.getMaxY() - sanchezventana.getHeight() - 24);
             marcaposicionada = true;
         }
         sanchezventana.toFront();
@@ -48,28 +47,28 @@ public class MarcaModoFlotante { // K
     public void marcaocultar() {
         if (sanchezventana != null) {
             sanchezventana.hide();
-        } // K
+        }
     }
 
     public boolean marcavisible() {
-        return sanchezventana != null && sanchezventana.isShowing(); // Y
-    } // Y
+        return sanchezventana != null && sanchezventana.isShowing();
+    }
 
     private void sanchezcrear() {
-        try { // Y
+        try {
             FXMLLoader sanchezloader = new FXMLLoader(getClass().getResource("/view/mini-view.fxml"));
-            sanchezloader.setControllerFactory(marcacontexto::getBean); // K
+            sanchezloader.setControllerFactory(marcacontexto::getBean);
             Parent marcaraiz = sanchezloader.load();
             Scene sanchezescena = new Scene(marcaraiz);
             sanchezescena.setFill(Color.TRANSPARENT);
             sanchezescena.getStylesheets().add(
                     Objects.requireNonNull(getClass().getResource("/css/app.css")).toExternalForm());
-            sanchezventana = new Stage(StageStyle.TRANSPARENT); // K
+            sanchezventana = new Stage(StageStyle.TRANSPARENT);
             sanchezventana.setTitle("Atlas");
             sanchezventana.setAlwaysOnTop(true);
-            sanchezventana.setScene(sanchezescena); // Y
-        } catch (IOException sancheze) { // Y
+            sanchezventana.setScene(sanchezescena);
+        } catch (IOException sancheze) {
             throw new UncheckedIOException("No se pudo cargar el modo flotante", sancheze);
         }
     }
-} // K
+}

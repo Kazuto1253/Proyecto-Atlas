@@ -1,5 +1,4 @@
-﻿# Autores: K (Kevin) y Y (Yenifher)
-param([switch]$Vision)
+﻿param([switch]$Vision)
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 

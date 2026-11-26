@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.seguridad;
 
 import org.junit.jupiter.api.BeforeEach;

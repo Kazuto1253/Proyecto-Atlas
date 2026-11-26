@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.controller;
 
 import javafx.application.Platform;
@@ -49,22 +48,22 @@ import java.util.regex.Pattern;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class MarcaDashboardController implements MarcaRefrescable { // Y
+public class MarcaDashboardController implements MarcaRefrescable {
 
-    private static final int PUNTOS_GRAFICO = 60; // K
+    private static final int PUNTOS_GRAFICO = 60;
     private static final Locale ES = Locale.forLanguageTag("es-PE");
 
     private final MarcaMonitorSistema marcamonitor;
     private final SanchezServicioActividad sanchezactividad;
-    private final SanchezSesionActual sanchezsesion; // Y
+    private final SanchezSesionActual sanchezsesion;
     private final SanchezPropiedadesAtlas marcapropiedades;
     private final SanchezLanzador sanchezlanzador;
     private final SanchezNavegador sancheznavegador;
 
-    private final ScheduledExecutorService sanchezejecutor = Executors.newSingleThreadScheduledExecutor(marcar -> { // Y
+    private final ScheduledExecutorService sanchezejecutor = Executors.newSingleThreadScheduledExecutor(marcar -> {
         Thread marcat = new Thread(marcar, "atlas-monitor");
-        marcat.setDaemon(true); // K
-        return marcat; // K
+        marcat.setDaemon(true);
+        return marcat;
     });
     private ScheduledFuture<?> marcamedicion;
 
@@ -105,25 +104,25 @@ public class MarcaDashboardController implements MarcaRefrescable { // Y
 
     @FXML
     private void initialize() {
-        marcaserieCpu.setName("Procesador"); // Y
+        marcaserieCpu.setName("Procesador");
         marcaserieRam.setName("Memoria");
         sanchezgrafico.getData().addAll(List.of(marcaserieCpu, marcaserieRam));
-        sanchezgrafico.setAnimated(false); // K
+        sanchezgrafico.setAnimated(false);
         sanchezgrafico.setCreateSymbols(false);
         marcaejeX.setForceZeroInRange(false);
 
         marcabtnDiagnostico.managedProperty().bind(marcabtnDiagnostico.visibleProperty());
         marcaraiz.sceneProperty().addListener((sanchezo, sancheza, sanchezescena) -> {
             if (sanchezescena == null) {
-                sanchezdetener(); // K
+                sanchezdetener();
             }
-        }); // K
+        });
     }
 
     @Override
     public void sanchezrefrescar() {
-        MarcaUsuario sanchezu = sanchezsesion.marcaactual().orElse(null); // Y
-        String sancheznombre = sanchezu == null ? "" : sanchezu.getNombreCompleto().strip().split("\\s+")[0]; // K
+        MarcaUsuario sanchezu = sanchezsesion.marcaactual().orElse(null);
+        String sancheznombre = sanchezu == null ? "" : sanchezu.getNombreCompleto().strip().split("\\s+")[0];
         marcalblSaludo.setText("Hola, " + sancheznombre);
         sanchezlblFecha.setText(marcacapitalizar(LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE d 'de' MMMM", ES)))
                 + " · " + sanchezsesion.sanchezrol().map(SanchezRol::marcaetiqueta).orElse(""));
@@ -136,27 +135,27 @@ public class MarcaDashboardController implements MarcaRefrescable { // Y
 
     private synchronized void sancheziniciar() {
         if (marcamedicion == null || marcamedicion.isDone()) {
-            marcamedicion = sanchezejecutor.scheduleWithFixedDelay(this::sanchezmedir, 0, 2, TimeUnit.SECONDS); // Y
-        } // K
+            marcamedicion = sanchezejecutor.scheduleWithFixedDelay(this::sanchezmedir, 0, 2, TimeUnit.SECONDS);
+        }
     }
 
     private synchronized void sanchezdetener() {
         if (marcamedicion != null) {
             marcamedicion.cancel(false);
-            marcamedicion = null; // K
+            marcamedicion = null;
         }
-    } // K
+    }
 
     private void sanchezmedir() {
         try {
             MarcaMetricas sanchezm = marcamonitor.sanchezmedir();
-            Platform.runLater(() -> marcaaplicar(sanchezm)); // K
-        } catch (Throwable sancheze) { // Y
+            Platform.runLater(() -> marcaaplicar(sanchezm));
+        } catch (Throwable sancheze) {
             log.warn("No se pudo medir el equipo", sancheze);
         }
     }
 
-    private void marcaaplicar(MarcaMetricas sanchezm) { // K
+    private void marcaaplicar(MarcaMetricas sanchezm) {
         marcalblCpu.setText(sanchezporcentaje(sanchezm.marcacpu()));
         marcapbCpu.setProgress(sanchezm.marcacpu());
         sanchezlblCpuDetalle.setText("Carga del procesador");
@@ -165,47 +164,47 @@ public class MarcaDashboardController implements MarcaRefrescable { // Y
         marcapbRam.setProgress(sanchezm.marcaram());
         sanchezlblRamDetalle.setText(MarcaMonitorSistema.sanchezbytes(sanchezm.marcaramUsada()) + " de " + MarcaMonitorSistema.sanchezbytes(sanchezm.marcaramTotal()));
 
-        marcalblDisco.setText(sanchezporcentaje(sanchezm.marcadisco())); // K
-        marcapbDisco.setProgress(sanchezm.marcadisco()); // K
-        sanchezlblDiscoDetalle.setText(MarcaMonitorSistema.sanchezbytes(sanchezm.marcadiscoUsado()) + " de " + MarcaMonitorSistema.sanchezbytes(sanchezm.marcadiscoTotal())); // K
+        marcalblDisco.setText(sanchezporcentaje(sanchezm.marcadisco()));
+        marcapbDisco.setProgress(sanchezm.marcadisco());
+        sanchezlblDiscoDetalle.setText(MarcaMonitorSistema.sanchezbytes(sanchezm.marcadiscoUsado()) + " de " + MarcaMonitorSistema.sanchezbytes(sanchezm.marcadiscoTotal()));
 
         if (sanchezm.marcahayBateria()) {
-            marcalblBateria.setText(sanchezporcentaje(sanchezm.marcabateria())); // K
+            marcalblBateria.setText(sanchezporcentaje(sanchezm.marcabateria()));
             marcapbBateria.setProgress(sanchezm.marcabateria());
-            sanchezlblBateriaDetalle.setText(sanchezm.sanchezcargando() ? "Cargando o conectada" : "Con batería"); // Y
+            sanchezlblBateriaDetalle.setText(sanchezm.sanchezcargando() ? "Cargando o conectada" : "Con batería");
         } else {
             marcalblBateria.setText("—");
             marcapbBateria.setProgress(0);
             sanchezlblBateriaDetalle.setText("Equipo sin batería");
         }
-        sanchezlblEncendido.setText(MarcaMonitorSistema.sanchezduracion(sanchezm.sanchezsegundosEncendido())); // K
+        sanchezlblEncendido.setText(MarcaMonitorSistema.sanchezduracion(sanchezm.sanchezsegundosEncendido()));
 
-        sancheztick++; // Y
+        sancheztick++;
         marcaserieCpu.getData().add(new XYChart.Data<>(sancheztick, sanchezm.marcacpu() * 100));
         marcaserieRam.getData().add(new XYChart.Data<>(sancheztick, sanchezm.marcaram() * 100));
         if (marcaserieCpu.getData().size() > PUNTOS_GRAFICO) {
             marcaserieCpu.getData().remove(0);
             marcaserieRam.getData().remove(0);
         }
-    } // Y
+    }
 
     private void marcacargarEnSegundoPlano() {
         sanchezejecutor.execute(() -> {
             try {
                 MarcaMonitorSistema.SanchezInfoEquipo marcainfo = marcamonitor.info();
                 List<MarcaRegistroActividad> marcarecientes = sanchezactividad.marcarecientes();
-                String marcaollama = marcaestadoOllama(); // Y
+                String marcaollama = marcaestadoOllama();
                 boolean marcaollamaOk = marcaollama.startsWith("Ollama conectado");
                 Platform.runLater(() -> {
                     marcalblSo.setText(marcainfo.marcasistema());
                     marcalblProcesador.setText(marcainfo.marcaprocesador());
                     sanchezlblNucleos.setText(marcainfo.sancheznucleos() + " procesadores lógicos");
-                    marcalblJava.setText("Java " + marcainfo.marcajava()); // K
-                    marcalblOllama.setText(marcaollama); // Y
+                    marcalblJava.setText("Java " + marcainfo.marcajava());
+                    marcalblOllama.setText(marcaollama);
                     sanchezicoOllama.getStyleClass().removeAll("estado-ok", "estado-falta");
                     sanchezicoOllama.getStyleClass().add(marcaollamaOk ? "estado-ok" : "estado-falta");
-                    sanchezmostrarActividad(marcarecientes); // Y
-                }); // Y
+                    sanchezmostrarActividad(marcarecientes);
+                });
             } catch (Throwable sancheze) {
                 log.warn("No se pudo cargar el panel de inicio", sancheze);
             }
@@ -213,7 +212,7 @@ public class MarcaDashboardController implements MarcaRefrescable { // Y
     }
 
     private void sanchezmostrarActividad(List<MarcaRegistroActividad> marcaregistros) {
-        marcalistaActividad.getChildren().clear(); // K
+        marcalistaActividad.getChildren().clear();
         if (marcaregistros.isEmpty()) {
             Label marcavacio = new Label("Aún no hay actividad.");
             marcavacio.getStyleClass().add("text-muted");
@@ -221,13 +220,13 @@ public class MarcaDashboardController implements MarcaRefrescable { // Y
             return;
         }
         DateTimeFormatter marcaformato = DateTimeFormatter.ofPattern("dd/MM HH:mm");
-        for (MarcaRegistroActividad marcar : marcaregistros) { // K
+        for (MarcaRegistroActividad marcar : marcaregistros) {
             Label sanchezaccion = new Label(marcar.getAccion());
             sanchezaccion.getStyleClass().add("nombre-dependencia");
-            Label sanchezmeta = new Label(marcar.getUsuario() + " · " + marcar.getFecha().format(marcaformato)); // K
+            Label sanchezmeta = new Label(marcar.getUsuario() + " · " + marcar.getFecha().format(marcaformato));
             sanchezmeta.getStyleClass().addAll("text-small", "text-muted");
             HBox marcafila = new HBox(10, new FontIcon("fth-clock"), new VBox(2, sanchezaccion, sanchezmeta));
-            marcafila.setAlignment(javafx.geometry.Pos.CENTER_LEFT); // K
+            marcafila.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
             marcalistaActividad.getChildren().add(marcafila);
         }
     }
@@ -237,19 +236,19 @@ public class MarcaDashboardController implements MarcaRefrescable { // Y
             HttpClient marcacliente = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(2)).build();
             HttpRequest sanchezpeticion = HttpRequest.newBuilder(URI.create(marcapropiedades.getLlm().getUrl() + "/api/tags"))
                     .timeout(Duration.ofSeconds(2)).GET().build();
-            HttpResponse<String> marcarespuesta = marcacliente.send(sanchezpeticion, HttpResponse.BodyHandlers.ofString()); // Y
+            HttpResponse<String> marcarespuesta = marcacliente.send(sanchezpeticion, HttpResponse.BodyHandlers.ofString());
             if (marcarespuesta.statusCode() != 200) {
                 return "Ollama no responde bien";
-            } // Y
-            Matcher sanchezm = Pattern.compile("\"name\"\\s*:").matcher(marcarespuesta.body()); // K
+            }
+            Matcher sanchezm = Pattern.compile("\"name\"\\s*:").matcher(marcarespuesta.body());
             int sanchezmodelos = 0;
             while (sanchezm.find()) {
                 sanchezmodelos++;
             }
             return "Ollama conectado · " + sanchezmodelos + (sanchezmodelos == 1 ? " modelo" : " modelos");
         } catch (InterruptedException sancheze) {
-            Thread.currentThread().interrupt(); // K
-            return "Ollama no disponible"; // Y
+            Thread.currentThread().interrupt();
+            return "Ollama no disponible";
         } catch (Exception sancheze) {
             return "Ollama no disponible";
         }
@@ -258,22 +257,22 @@ public class MarcaDashboardController implements MarcaRefrescable { // Y
     @FXML
     private void sanchezalIrAlAsistente() {
         sancheznavegador.marcairA("asistente");
-    } // K
+    }
 
     @FXML
     private void sanchezalIrAlDiagnostico() {
-        sancheznavegador.marcairA("diagnostico"); // K
+        sancheznavegador.marcairA("diagnostico");
     }
 
     @FXML
     private void marcaalAbrirCarpetaDatos() {
-        marcaabrir(marcapropiedades.getDirectorioBase()); // K
-    } // Y
+        marcaabrir(marcapropiedades.getDirectorioBase());
+    }
 
     @FXML
-    private void marcaalAbrirCapturas() { // Y
+    private void marcaalAbrirCapturas() {
         marcaabrir(marcapropiedades.getCarpetaCapturas());
-    } // K
+    }
 
     @FXML
     private void marcaalAbrirNotas() {
@@ -283,13 +282,13 @@ public class MarcaDashboardController implements MarcaRefrescable { // Y
 
     private void marcaabrir(Path marcacarpeta) {
         try {
-            Files.createDirectories(marcacarpeta); // Y
-            sanchezlanzador.marcaabrir(marcacarpeta); // Y
-            sanchezactividad.sanchezregistrar("Abrió una carpeta", marcacarpeta.toString()); // Y
+            Files.createDirectories(marcacarpeta);
+            sanchezlanzador.marcaabrir(marcacarpeta);
+            sanchezactividad.sanchezregistrar("Abrió una carpeta", marcacarpeta.toString());
         } catch (Exception sancheze) {
             log.warn("No se pudo abrir {}", marcacarpeta, sancheze);
         }
-    } // Y
+    }
 
     private static String sanchezporcentaje(double sanchezfraccion) {
         return Math.round(sanchezfraccion * 100) + " %";

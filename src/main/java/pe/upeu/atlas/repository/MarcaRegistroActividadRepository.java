@@ -1,4 +1,3 @@
-// Autores: K (Kevin) y Y (Yenifher)
 package pe.upeu.atlas.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -6,7 +5,7 @@ import pe.upeu.atlas.model.MarcaRegistroActividad;
 
 import java.util.List;
 
-public interface MarcaRegistroActividadRepository extends JpaRepository<MarcaRegistroActividad, Long> { // K
+public interface MarcaRegistroActividadRepository extends JpaRepository<MarcaRegistroActividad, Long> {
 
     List<MarcaRegistroActividad> findTop8ByOrderByFechaDescIdDesc();
 
@@ -15,4 +14,4 @@ public interface MarcaRegistroActividadRepository extends JpaRepository<MarcaReg
     List<MarcaRegistroActividad> findTop5000ByOrderByFechaDescIdDesc();
 
     List<MarcaRegistroActividad> findTop5000ByUsuarioOrderByFechaDescIdDesc(String usuario);
-} // Y
+}
