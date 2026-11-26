@@ -62,6 +62,8 @@ Write-Host "Instalacion de Atlas en $Raiz  (espacio libre: $libre GB)"
 if ($libre -lt 8) { Write-Host '[!!] Se recomiendan al menos 8 GB libres si es la primera instalacion.' -ForegroundColor Yellow }
 
 Paso '1/5 Java'
+if ($SinCompilar) { Write-Host '[ok] Java ya viene incluido con Atlas' }
+else {
 $jdk = BuscarJdk
 if (-not $jdk) {
     Descargar $UrlJdk "$Descargas\jdk21.zip" $null
@@ -72,6 +74,7 @@ if (-not $jdk) {
 $env:JAVA_HOME = $jdk
 $env:Path = "$jdk\bin;$env:Path"
 Write-Host "[ok] Java: $jdk"
+}
 
 Paso '2/5 Ollama (motor de inteligencia artificial)'
 $ollamaLocal = "$Herramientas\ollama\ollama.exe"
@@ -141,4 +144,9 @@ else {
 }
 
 Write-Host ''
-Write-Host 'Instalacion terminada. Abre Atlas con doble clic en INICIAR.bat' -ForegroundColor Green
+if ($SinCompilar) {
+    Write-Host 'Componentes listos. Ya puede abrir Atlas.' -ForegroundColor Green
+    Start-Sleep 6
+} else {
+    Write-Host 'Instalacion terminada. Abre Atlas con doble clic en INICIAR.bat' -ForegroundColor Green
+}
